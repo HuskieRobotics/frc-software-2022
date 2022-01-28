@@ -77,7 +77,7 @@ Children:
           validators: null
           value: whileHeld
       Base: Joystick Button
-      Name: Joystick Button 0.1
+      Name: Joystick Button 0_1
     Properties:
       Number: !!robotbuilder.data.properties.ChoicesProperty
         choices: &id004 ['0', '1', '2', '3', '4', '5']
@@ -124,7 +124,7 @@ Children:
           validators: null
           value: whenPressed
       Base: Joystick Button
-      Name: Joystick Button 1.1
+      Name: Joystick Button 1_1
     Properties:
       Number: !!robotbuilder.data.properties.ChoicesProperty
         choices: *id004
