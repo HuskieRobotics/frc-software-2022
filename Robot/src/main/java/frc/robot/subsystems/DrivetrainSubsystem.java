@@ -4,10 +4,13 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -50,6 +53,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   // Here we calculate the theoretical maximum angular velocity. You can also replace this with a measured amount.
   public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
           Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
+private static final double SWERVE_PID_D = 0;
 
   private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
           // Front left
@@ -75,6 +79,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private final SwerveModule m_frontRightModule;
   private final SwerveModule m_backLeftModule;
   private final SwerveModule m_backRightModule;
+  private boolean isFieldRelative;
+  private boolean isJoystickControlAllowed;
+  private final Translation2d m_frontLeftLocation;
+  private final Translation2d m_frontRightLocation;
+  private final Translation2d m_backLeftLocation;
+  private final Translation2d m_backRightLocation;
+  private Translation2d m_robotCenter;
+  private final PIDController pid;
 
   private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, Rotation2d.fromDegrees(m_pigeon.getFusedHeading()));
 
@@ -82,6 +94,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public DrivetrainSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
+    this.isFieldRelative = false;
+    this.isJoystickControlAllowed = true;
+    this.m_robotCenter = new Translation2d(0,0);
+    this.m_frontLeftLocation = new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
+    this.m_frontRightLocation = new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0);
+    this.m_backLeftLocation = new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
+    this.m_backRightLocation = new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0);
+    this.pid = new PIDController(SWERVE_PID_P, SWERVE_PID_I, SWERVE_PID_D);
 
     // There are 4 methods you can call to create your swerve modules.
     // The method you use depends on what motors you are using.
@@ -186,10 +206,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   public void drive(ChassisSpeeds chassisSpeeds) {
-    m_chassisSpeeds = chassisSpeeds;
+          if(isJoystickControlAllowed){
+                m_chassisSpeeds = chassisSpeeds;
+          }
+ 
   }
 
-  @Override
+  @Override     
   public void periodic() {
         m_odometry.update(Rotation2d.fromDegrees(m_pigeon.getFusedHeading()),
         new SwerveModuleState(m_frontLeftModule.getDriveVelocity(), new Rotation2d(m_frontLeftModule.getSteerAngle())),
@@ -197,11 +220,75 @@ public class DrivetrainSubsystem extends SubsystemBase {
         new SwerveModuleState(m_backLeftModule.getDriveVelocity(), new Rotation2d(m_backLeftModule.getSteerAngle())),
         new SwerveModuleState(m_backRightModule.getDriveVelocity(), new Rotation2d(m_backRightModule.getSteerAngle()))
         );
-    SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
+        
+        if(this.getFieldRelative()){
+           //SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds.fromFieldRelativeSpeeds(m_chassisSpeeds.vxMetersPerSecond,m_chassisSpeeds.vyMetersPerSecond,m_chassisSpeeds.omegaRadiansPerSecond, getGyroscopeRotation())); 
+           m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(m_chassisSpeeds.vxMetersPerSecond, m_chassisSpeeds.vyMetersPerSecond, m_chassisSpeeds.omegaRadiansPerSecond, getGyroscopeRotation());
+        }
 
-    m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[0].angle.getRadians());
-    m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
-    m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[2].angle.getRadians());
-    m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());
+        SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);    
+           m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[0].angle.getRadians());
+           m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
+           m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[2].angle.getRadians());
+           m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());
+        }
+
+  public boolean getFieldRelative(){
+          return isFieldRelative;
+  }
+  public void fieldRelativeToggle(){
+        if(isFieldRelative){
+                this.isFieldRelative = false;
+        }
+        else {
+                this.isFieldRelative = true;
+        }
+  }
+
+  public void feildRelativeOn() {
+        this.isFieldRelative = true;
+  }
+
+  public void feildRelativeOff(){
+        this.isFieldRelative = false;
+  }
+
+  public void enableJoystickControlls() {
+        this.isJoystickControlAllowed = true;
+  }
+  
+  public void disableJoystickControlls() {
+          this.isJoystickControlAllowed = false;
+  }
+   
+
+  public void setDesiredState(SwerveModuleState desiredState, SwerveModule module){
+        SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(module.getSteerAngle()));
+
+        double swerveGetDistance = module.getSteerAngle();
+
+
+        double swerveOutput = pid.calculate(swerveGetDistance, state.angle.getRadians());
+
+        module.set(0, swerveOutput);
+  }
+
+  public void setXStance(){
+          //FL
+          setDesiredState(new SwerveModuleState(0, new Rotation2d(this.m_frontLeftLocation.getX(), this.m_frontLeftLocation.getY())), this.m_frontLeftModule);
+          //FR
+          setDesiredState(new SwerveModuleState(0, new Rotation2d(this.m_frontRightLocation.getX(), this.m_frontRightLocation.getY())), m_frontRightModule);
+          //BL
+          setDesiredState(new SwerveModuleState(0, new Rotation2d(this.m_backLeftLocation.getX(), this.m_backLeftLocation.getY())), m_backLeftModule);
+          //BR
+          setDesiredState(new SwerveModuleState(0, new Rotation2d(this.m_backRightLocation.getX(), this.m_backRightLocation.getY())), m_backRightModule);
+        
+  }
+
+  public void setCenterGrav(Translation2d center){
+        this.m_robotCenter = center;
+
   }
 }
+
+
