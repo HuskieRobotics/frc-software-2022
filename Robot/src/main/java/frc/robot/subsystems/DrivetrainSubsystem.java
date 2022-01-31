@@ -53,7 +53,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
   // Here we calculate the theoretical maximum angular velocity. You can also replace this with a measured amount.
   public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
           Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
-private static final double SWERVE_PID_D = 0;
+  private static final double SWERVE_PID_D = 0;
+
+  
 
   private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
           // Front left
@@ -209,6 +211,9 @@ private static final double SWERVE_PID_D = 0;
           if(isJoystickControlAllowed){
                 m_chassisSpeeds = chassisSpeeds;
           }
+          if(this.getFieldRelative()){ 
+                m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(m_chassisSpeeds.vxMetersPerSecond, m_chassisSpeeds.vyMetersPerSecond, m_chassisSpeeds.omegaRadiansPerSecond, getGyroscopeRotation());
+             }
  
   }
 
@@ -221,10 +226,7 @@ private static final double SWERVE_PID_D = 0;
         new SwerveModuleState(m_backRightModule.getDriveVelocity(), new Rotation2d(m_backRightModule.getSteerAngle()))
         );
         
-        if(this.getFieldRelative()){
-           //SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds.fromFieldRelativeSpeeds(m_chassisSpeeds.vxMetersPerSecond,m_chassisSpeeds.vyMetersPerSecond,m_chassisSpeeds.omegaRadiansPerSecond, getGyroscopeRotation())); 
-           m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(m_chassisSpeeds.vxMetersPerSecond, m_chassisSpeeds.vyMetersPerSecond, m_chassisSpeeds.omegaRadiansPerSecond, getGyroscopeRotation());
-        }
+        
 
         SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);    
            m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[0].angle.getRadians());
