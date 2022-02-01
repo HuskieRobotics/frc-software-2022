@@ -30,7 +30,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * <p>
    * This can be reduced to cap the robot's maximum speed. Typically, this is useful during initial testing of the robot.
    */
-  public static final double MAX_VOLTAGE = 12.0;
+  public static final double MAX_VOLTAGE = 13.0;
   // FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
   //  The formula for calculating the theoretical maximum velocity is:
   //   <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> * pi
@@ -73,8 +73,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
   // cause the angle reading to increase until it wraps back over to zero.
   // FIXME Remove if you are using a Pigeon
   private final PigeonIMU m_pigeon = new PigeonIMU(DRIVETRAIN_PIGEON_ID);
-  // FIXME Uncomment if you are using a NavX
-//  private final AHRS m_navx = new AHRS(SPI.Port.kMXP, (byte) 200); // NavX connected over MXP
 
   // These are our modules. We initialize them in the constructor.
   private final SwerveModule m_frontLeftModule;
@@ -88,7 +86,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private final Translation2d m_backLeftLocation;
   private final Translation2d m_backRightLocation;
   private Translation2d m_robotCenter;
-  private final PIDController pid;
+
 
   private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, Rotation2d.fromDegrees(m_pigeon.getFusedHeading()));
 
@@ -103,7 +101,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     this.m_frontRightLocation = new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0);
     this.m_backLeftLocation = new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
     this.m_backRightLocation = new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0);
-    this.pid = new PIDController(SWERVE_PID_P, SWERVE_PID_I, SWERVE_PID_D);
+    
 
     // There are 4 methods you can call to create your swerve modules.
     // The method you use depends on what motors you are using.
@@ -189,31 +187,19 @@ public class DrivetrainSubsystem extends SubsystemBase {
     // FIXME Remove if you are using a Pigeon
     m_pigeon.setFusedHeading(0.0);
 
-    // FIXME Uncomment if you are using a NavX
-//    m_navx.zeroYaw();
   }
 
   public Rotation2d getGyroscopeRotation() {
     // FIXME Remove if you are using a Pigeon
     return Rotation2d.fromDegrees(m_pigeon.getFusedHeading());
 
-    // FIXME Uncomment if you are using a NavX
-//    if (m_navx.isMagnetometerCalibrated()) {
-//      // We will only get valid fused headings if the magnetometer is calibrated
-//      return Rotation2d.fromDegrees(m_navx.getFusedHeading());
-//    }
-//
-//    // We have to invert the angle of the NavX so that rotating the robot counter-clockwise makes the angle increase.
-//    return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
   }
 
   public void drive(ChassisSpeeds chassisSpeeds) {
           if(isJoystickControlAllowed){
                 m_chassisSpeeds = chassisSpeeds;
           }
-          if(this.getFieldRelative()){ 
-                m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(m_chassisSpeeds.vxMetersPerSecond, m_chassisSpeeds.vyMetersPerSecond, m_chassisSpeeds.omegaRadiansPerSecond, getGyroscopeRotation());
-             }
+          
  
   }
 
@@ -226,7 +212,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
         new SwerveModuleState(m_backRightModule.getDriveVelocity(), new Rotation2d(m_backRightModule.getSteerAngle()))
         );
         
-        
+        if(this.getFieldRelative()){ 
+                m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(m_chassisSpeeds.vxMetersPerSecond, m_chassisSpeeds.vyMetersPerSecond, m_chassisSpeeds.omegaRadiansPerSecond, getGyroscopeRotation());
+             }
 
         SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);    
            m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[0].angle.getRadians());
@@ -263,8 +251,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
           this.isJoystickControlAllowed = false;
   }
    
-
-  public void setDesiredState(SwerveModuleState desiredState, SwerveModule module){
+// remove method sds has set() method
+  /*public void setDesiredState(SwerveModuleState desiredState, SwerveModule module){
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(module.getSteerAngle()));
 
         double swerveGetDistance = module.getSteerAngle();
@@ -273,9 +261,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
         double swerveOutput = pid.calculate(swerveGetDistance, state.angle.getRadians());
 
         module.set(0, swerveOutput);
-  }
+  }*/
 
-  public void setXStance(){
+  //redo this method using set() from sds lib
+/*  public void setXStance(){
           //FL
           setDesiredState(new SwerveModuleState(0, new Rotation2d(this.m_frontLeftLocation.getX(), this.m_frontLeftLocation.getY())), this.m_frontLeftModule);
           //FR
@@ -285,7 +274,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
           //BR
           setDesiredState(new SwerveModuleState(0, new Rotation2d(this.m_backRightLocation.getX(), this.m_backRightLocation.getY())), m_backRightModule);
         
-  }
+  }*/
 
   public void setCenterGrav(Translation2d center){
         this.m_robotCenter = center;
