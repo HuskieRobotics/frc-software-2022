@@ -11,6 +11,7 @@ import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -73,6 +74,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   // cause the angle reading to increase until it wraps back over to zero.
   // FIXME Remove if you are using a Pigeon
   private final PigeonIMU m_pigeon = new PigeonIMU(DRIVETRAIN_PIGEON_ID);
+  
 
   // These are our modules. We initialize them in the constructor.
   private final SwerveModule m_frontLeftModule;
@@ -88,20 +90,21 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private Translation2d m_robotCenter;
 
 
-  private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, Rotation2d.fromDegrees(m_pigeon.getFusedHeading()));
+ private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, Rotation2d.fromDegrees(m_pigeon.getYaw()));
 
   private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
   public DrivetrainSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
-    this.isFieldRelative = false;
+    this.isFieldRelative = true;
     this.isJoystickControlAllowed = true;
     this.m_robotCenter = new Translation2d(0,0);
     this.m_frontLeftLocation = new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
     this.m_frontRightLocation = new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0);
     this.m_backLeftLocation = new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
     this.m_backRightLocation = new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0);
-    
+
+    m_pigeon.setYaw(0.0);
 
     // There are 4 methods you can call to create your swerve modules.
     // The method you use depends on what motors you are using.
@@ -177,6 +180,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     tab.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
     tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
     tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
+    tab.addNumber("Yaw",() -> m_pigeon.getYaw());
   }
 
   /**
@@ -188,12 +192,21 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_pigeon.setFusedHeading(0.0);
 
   }
+  public void zeroPoseGyroscope(){
+          m_odometry.resetPosition(new Pose2d(m_odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0.0)),
+          Rotation2d.fromDegrees(m_pigeon.getFusedHeading()));
+  }
 
   public Rotation2d getGyroscopeRotation() {
     // FIXME Remove if you are using a Pigeon
-    return Rotation2d.fromDegrees(m_pigeon.getFusedHeading());
-
+    return Rotation2d.fromDegrees(m_pigeon.getYaw());
   }
+
+    public Rotation2d getRotation(){
+            return m_odometry.getPoseMeters().getRotation();
+    }
+
+  
 
   public void drive(ChassisSpeeds chassisSpeeds) {
           if(isJoystickControlAllowed){
@@ -204,18 +217,20 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   @Override     
-  public void periodic() {
-        m_odometry.update(Rotation2d.fromDegrees(m_pigeon.getFusedHeading()),
+  public void periodic() {  
+         
+        m_odometry.update(Rotation2d.fromDegrees(m_pigeon.getYaw()),
         new SwerveModuleState(m_frontLeftModule.getDriveVelocity(), new Rotation2d(m_frontLeftModule.getSteerAngle())),
         new SwerveModuleState(m_frontRightModule.getDriveVelocity(), new Rotation2d(m_frontRightModule.getSteerAngle())),
         new SwerveModuleState(m_backLeftModule.getDriveVelocity(), new Rotation2d(m_backLeftModule.getSteerAngle())),
         new SwerveModuleState(m_backRightModule.getDriveVelocity(), new Rotation2d(m_backRightModule.getSteerAngle()))
         );
         
+  /*      
         if(this.getFieldRelative()){ 
                 m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(m_chassisSpeeds.vxMetersPerSecond, m_chassisSpeeds.vyMetersPerSecond, m_chassisSpeeds.omegaRadiansPerSecond, getGyroscopeRotation());
              }
-
+*/
         SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);    
            m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[0].angle.getRadians());
            m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
@@ -250,7 +265,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public void disableJoystickControlls() {
           this.isJoystickControlAllowed = false;
   }
-   
+ 
 // remove method sds has set() method
   /*public void setDesiredState(SwerveModuleState desiredState, SwerveModule module){
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(module.getSteerAngle()));
@@ -279,6 +294,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public void setCenterGrav(Translation2d center){
         this.m_robotCenter = center;
 
+  }
+
+  public void zeroGyroscopePose(){
+          
   }
 }
 
