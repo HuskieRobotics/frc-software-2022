@@ -43,6 +43,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * <p>
    * This is a measure of how fast the robot should be able to drive in a straight line.
    */
+  //6380.0/60.0
   public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
           SdsModuleConfigurations.MK3_STANDARD.getDriveReduction() *
           SdsModuleConfigurations.MK3_STANDARD.getWheelDiameter() * Math.PI;
@@ -96,7 +97,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public DrivetrainSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
-    this.isFieldRelative = true;
+    this.isFieldRelative = false;
     this.isJoystickControlAllowed = true;
     this.m_robotCenter = new Translation2d(0,0);
     this.m_frontLeftLocation = new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
@@ -279,17 +280,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }*/
 
   //redo this method using set() from sds lib
-/*  public void setXStance(){
-          //FL
-          setDesiredState(new SwerveModuleState(0, new Rotation2d(this.m_frontLeftLocation.getX(), this.m_frontLeftLocation.getY())), this.m_frontLeftModule);
-          //FR
-          setDesiredState(new SwerveModuleState(0, new Rotation2d(this.m_frontRightLocation.getX(), this.m_frontRightLocation.getY())), m_frontRightModule);
-          //BL
-          setDesiredState(new SwerveModuleState(0, new Rotation2d(this.m_backLeftLocation.getX(), this.m_backLeftLocation.getY())), m_backLeftModule);
-          //BR
-          setDesiredState(new SwerveModuleState(0, new Rotation2d(this.m_backRightLocation.getX(), this.m_backRightLocation.getY())), m_backRightModule);
-        
-  }*/
+  public void setXStance(){
+         //FL
+         m_frontLeftModule.set(0, Math.PI*5/4);
+         //FR
+         m_frontRightModule.set(0, Math.PI*-5/4);
+         //BL
+         m_backLeftModule.set(0, Math.PI*3/4);
+         //BR
+         m_backRightModule.set(0, Math.PI*-3/4);
+         
+  }
 
   public void setCenterGrav(Translation2d center){
         this.m_robotCenter = center;
