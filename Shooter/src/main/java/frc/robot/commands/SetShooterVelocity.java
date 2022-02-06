@@ -8,6 +8,7 @@ public class SetShooterVelocity extends CommandBase{
     private shooter st;
     public SetShooterVelocity(shooter shooter) {
         st = shooter;
+        
     }
 
     // Called when the command is initially scheduled.
@@ -19,8 +20,8 @@ public class SetShooterVelocity extends CommandBase{
     @Override
     public void execute() {
         double distance = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
-        double velo = st.getShooterPowerMap(distance);
-        st.setFlywheelPower(velo);
+        double velo = st.getShooterVeloMap(distance);
+        st.setFlywheelVelo(velo);
     }
 
     // Called once the command ends or is interrupted.
