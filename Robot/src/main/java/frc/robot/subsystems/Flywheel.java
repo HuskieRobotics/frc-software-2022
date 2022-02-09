@@ -14,7 +14,9 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import frc.robot.Constants;
+import frc.robot.commands.*;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
@@ -123,6 +125,9 @@ talonRight = new WPI_TalonFX(2);
         this.leftClosedLoopErrorNT = Shuffleboard.getTab("Shooter")
                 .add("FlywheelLeftClosedLoopError", 0.0)
                 .getEntry();
+
+        Shuffleboard.getTab("Shooter").add("SpinFlywheelForFenderCommand", new SpinFlywheelCommand(this, Constants.FLYWHEEL_FENDER_VELOCITY));
+        Shuffleboard.getTab("Shooter").add("StopFlywheelCommand", new InstantCommand(this::stopFlywheel, this));
 
     }
 

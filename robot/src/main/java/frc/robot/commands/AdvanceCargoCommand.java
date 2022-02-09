@@ -8,6 +8,8 @@ public class AdvanceCargoCommand extends CommandBase{
     
     public AdvanceCargoCommand(Feeder feeder) {
         this.feeder = feeder;
+
+        this.addRequirements(this.feeder);
     }
 
     // Called when the command is initially scheduled.

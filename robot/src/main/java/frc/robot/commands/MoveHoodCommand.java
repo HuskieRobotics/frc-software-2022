@@ -10,6 +10,8 @@ public class MoveHoodCommand extends CommandBase{
     public MoveHoodCommand(Hood hood, double position) {
         this.hood = hood;
         this.position = position;
+
+        this.addRequirements(this.hood);
     }
 
     // Called when the command is initially scheduled.

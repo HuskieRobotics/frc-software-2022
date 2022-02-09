@@ -10,6 +10,8 @@ public class SpinFlywheelCommand extends CommandBase{
     public SpinFlywheelCommand(Flywheel flywheel, double velocity) {
         this.flywheel = flywheel;
         this.velocity = velocity;
+        
+        this.addRequirements(this.flywheel);
     }
 
     // Called when the command is initially scheduled.

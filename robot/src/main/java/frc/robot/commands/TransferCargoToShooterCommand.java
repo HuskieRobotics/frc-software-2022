@@ -8,6 +8,8 @@ public class TransferCargoToShooterCommand extends CommandBase{
     
     public TransferCargoToShooterCommand(Feeder feeder) {
         this.feeder = feeder;
+
+        this.addRequirements(this.feeder);
     }
 
     // Called when the command is initially scheduled.
