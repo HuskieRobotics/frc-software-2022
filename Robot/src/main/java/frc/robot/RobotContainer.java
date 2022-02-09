@@ -130,12 +130,12 @@ public class RobotContainer {
     controlBoxButtons[0].whileHeld(
         new SequentialCommandGroup(
             new ParallelCommandGroup(
-                new SpinFlywheelCommand(m_flywheel, Constants.FLYWHEEL_FENDER_VELOCITY),
+                new SpinFlywheelCommand(m_flywheel, Constants.FlywheelConstants.FENDER_VELOCITY),
                 new InstantCommand(m_drivetrain::assumeXStance, m_drivetrain),
-                new MoveHoodCommand(m_hood, Constants.HOOD_FENDER_POSITION)),
+                new MoveHoodCommand(m_hood, Constants.HoodConstants.FENDER_POSITION)),
             new TransferCargoToShooterCommand(m_feeder),
             new ParallelCommandGroup(
-                new SpinFlywheelCommand(m_flywheel, Constants.FLYWHEEL_FENDER_VELOCITY),
+                new SpinFlywheelCommand(m_flywheel, Constants.FlywheelConstants.FENDER_VELOCITY),
                 new AdvanceCargoCommand(m_feeder)),
             new TransferCargoToShooterCommand(m_feeder)
         ));

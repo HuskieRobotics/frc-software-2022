@@ -12,7 +12,7 @@
 
 package frc.robot.subsystems;
 
-import frc.robot.Constants;
+import static frc.robot.Constants.FeederConstants.*;
 import frc.robot.commands.*;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -80,7 +80,7 @@ cargoDetection = new DigitalInput(0);
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
     public void advanceBelt() {
-        this.talonSRX4.set(Constants.FEEDER_MOTOR_POWER);
+        this.talonSRX4.set(MOTOR_POWER);
     }
 
     public void stopBelt() {

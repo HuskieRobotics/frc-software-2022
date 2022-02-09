@@ -13,7 +13,8 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
-import frc.robot.Constants;
+import static frc.robot.Constants.FlywheelConstants.*;
+import static frc.robot.Constants.*;
 import frc.robot.commands.*;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -80,39 +81,39 @@ public class Flywheel extends SubsystemBase {
 
         /* Config sensor used for Primary PID [Velocity] */
         this.talonRight.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,
-                Constants.FLYWHEEL_SLOT_INDEX,
-                Constants.FLYWHELL_TIMEOUT_MS);
+                SLOT_INDEX,
+                TIMEOUT_MS);
         this.talonLeft.configSelectedFeedbackSensor(TalonFXFeedbackDevice.RemoteSensor0,
-                Constants.FLYWHEEL_SLOT_INDEX,
-                Constants.FLYWHELL_TIMEOUT_MS);
+                SLOT_INDEX,
+                TIMEOUT_MS);
 
         /* Config the peak and nominal outputs */
-        this.talonRight.configNominalOutputForward(0, Constants.FLYWHELL_TIMEOUT_MS);
-        this.talonRight.configNominalOutputReverse(0, Constants.FLYWHELL_TIMEOUT_MS);
-        this.talonRight.configPeakOutputForward(1, Constants.FLYWHELL_TIMEOUT_MS);
-        this.talonRight.configPeakOutputReverse(-1, Constants.FLYWHELL_TIMEOUT_MS);
-        this.talonLeft.configNominalOutputForward(0, Constants.FLYWHELL_TIMEOUT_MS);
-        this.talonLeft.configNominalOutputReverse(0, Constants.FLYWHELL_TIMEOUT_MS);
-        this.talonLeft.configPeakOutputForward(1, Constants.FLYWHELL_TIMEOUT_MS);
-        this.talonLeft.configPeakOutputReverse(-1, Constants.FLYWHELL_TIMEOUT_MS);
+        this.talonRight.configNominalOutputForward(0, TIMEOUT_MS);
+        this.talonRight.configNominalOutputReverse(0, TIMEOUT_MS);
+        this.talonRight.configPeakOutputForward(1, TIMEOUT_MS);
+        this.talonRight.configPeakOutputReverse(-1, TIMEOUT_MS);
+        this.talonLeft.configNominalOutputForward(0, TIMEOUT_MS);
+        this.talonLeft.configNominalOutputReverse(0, TIMEOUT_MS);
+        this.talonLeft.configPeakOutputForward(1, TIMEOUT_MS);
+        this.talonLeft.configPeakOutputReverse(-1, TIMEOUT_MS);
 
         /* Config the Velocity closed loop gains in slot0 */
-        this.talonRight.config_kF(Constants.FLYWHEEL_SLOT_INDEX, Constants.FLYWHEEL_VELOCITY_GAINS.kF,
-                Constants.FLYWHELL_TIMEOUT_MS);
-        this.talonRight.config_kP(Constants.FLYWHEEL_SLOT_INDEX, Constants.FLYWHEEL_VELOCITY_GAINS.kP,
-                Constants.FLYWHELL_TIMEOUT_MS);
-        this.talonRight.config_kI(Constants.FLYWHEEL_SLOT_INDEX, Constants.FLYWHEEL_VELOCITY_GAINS.kI,
-                Constants.FLYWHELL_TIMEOUT_MS);
-        this.talonRight.config_kD(Constants.FLYWHEEL_SLOT_INDEX, Constants.FLYWHEEL_VELOCITY_GAINS.kD,
-                Constants.FLYWHELL_TIMEOUT_MS);
-        this.talonLeft.config_kF(Constants.FLYWHEEL_SLOT_INDEX, Constants.FLYWHEEL_VELOCITY_GAINS.kF,
-                Constants.FLYWHELL_TIMEOUT_MS);
-        this.talonLeft.config_kP(Constants.FLYWHEEL_SLOT_INDEX, Constants.FLYWHEEL_VELOCITY_GAINS.kP,
-                Constants.FLYWHELL_TIMEOUT_MS);
-        this.talonLeft.config_kI(Constants.FLYWHEEL_SLOT_INDEX, Constants.FLYWHEEL_VELOCITY_GAINS.kI,
-                Constants.FLYWHELL_TIMEOUT_MS);
-        this.talonLeft.config_kD(Constants.FLYWHEEL_SLOT_INDEX, Constants.FLYWHEEL_VELOCITY_GAINS.kD,
-                Constants.FLYWHELL_TIMEOUT_MS);
+        this.talonRight.config_kF(SLOT_INDEX, VELOCITY_GAINS.kF,
+                TIMEOUT_MS);
+        this.talonRight.config_kP(SLOT_INDEX, VELOCITY_GAINS.kP,
+                TIMEOUT_MS);
+        this.talonRight.config_kI(SLOT_INDEX, VELOCITY_GAINS.kI,
+                TIMEOUT_MS);
+        this.talonRight.config_kD(SLOT_INDEX, VELOCITY_GAINS.kD,
+                TIMEOUT_MS);
+        this.talonLeft.config_kF(SLOT_INDEX, VELOCITY_GAINS.kF,
+                TIMEOUT_MS);
+        this.talonLeft.config_kP(SLOT_INDEX, VELOCITY_GAINS.kP,
+                TIMEOUT_MS);
+        this.talonLeft.config_kP(SLOT_INDEX, VELOCITY_GAINS.kI,
+                TIMEOUT_MS);
+        this.talonLeft.config_kD(SLOT_INDEX, VELOCITY_GAINS.kD,
+                TIMEOUT_MS);
         /*
          * Talon FX does not need sensor phase set for its integrated sensor
          * This is because it will always be correct if the selected feedback device is
@@ -144,7 +145,7 @@ public class Flywheel extends SubsystemBase {
                 .getEntry();
 
         Shuffleboard.getTab("Shooter").add("SpinFlywheelForFenderCommand",
-                new SpinFlywheelCommand(this, Constants.FLYWHEEL_FENDER_VELOCITY));
+                new SpinFlywheelCommand(this, FENDER_VELOCITY));
         Shuffleboard.getTab("Shooter").add("StopFlywheelCommand", new InstantCommand(this::stopFlywheel, this));
 
         this.velocitySetPointNT = Shuffleboard.getTab("ShooterTuning")
@@ -189,12 +190,12 @@ public class Flywheel extends SubsystemBase {
     public void periodic() {
         // This method will be called once per scheduler run
         this.isAtSetpointNT.setBoolean(this.isAtSetpoint());
-        this.rightEncoderReadingNT.setDouble(this.talonRight.getSelectedSensorVelocity(Constants.FLYWHEEL_SLOT_INDEX));
-        this.leftEncoderReadingNT.setDouble(this.talonLeft.getSelectedSensorVelocity(Constants.FLYWHEEL_SLOT_INDEX));
-        this.rightClosedLoopErrorNT.setDouble(this.talonRight.getClosedLoopError(Constants.FLYWHEEL_SLOT_INDEX));
-        this.leftClosedLoopErrorNT.setDouble(this.talonLeft.getClosedLoopError(Constants.FLYWHEEL_SLOT_INDEX));
+        this.rightEncoderReadingNT.setDouble(this.talonRight.getSelectedSensorVelocity(SLOT_INDEX));
+        this.leftEncoderReadingNT.setDouble(this.talonLeft.getSelectedSensorVelocity(SLOT_INDEX));
+        this.rightClosedLoopErrorNT.setDouble(this.talonRight.getClosedLoopError(SLOT_INDEX));
+        this.leftClosedLoopErrorNT.setDouble(this.talonLeft.getClosedLoopError(SLOT_INDEX));
 
-        if (Constants.TUNING) {
+        if (TUNING) {
 
             // when tuning, we first set motor power and check the resulting velocity
             // once we have determined our feedforward constant, comment the following lines
@@ -204,22 +205,22 @@ public class Flywheel extends SubsystemBase {
             talonRight.set(TalonFXControlMode.PercentOutput, motorPower);
 
             // uncomment these lines after dtermining the feedforward
-            this.talonRight.config_kF(Constants.HOOD_SLOT_INDEX, this.FConstantNT.getDouble(0.0),
-                    Constants.HOOD_TIMEOUT_MS);
-            this.talonRight.config_kP(Constants.HOOD_SLOT_INDEX, this.PConstantNT.getDouble(0.0),
-                    Constants.HOOD_TIMEOUT_MS);
-            this.talonRight.config_kI(Constants.HOOD_SLOT_INDEX, this.IConstantNT.getDouble(0.0),
-                    Constants.HOOD_TIMEOUT_MS);
-            this.talonRight.config_kD(Constants.HOOD_SLOT_INDEX, this.DConstantNT.getDouble(0.0),
-                    Constants.HOOD_TIMEOUT_MS);
-            this.talonLeft.config_kF(Constants.HOOD_SLOT_INDEX, this.FConstantNT.getDouble(0.0),
-                    Constants.HOOD_TIMEOUT_MS);
-            this.talonLeft.config_kP(Constants.HOOD_SLOT_INDEX, this.PConstantNT.getDouble(0.0),
-                    Constants.HOOD_TIMEOUT_MS);
-            this.talonLeft.config_kI(Constants.HOOD_SLOT_INDEX, this.IConstantNT.getDouble(0.0),
-                    Constants.HOOD_TIMEOUT_MS);
-            this.talonLeft.config_kD(Constants.HOOD_SLOT_INDEX, this.DConstantNT.getDouble(0.0),
-                    Constants.HOOD_TIMEOUT_MS);
+            this.talonRight.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0),
+                    TIMEOUT_MS);
+            this.talonRight.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0),
+                    TIMEOUT_MS);
+            this.talonRight.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0),
+                    TIMEOUT_MS);
+            this.talonRight.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0),
+                    TIMEOUT_MS);
+            this.talonLeft.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0),
+                    TIMEOUT_MS);
+            this.talonLeft.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0),
+                    TIMEOUT_MS);
+            this.talonLeft.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0),
+                    TIMEOUT_MS);
+            this.talonLeft.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0),
+                    TIMEOUT_MS);
 
             double targetVelocity = this.velocitySetPointNT.getDouble(0.0);
             this.setVelocity(targetVelocity);
@@ -238,7 +239,7 @@ public class Flywheel extends SubsystemBase {
     // here. Call these from Commands.
 
     public double getVelocity() {
-        return this.talonLeft.getSelectedSensorVelocity(Constants.FLYWHEEL_SLOT_INDEX);
+        return this.talonLeft.getSelectedSensorVelocity(SLOT_INDEX);
     }
 
     public void setVelocity(double velocitySetPoint) {
@@ -249,7 +250,7 @@ public class Flywheel extends SubsystemBase {
     }
 
     public boolean isAtSetpoint() {
-        return Math.abs(this.getVelocity() - this.velocitySetPoint) < Constants.FLYWHEEL_VELOCITY_TOLERANCE;
+        return Math.abs(this.getVelocity() - this.velocitySetPoint) < VELOCITY_TOLERANCE;
     }
 
     public void stopFlywheel() {
