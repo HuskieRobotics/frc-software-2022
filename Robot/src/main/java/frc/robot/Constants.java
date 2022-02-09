@@ -21,6 +21,8 @@ package frc.robot;
  */
 public class Constants {
 
+    public static final boolean TUNING = false;
+
     // FLYWHEEL
     public static final double FLYWHEEL_FENDER_VELOCITY = 9000.0; // units: ticks per 100 ms
     public static final double FLYWHEEL_VELOCITY_TOLERANCE = 750.0;  // units: ticks per 100 ms
