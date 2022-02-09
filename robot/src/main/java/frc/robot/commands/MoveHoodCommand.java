@@ -3,6 +3,11 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Hood;
 
+/**
+ * This command sets the position setpoint for the hood to the specified value.
+ *  It ends when the hood reaches the specified setpoint and leaves the position setpoint active.
+ *  If interrupted, this command leaves the position setpoint active.
+ */
 public class MoveHoodCommand extends CommandBase{
     private Hood hood;
     private double position;

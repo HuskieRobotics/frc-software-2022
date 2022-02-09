@@ -127,6 +127,8 @@ public class Flywheel extends SubsystemBase {
 
         this.velocitySetPoint = 0.0;
 
+        // Each robot feature has its own Shuffleboard tab (i.e., "Shooter")
+        //  Add indicators and associated commands to this Shuffleboard tab to assist with testing specific commands.
         this.isAtSetpointNT = Shuffleboard.getTab("Shooter")
                 .add("FlywheelIsAtSetpoint", false)
                 .getEntry();
@@ -147,6 +149,10 @@ public class Flywheel extends SubsystemBase {
         Shuffleboard.getTab("Shooter").add("SpinFlywheelForFenderCommand",
                 new SpinFlywheelCommand(this, FENDER_VELOCITY));
         Shuffleboard.getTab("Shooter").add("StopFlywheelCommand", new InstantCommand(this::stopFlywheel, this));
+
+
+        // Each robot feature that requires PID tuniing has its own Shuffleboard tab for tuning (i.e., "ShooterTuning")
+        //  Add indicators and controls to this Shuffleboard tab to assist with interactively tuning the system.
 
         this.velocitySetPointNT = Shuffleboard.getTab("ShooterTuning")
                 .add("VelocitySetpoint", 0.0)
@@ -195,6 +201,7 @@ public class Flywheel extends SubsystemBase {
         this.rightClosedLoopErrorNT.setDouble(this.talonRight.getClosedLoopError(SLOT_INDEX));
         this.leftClosedLoopErrorNT.setDouble(this.talonLeft.getClosedLoopError(SLOT_INDEX));
 
+        // the following code will only run when we are tuning the system (i.e., not under normal robot operation)
         if (TUNING) {
 
             // when tuning, we first set motor power and check the resulting velocity
@@ -205,25 +212,25 @@ public class Flywheel extends SubsystemBase {
             talonRight.set(TalonFXControlMode.PercentOutput, motorPower);
 
             // uncomment these lines after dtermining the feedforward
-            this.talonRight.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0),
-                    TIMEOUT_MS);
-            this.talonRight.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0),
-                    TIMEOUT_MS);
-            this.talonRight.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0),
-                    TIMEOUT_MS);
-            this.talonRight.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0),
-                    TIMEOUT_MS);
-            this.talonLeft.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0),
-                    TIMEOUT_MS);
-            this.talonLeft.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0),
-                    TIMEOUT_MS);
-            this.talonLeft.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0),
-                    TIMEOUT_MS);
-            this.talonLeft.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0),
-                    TIMEOUT_MS);
+            // this.talonRight.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0),
+            //         TIMEOUT_MS);
+            // this.talonRight.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0),
+            //         TIMEOUT_MS);
+            // this.talonRight.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0),
+            //         TIMEOUT_MS);
+            // this.talonRight.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0),
+            //         TIMEOUT_MS);
+            // this.talonLeft.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0),
+            //         TIMEOUT_MS);
+            // this.talonLeft.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0),
+            //         TIMEOUT_MS);
+            // this.talonLeft.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0),
+            //         TIMEOUT_MS);
+            // this.talonLeft.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0),
+            //         TIMEOUT_MS);
 
-            double targetVelocity = this.velocitySetPointNT.getDouble(0.0);
-            this.setVelocity(targetVelocity);
+            // double targetVelocity = this.velocitySetPointNT.getDouble(0.0);
+            // this.setVelocity(targetVelocity);
 
         }
 

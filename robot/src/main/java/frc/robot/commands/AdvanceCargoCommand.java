@@ -3,6 +3,11 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Feeder;
 
+/**
+ * This command continuously runs the belt in the feeder until cargo at the shooter-end of the feeder is no longer detected,
+ *  meaning that it has been successfully transferred to the shooter, at which point it stops the belt.
+ *  If interrupted, this command stops the belt.
+ */
 public class AdvanceCargoCommand extends CommandBase{
     private Feeder feeder;
     

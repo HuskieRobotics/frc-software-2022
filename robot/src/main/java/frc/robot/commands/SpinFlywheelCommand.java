@@ -3,6 +3,11 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Flywheel;
 
+/**
+ * This command sets the velocity setpoint for the flywheel to the specified value.
+ *  It ends when the flywheel reaches the specified setpoint and leaves the velocity setpoint active (i.e., the flywheel continues to spin).
+ *  If interrupted, this command leaves the position setpoint active (i.e., the flywheel continues to spin).
+ */
 public class SpinFlywheelCommand extends CommandBase{
     private Flywheel flywheel;
     private double velocity;

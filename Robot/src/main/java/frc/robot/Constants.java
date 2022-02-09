@@ -8,15 +8,19 @@
 // update. Deleting the comments indicating the section will prevent
 // it from being updated in the future.
 
-
 package frc.robot;
 
 /**
- * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
- * constants.  This class should not be used for any other purpose.  All constants should be
- * declared globally (i.e. public static).  Do not put anything functional in this class.
+ * The Constants class provides a convenient place for teams to hold robot-wide
+ * numerical or boolean
+ * constants. This class should not be used for any other purpose. All constants
+ * should be
+ * declared globally (i.e. public static). Do not put anything functional in
+ * this class.
  *
- * <p>It is advised to statically import this class (or one of its inner classes) wherever the
+ * <p>
+ * It is advised to statically import this class (or one of its inner classes)
+ * wherever the
  * constants are needed, to reduce verbosity.
  */
 public class Constants {
@@ -25,82 +29,76 @@ public class Constants {
 
     // FLYWHEEL
     public static final class FlywheelConstants {
-    public static final double FENDER_VELOCITY = 9000.0; // units: ticks per 100 ms
-    public static final double VELOCITY_TOLERANCE = 750.0;  // units: ticks per 100 ms
+        public static final double FENDER_VELOCITY = 9000.0; // units: ticks per 100 ms
+        public static final double VELOCITY_TOLERANCE = 750.0; // units: ticks per 100 ms
 
-    /**
-	 * Which PID slot to pull gains from. Starting 2018, you can choose from
-	 * 0,1,2 or 3. Only the first two (0,1) are visible in web-based
-	 * configuration.
-	 */
-	public static final int SLOT_INDEX = 0;
+        /**
+         * Which PID slot to pull gains from. Starting 2018, you can choose from
+         * 0,1,2 or 3. Only the first two (0,1) are visible in web-based
+         * configuration.
+         */
+        public static final int SLOT_INDEX = 0;
 
-	/**
-	 * Talon FX supports multiple (cascaded) PID loops. For
-	 * now we just want the primary one.
-	 */
-	public static final int PID_LOOP_INDEX = 0;
+        /**
+         * Talon FX supports multiple (cascaded) PID loops. For
+         * now we just want the primary one.
+         */
+        public static final int PID_LOOP_INDEX = 0;
 
-	/**
-	 * Set to zero to skip waiting for confirmation, set to nonzero to wait and
-	 * report to DS if action fails.
-	 */
-    public static final int TIMEOUT_MS = 30;
+        /**
+         * Set to zero to skip waiting for confirmation, set to nonzero to wait and
+         * report to DS if action fails.
+         */
+        public static final int TIMEOUT_MS = 30;
 
-	/**
-	 * PID Gains may have to be adjusted based on the responsiveness of control loop.
-     * kF: 1023 represents output value to Talon at 100%, 20660 represents Velocity units at 100% output
-     * 
-	 * 	                                    			  kP   	 kI    kD      kF          Iz    PeakOut */
-   public final static Gains VELOCITY_GAINS  = new Gains( .34,      0,   0,    .05265,        0,    1.00);
+        /**
+         * PID Gains may have to be adjusted based on the responsiveness of control
+         * loop.
+         * kF: 1023 represents output value to Talon at 100%, 20660 represents Velocity
+         * units at 100% output
+         * 
+         * kP kI kD kF Iz PeakOut
+         */
+        public final static Gains VELOCITY_GAINS = new Gains(.34, 0, 0, .05265, 0, 1.00);
     };
 
-   // HOOD
-   public static final class HoodConstants {
-   public static final double FENDER_POSITION = 0.0; // units: ticks per 100 ms
-   public static final double POSITION_TOLERANCE = 10.0;  // units: ticks per 100 ms
+    // HOOD
+    public static final class HoodConstants {
+        public static final double FENDER_POSITION = 0.0; // units: ticks per 100 ms
+        public static final double POSITION_TOLERANCE = 10.0; // units: ticks per 100 ms
 
-   /**
-    * Which PID slot to pull gains from. Starting 2018, you can choose from
-    * 0,1,2 or 3. Only the first two (0,1) are visible in web-based
-    * configuration.
-    */
-   public static final int SLOT_INDEX = 0;
+        /**
+         * Which PID slot to pull gains from. Starting 2018, you can choose from
+         * 0,1,2 or 3. Only the first two (0,1) are visible in web-based
+         * configuration.
+         */
+        public static final int SLOT_INDEX = 0;
 
-   /**
-    * Talon FX supports multiple (cascaded) PID loops. For
-    * now we just want the primary one.
-    */
-   public static final int PID_LOOP_INDEX = 0;
+        /**
+         * Talon FX supports multiple (cascaded) PID loops. For
+         * now we just want the primary one.
+         */
+        public static final int PID_LOOP_INDEX = 0;
 
-   /**
-    * Set to zero to skip waiting for confirmation, set to nonzero to wait and
-    * report to DS if action fails.
-    */
-   public static final int TIMEOUT_MS = 30;
+        /**
+         * Set to zero to skip waiting for confirmation, set to nonzero to wait and
+         * report to DS if action fails.
+         */
+        public static final int TIMEOUT_MS = 30;
 
-   /**
-    * PID Gains may have to be adjusted based on the responsiveness of control loop.
-    * kF: 1023 represents output value to Talon at 100%, 20660 represents Velocity units at 100% output
-    * 
-    * 	                                    			      kP   	kI      kD      kF      Iz      PeakOut */
-  public final static Gains POSITION_GAINS  = new Gains( 0,    0,      0,      0,      0,      1.00);
-   };
+        /**
+         * PID Gains may have to be adjusted based on the responsiveness of control
+         * loop.
+         * kF: 1023 represents output value to Talon at 100%, 20660 represents Velocity
+         * units at 100% output
+         * 
+         * kP kI kD kF Iz PeakOut
+         */
+        public final static Gains POSITION_GAINS = new Gains(0, 0, 0, 0, 0, 1.00);
+    };
 
-  // FEEDER
-  public static final class FeederConstants {
-  public static final double MOTOR_POWER = 0.2;
-  };
-  
-
-
-   /**
-    * public static final class DriveConstants {
-    *   public static final int kLeftMotor1Port = 0;
-    *   public static final int kLeftMotor2Port = 1;
-    *   public static final int kRightMotor1Port = 2;
-    *   public static final int kRightMotor2Port = 3; 
-    * }
-    */ 
+    // FEEDER
+    public static final class FeederConstants {
+        public static final double MOTOR_POWER = 0.2;
+    };
 }
-

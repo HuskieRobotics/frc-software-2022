@@ -95,6 +95,10 @@ public class Hood extends SubsystemBase {
 
         this.positionSetPoint = 0.0;
 
+        // Each robot feature has its own Shuffleboard tab (i.e., "Shooter")
+        // Add indicators and associated commands to this Shuffleboard tab to assist
+        // with testing specific commands.
+
         this.encoderReadingNT = Shuffleboard.getTab("Shooter")
                 .add("HoodEncoderReading", 0.0)
                 .getEntry();
@@ -102,6 +106,11 @@ public class Hood extends SubsystemBase {
         this.closedLoopErrorNT = Shuffleboard.getTab("Shooter")
                 .add("HoodClosedLoopError", 0.0)
                 .getEntry();
+
+        // Each robot feature that requires PID tuniing has its own Shuffleboard tab for
+        // tuning (i.e., "ShooterTuning")
+        // Add indicators and controls to this Shuffleboard tab to assist with
+        // interactively tuning the system.
 
         this.positionSetPointNT = Shuffleboard.getTab("ShooterTuning")
                 .add("PositionSetpoint", 0.0)
@@ -134,6 +143,7 @@ public class Hood extends SubsystemBase {
         this.encoderReadingNT.setDouble(this.talonSRX3.getSelectedSensorPosition(SLOT_INDEX));
         this.closedLoopErrorNT.setDouble(this.talonSRX3.getClosedLoopError(SLOT_INDEX));
 
+        // the following code will only run when we are tuning the system (i.e., not under normal robot operation)
         if (TUNING) {
             this.talonSRX3.config_kF(SLOT_INDEX, 0.0,
                     TIMEOUT_MS);
