@@ -15,7 +15,7 @@ Children:
           validators: &id002 [CANID]
           value: '1'
       Base: Talon FX
-      Name: Talon FX 1
+      Name: TalonLeft
     - Children: []
       Properties:
         CAN ID: !!robotbuilder.data.properties.ChoicesProperty
@@ -25,7 +25,7 @@ Children:
           validators: *id002
           value: '2'
       Base: Talon FX
-      Name: Talon FX 2
+      Name: TalonRight
     Properties:
       Send to SmartDashboard: !!robotbuilder.data.properties.BooleanProperty {default: false,
         name: Send to SmartDashboard, validators: null, value: false}
@@ -84,6 +84,18 @@ Children:
           value: '4'
       Base: Talon SRX
       Name: Talon SRX 4
+    - Children: []
+      Properties:
+        Input Channel (Digital): !!robotbuilder.data.properties.ChoicesProperty
+          choices: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11',
+            '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23',
+            '24', '25']
+          default: '0'
+          name: Input Channel (Digital)
+          validators: [DigitalChannel]
+          value: '0'
+      Base: Digital Input
+      Name: CargoDetection
     Properties:
       Send to SmartDashboard: !!robotbuilder.data.properties.BooleanProperty {default: false,
         name: Send to SmartDashboard, validators: null, value: false}
@@ -100,7 +112,7 @@ Children:
         validators: null
         value: *id003
     Base: Subsystem
-    Name: Kicker
+    Name: Feeder
   Properties: {}
   Base: Subsystems
   Name: Subsystems

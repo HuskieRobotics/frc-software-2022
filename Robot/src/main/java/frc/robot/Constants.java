@@ -20,6 +20,74 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public class Constants {
+
+    // FLYWHEEL
+    public static final double FLYWHEEL_FENDER_VELOCITY = 9000.0; // units: ticks per 100 ms
+    public static final double FLYWHEEL_VELOCITY_TOLERANCE = 750.0;  // units: ticks per 100 ms
+
+    /**
+	 * Which PID slot to pull gains from. Starting 2018, you can choose from
+	 * 0,1,2 or 3. Only the first two (0,1) are visible in web-based
+	 * configuration.
+	 */
+	public static final int FLYWHEEL_SLOT_INDEX = 0;
+
+	/**
+	 * Talon FX supports multiple (cascaded) PID loops. For
+	 * now we just want the primary one.
+	 */
+	public static final int FLYWHEEL_PID_LOOP_INDEX = 0;
+
+	/**
+	 * Set to zero to skip waiting for confirmation, set to nonzero to wait and
+	 * report to DS if action fails.
+	 */
+    public static final int FLYWHELL_TIMEOUT_MS = 30;
+
+	/**
+	 * PID Gains may have to be adjusted based on the responsiveness of control loop.
+     * kF: 1023 represents output value to Talon at 100%, 20660 represents Velocity units at 100% output
+     * 
+	 * 	                                    			  kP   	 kI    kD      kF          Iz    PeakOut */
+   public final static Gains FLYWHEEL_VELOCITY_GAINS  = new Gains( .34,      0,   0,    .05265,        0,    1.00);
+
+
+   // HOOD
+   public static final double HOOD_FENDER_POSITION = 0.0; // units: ticks per 100 ms
+   public static final double HOOD_POSITION_TOLERANCE = 10.0;  // units: ticks per 100 ms
+
+   /**
+    * Which PID slot to pull gains from. Starting 2018, you can choose from
+    * 0,1,2 or 3. Only the first two (0,1) are visible in web-based
+    * configuration.
+    */
+   public static final int HOOD_SLOT_INDEX = 0;
+
+   /**
+    * Talon FX supports multiple (cascaded) PID loops. For
+    * now we just want the primary one.
+    */
+   public static final int HOOD_PID_LOOP_INDEX = 0;
+
+   /**
+    * Set to zero to skip waiting for confirmation, set to nonzero to wait and
+    * report to DS if action fails.
+    */
+   public static final int HOOD_TIMEOUT_MS = 30;
+
+   /**
+    * PID Gains may have to be adjusted based on the responsiveness of control loop.
+    * kF: 1023 represents output value to Talon at 100%, 20660 represents Velocity units at 100% output
+    * 
+    * 	                                    			      kP   	kI      kD      kF      Iz      PeakOut */
+  public final static Gains HOOD_POSITION_GAINS  = new Gains( 0,    0,      0,      0,      0,      1.00);
+
+
+  // FEEDER
+  public static final double FEEDER_MOTOR_POWER = 0.2;
+  
+
+
    /**
     * public static final class DriveConstants {
     *   public static final int kLeftMotor1Port = 0;
