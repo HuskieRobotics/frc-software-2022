@@ -110,7 +110,7 @@ public class Hood extends SubsystemBase {
         // Each robot feature that requires PID tuniing has its own Shuffleboard tab for
         // tuning (i.e., "ShooterTuning")
         // Add indicators and controls to this Shuffleboard tab to assist with
-        // interactively tuning the system.
+        // interactively tuning the system, which should be done in test mode (i.e., not teleop).
 
         this.positionSetPointNT = Shuffleboard.getTab("ShooterTuning")
                 .add("PositionSetpoint", 0.0)
