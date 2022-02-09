@@ -109,19 +109,19 @@ public class Hood extends SubsystemBase {
                 .getEntry();
 
         this.PConstantNT = Shuffleboard.getTab("ShooterTuning")
-                .add("P", 0.0)
+                .add("Hood P", 0.0)
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                 .getEntry();
 
         this.IConstantNT = Shuffleboard.getTab("ShooterTuning")
-                .add("I", 0.0)
+                .add("Hood I", 0.0)
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                 .getEntry();
 
         this.DConstantNT = Shuffleboard.getTab("ShooterTuning")
-                .add("D", 0.0)
+                .add("Hood D", 0.0)
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                 .getEntry();
