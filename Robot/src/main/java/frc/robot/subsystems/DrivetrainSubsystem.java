@@ -266,30 +266,18 @@ public class DrivetrainSubsystem extends SubsystemBase {
           this.isJoystickControlAllowed = false;
   }
  
-// remove method sds has set() method
-  /*public void setDesiredState(SwerveModuleState desiredState, SwerveModule module){
-        SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(module.getSteerAngle()));
 
-        double swerveGetDistance = module.getSteerAngle();
-
-
-        double swerveOutput = pid.calculate(swerveGetDistance, state.angle.getRadians());
-
-        module.set(0, swerveOutput);
-  }*/
-
-  //redo this method using set() from sds lib
-/*  public void setXStance(){
+  
+  public void setXStance(){
           //FL
-          setDesiredState(new SwerveModuleState(0, new Rotation2d(this.m_frontLeftLocation.getX(), this.m_frontLeftLocation.getY())), this.m_frontLeftModule);
+          m_frontLeftModule.set(0, Math.PI*5/4);
           //FR
-          setDesiredState(new SwerveModuleState(0, new Rotation2d(this.m_frontRightLocation.getX(), this.m_frontRightLocation.getY())), m_frontRightModule);
+          m_frontRightModule.set(0, Math.PI*-5/4);
           //BL
-          setDesiredState(new SwerveModuleState(0, new Rotation2d(this.m_backLeftLocation.getX(), this.m_backLeftLocation.getY())), m_backLeftModule);
+          m_backLeftModule.set(0, Math.PI*3/4);
           //BR
-          setDesiredState(new SwerveModuleState(0, new Rotation2d(this.m_backRightLocation.getX(), this.m_backRightLocation.getY())), m_backRightModule);
-        
-  }*/
+          m_backRightModule.set(0, Math.PI*-3/4);
+  }
 
   public void setCenterGrav(Translation2d center){
         this.m_robotCenter = center;
