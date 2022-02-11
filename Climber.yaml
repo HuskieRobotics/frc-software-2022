@@ -1,0 +1,145 @@
+Version 4.0
+
+---
+Children:
+- Children:
+  - Children:
+    - Children:
+      - Children: []
+        Properties:
+          CAN ID: !!robotbuilder.data.properties.ChoicesProperty
+            choices: &id001 ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+              '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22',
+              '23', '24', '25', '26', '27', '28', '29', '30', '31']
+            default: '2'
+            name: CAN ID
+            validators: &id002 [CANID]
+            value: '18'
+        Base: Talon FX
+        Name: Left Elevator Motor
+      - Children: []
+        Properties:
+          CAN ID: !!robotbuilder.data.properties.ChoicesProperty
+            choices: *id001
+            default: '2'
+            name: CAN ID
+            validators: *id002
+            value: '19'
+        Base: Talon FX
+        Name: Right Elevator Motor
+      Properties:
+        MotorController2: !!robotbuilder.data.properties.ChildSelectionProperty
+          default: 1
+          name: MotorController2
+          type: PIDOutput
+          validators: [MotorControllerGroup, ChildDropdownSelected]
+          value: Right Elevator Motor
+        MotorController1: !!robotbuilder.data.properties.ChildSelectionProperty
+          default: 0
+          name: MotorController1
+          type: PIDOutput
+          validators: [MotorControllerGroup, ChildDropdownSelected]
+          value: Left Elevator Motor
+        MotorController4: !!robotbuilder.data.properties.ChildSelectionProperty {
+          default: null, name: MotorController4, type: PIDOutput, validators: null,
+          value: null}
+        MotorController3: !!robotbuilder.data.properties.ChildSelectionProperty {
+          default: null, name: MotorController3, type: PIDOutput, validators: null,
+          value: null}
+      Base: Motor Controller Group
+      Name: Elevator Motors
+    Properties:
+      Send to SmartDashboard: !!robotbuilder.data.properties.BooleanProperty {default: false,
+        name: Send to SmartDashboard, validators: null, value: true}
+      Default command parameters: !!robotbuilder.data.properties.ParametersProperty
+        default: []
+        name: Default command parameters
+        validators: null
+        value: []
+      Default Command: !!robotbuilder.data.properties.TypeSelectionProperty {default: None,
+        name: Default Command, type: Command, validators: null, value: None}
+      Constants: !!robotbuilder.data.properties.ConstantsProperty
+        default: []
+        name: Constants
+        validators: null
+        value: &id003 []
+    Base: Subsystem
+    Name: Elevator
+  - Children:
+    - Children: []
+      Properties:
+        Output Module (Solenoid): !!robotbuilder.data.properties.ChoicesProperty
+          choices: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11',
+            '12', '13', '14', '15', '16', '17', '18', '19', '20']
+          default: '0'
+          name: Output Module (Solenoid)
+          validators: [Solenoid]
+          value: '20'
+        Output Channel (Solenoid): !!robotbuilder.data.properties.ChoicesProperty
+          choices: ['0', '1', '2', '3', '4', '5', '6', '7']
+          default: '0'
+          name: Output Channel (Solenoid)
+          validators: [Solenoid]
+          value: '1'
+        Output Module Type (Solenoid): !!robotbuilder.data.properties.ChoicesProperty
+          choices: [CTREPCM, REVPH]
+          default: CTREPCM
+          name: Output Module Type (Solenoid)
+          validators: null
+          value: REVPH
+      Base: Solenoid
+      Name: Secondary Mechanism
+    Properties:
+      Send to SmartDashboard: !!robotbuilder.data.properties.BooleanProperty {default: false,
+        name: Send to SmartDashboard, validators: null, value: true}
+      Default command parameters: !!robotbuilder.data.properties.ParametersProperty
+        default: []
+        name: Default command parameters
+        validators: null
+        value: []
+      Default Command: !!robotbuilder.data.properties.TypeSelectionProperty {default: None,
+        name: Default Command, type: Command, validators: null, value: None}
+      Constants: !!robotbuilder.data.properties.ConstantsProperty
+        default: []
+        name: Constants
+        validators: null
+        value: *id003
+    Base: Subsystem
+    Name: SecondMechanism
+  Properties: {}
+  Base: Subsystems
+  Name: Subsystems
+- Children: []
+  Properties: {}
+  Base: OI
+  Name: Operator Interface
+- Children: []
+  Properties: {}
+  Base: Commands
+  Name: Commands
+Properties:
+  Export Commands: !!robotbuilder.data.properties.BooleanProperty {default: true,
+    name: Export Commands, validators: null, value: true}
+  Desktop Support: !!robotbuilder.data.properties.BooleanProperty {default: false,
+    name: Desktop Support, validators: null, value: false}
+  Autonomous command parameters: !!robotbuilder.data.properties.ParametersProperty
+    default: []
+    name: Autonomous command parameters
+    validators: null
+    value: []
+  Java Package: !!robotbuilder.data.properties.StringProperty {default: frc.robot,
+    name: Java Package, validators: null, value: org.usfirst.frc3061}
+  Use Default Java Package: !!robotbuilder.data.properties.BooleanProperty {default: true,
+    name: Use Default Java Package, validators: null, value: true}
+  Team Number: !!robotbuilder.data.properties.IntegerProperty {default: 0, name: Team
+      Number, validators: null, value: 3061}
+  Export Subsystems: !!robotbuilder.data.properties.BooleanProperty {default: true,
+    name: Export Subsystems, validators: null, value: true}
+  Wiring file location: !!robotbuilder.data.properties.FileProperty {default: 'C:\Users\NNROBOT-HW01\',
+    extension: null, folder: true, name: Wiring file location, validators: null, value: 'C:\Users\NNROBOT-HW01\Documents\GitHub\frc-software-2022'}
+  Export Directory: !!robotbuilder.data.properties.FileProperty {default: 'C:\Users\NNROBOT-HW01\FRCProjects',
+    extension: null, folder: true, name: Export Directory, validators: null, value: 'C:\Users\NNROBOT-HW01\Documents\GitHub\frc-software-2022'}
+  Autonomous Command: !!robotbuilder.data.properties.TypeSelectionProperty {default: None,
+    name: Autonomous Command, type: Command, validators: null, value: None}
+Base: Robot
+Name: Climber
