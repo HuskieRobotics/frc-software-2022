@@ -20,13 +20,21 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public class Constants {
-   /**
-    * public static final class DriveConstants {
-    *   public static final int kLeftMotor1Port = 0;
-    *   public static final int kLeftMotor2Port = 1;
-    *   public static final int kRightMotor1Port = 2;
-    *   public static final int kRightMotor2Port = 3; 
-    * }
-    */ 
+    public static final boolean TUNING = true;
+    public class ElevatorConstants{
+        public static final double MAX_ELEVATOR_ENCODER_HEIGHT = 0; //FIX_ME find the max elevator height encoder value
+        public static final double MIN_ELEVATOR_ENCODER_HEIGHT = 0;
+        public static final double SECOND_RUNG_ENCODER_HEIGHT = 0;//FIX_ME the height the elevator should be at to get on the second rung
+        public static final double THIRD_RUNG_ENCODER_HEIGHT = 0;//FIX_ME the Height the elevator should be at to get from second to third rung
+        public static final double FOURTH_RUNG_ENCODER_HEIGHT = 0;//FIX_ME the height the elevator should be at to get from the third to fourth rung
+        public static final double ELEVATOR_MOTOR_POWER = 0; //FIX_ME find what we want the elevator motor power to be(maybe the max?)
+        public static final int LEFT_ELEVATOR_MOTOR_CAN_ID = 18;
+        public static final int RIGHT_ELEVATOR_MOTOR_CAN_ID = 19;       
+  }
+    public class SecondMechanismConstants { 
+        public static final int PNEUMATIC_HUB_CAN_ID = 20;
+        public static final boolean SECOND_MECHANISM_PULL = true;
+        public static final boolean SECOND_MECHANISM_PUSH = false;
+  }
 }
 
