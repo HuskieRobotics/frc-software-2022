@@ -43,7 +43,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * <p>
    * This is a measure of how fast the robot should be able to drive in a straight line.
    */
-  //6380.0/60.0
   public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
           SdsModuleConfigurations.MK3_STANDARD.getDriveReduction() *
           SdsModuleConfigurations.MK3_STANDARD.getWheelDiameter() * Math.PI;
@@ -97,7 +96,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public DrivetrainSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
-    this.isFieldRelative = false;
+    this.isFieldRelative = true;
     this.isJoystickControlAllowed = true;
     this.m_robotCenter = new Translation2d(0,0);
     this.m_frontLeftLocation = new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
@@ -267,29 +266,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
           this.isJoystickControlAllowed = false;
   }
  
-// remove method sds has set() method
-  /*public void setDesiredState(SwerveModuleState desiredState, SwerveModule module){
-        SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(module.getSteerAngle()));
 
-        double swerveGetDistance = module.getSteerAngle();
-
-
-        double swerveOutput = pid.calculate(swerveGetDistance, state.angle.getRadians());
-
-        module.set(0, swerveOutput);
-  }*/
-
-  //redo this method using set() from sds lib
+  
   public void setXStance(){
-         //FL
-         m_frontLeftModule.set(0, Math.PI*5/4);
-         //FR
-         m_frontRightModule.set(0, Math.PI*-5/4);
-         //BL
-         m_backLeftModule.set(0, Math.PI*3/4);
-         //BR
-         m_backRightModule.set(0, Math.PI*-3/4);
-         
+          //FL
+          m_frontLeftModule.set(0, Math.PI*5/4);
+          //FR
+          m_frontRightModule.set(0, Math.PI*-5/4);
+          //BL
+          m_backLeftModule.set(0, Math.PI*3/4);
+          //BR
+          m_backRightModule.set(0, Math.PI*-3/4);
   }
 
   public void setCenterGrav(Translation2d center){
