@@ -16,6 +16,29 @@ Children:
           value: '5'
       Base: Talon SRX
       Name: collector 5
+    - Children: []
+      Properties:
+        Output Module (Solenoid): !!robotbuilder.data.properties.ChoicesProperty
+          choices: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11',
+            '12', '13', '14', '15', '16', '17', '18', '19', '20']
+          default: '0'
+          name: Output Module (Solenoid)
+          validators: [Solenoid]
+          value: '20'
+        Output Channel (Solenoid): !!robotbuilder.data.properties.ChoicesProperty
+          choices: ['0', '1', '2', '3', '4', '5', '6', '7']
+          default: '0'
+          name: Output Channel (Solenoid)
+          validators: [Solenoid]
+          value: '2'
+        Output Module Type (Solenoid): !!robotbuilder.data.properties.ChoicesProperty
+          choices: [CTREPCM, REVPH]
+          default: CTREPCM
+          name: Output Module Type (Solenoid)
+          validators: null
+          value: REVPH
+      Base: Solenoid
+      Name: Collector Piston
     Properties:
       Send to SmartDashboard: !!robotbuilder.data.properties.BooleanProperty {default: false,
         name: Send to SmartDashboard, validators: null, value: false}
@@ -55,7 +78,7 @@ Children:
           validators: &id004 [DigitalChannel]
           value: '0'
       Base: Digital Output
-      Name: Front Sensor 0
+      Name: Collector Sensor 0
     - Children: []
       Properties:
         Output Channel (Digital): !!robotbuilder.data.properties.ChoicesProperty
@@ -65,7 +88,7 @@ Children:
           validators: *id004
           value: '1'
       Base: Digital Output
-      Name: Back Sensor 1
+      Name: Shooter Sensor 1
     Properties:
       Send to SmartDashboard: !!robotbuilder.data.properties.BooleanProperty {default: false,
         name: Send to SmartDashboard, validators: null, value: false}
@@ -105,10 +128,10 @@ Children:
       Requires: !!robotbuilder.data.properties.TypeSelectionProperty {default: None,
         name: Requires, type: Subsystem, validators: null, value: None}
       Parameter presets: !!robotbuilder.data.properties.ParameterSetProperty
-        default: &id006 []
+        default: []
         name: Parameter presets
         validators: null
-        value: *id006
+        value: []
       Button on SmartDashboard: !!robotbuilder.data.properties.BooleanProperty {default: true,
         name: Button on SmartDashboard, validators: null, value: true}
     Base: Command
