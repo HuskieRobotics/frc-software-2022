@@ -73,12 +73,12 @@ public class RobotContainer {
             EventImportance.kNormal));      
     
     CommandScheduler.getInstance().onCommandInterrupt(
-        command -> Shuffleboard.addEventMarker("Command initialized",
+        command -> Shuffleboard.addEventMarker("Command interrupted",
             command.getClass().getName().substring(command.getClass().getName().lastIndexOf('.') + 1),
             EventImportance.kNormal));      
     
     CommandScheduler.getInstance().onCommandFinish(
-        command -> Shuffleboard.addEventMarker("Command initialized",
+        command -> Shuffleboard.addEventMarker("Command finished",
             command.getClass().getName().substring(command.getClass().getName().lastIndexOf('.') + 1),
             EventImportance.kNormal));      
     
