@@ -19,7 +19,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.commands.ExtendClimberToHeight;
+import frc.commands.ExtendClimberToHeightCommand;
 import frc.robot.Constants.ElevatorConstants;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -135,7 +135,7 @@ public Elevator() {
         double k_height = this.elevatorDesiredHeight.getDouble(0.0);
 
         if (this.enableElevatorDesiredHeight.getBoolean(false)) {  //designed so they can't run at the same time to avoid breaking robot
-            new ExtendClimberToHeight(this, k_height);
+            new ExtendClimberToHeightCommand(this, k_height);
         } 
         else{
             leftElevatorMotor.set(motorPower);

@@ -16,7 +16,7 @@ package frc.robot.subsystems;
 // import frc.robot.commands.*;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.commands.ExtendClimberToHeight;
+import frc.commands.ExtendClimberToHeightCommand;
 import frc.robot.Constants.SecondMechanismConstants;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
