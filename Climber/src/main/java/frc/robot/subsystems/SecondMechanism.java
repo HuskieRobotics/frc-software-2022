@@ -63,12 +63,12 @@ private Solenoid secondaryMechanism;
         this.isPullPosition = false;
 
 
-        this.isPullPositionNT = Shuffleboard.getTab("Is Pull Position?")
+        this.isPullPositionNT = Shuffleboard.getTab("Second Mechanism")
         .add("isPullPosition", false)
         .getEntry();
 
-        this.pullPushNT = Shuffleboard.getTab("set Push or Pull")
-            .add("true for push", false)
+        this.pullPushNT = Shuffleboard.getTab("Second Mechanism")
+            .add("Push/Pull Pistons", false)
             .withWidget(BuiltInWidgets.kToggleButton)
             .getEntry();
         
@@ -83,6 +83,12 @@ secondaryMechanism = new Solenoid(SecondMechanismConstants.PNEUMATIC_HUB_CAN_ID,
 
     @Override
     public void periodic() {
+        this.isPullPositionNT.setBoolean(getisPullPosition());
+        if (TUNING)
+        {
+            boolean pushPull = this.pullPushNT.getBoolean(false);
+            setSecondMechanism(pushPull);
+        }
         // This method will be called once per scheduler run
 
     }
@@ -95,7 +101,7 @@ secondaryMechanism = new Solenoid(SecondMechanismConstants.PNEUMATIC_HUB_CAN_ID,
 
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
-    public boolean getPullPosition(){
+    public boolean getisPullPosition(){
         return isPullPosition;
     }
     public void setSecondMechanism(boolean deploy){

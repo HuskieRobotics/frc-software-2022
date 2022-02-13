@@ -27,7 +27,7 @@ public class ExtendClimberToHeight extends CommandBase {
 
     @Override
     public void initialize() {
-        if (m_elevator.getElevatorHeight() > m_height){
+        if (m_elevator.getLeftElevatorMotorHeight() > m_height){
             m_power *= -1;
         }
     }
@@ -44,7 +44,7 @@ public class ExtendClimberToHeight extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        if(m_elevator.getElevatorHeight() == m_height){  //FIX_ME should be changed to a tollerance(can be +- sonme value)
+        if(m_elevator.getLeftElevatorMotorHeight() == m_height){  //FIX_ME should be changed to a tollerance(can be +- sonme value)
             return true;
         }
         else{
