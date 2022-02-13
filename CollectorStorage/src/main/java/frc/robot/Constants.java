@@ -20,6 +20,19 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public class Constants {
+
+    public static final class CollectorConstants{
+        public static int COLLECTOR_MOTOR_ID = 5;
+        public static int PEUNAMATICS_HUB_CAN_ID = 20; 
+        public static int COLLECTOR_SOLENOID_CHANNEL = 0;
+
+    }
+    public static final class StorageConstants{
+        public static int SHOOTER_SENSOR = 1;
+        public static int COLLECTOR_SENSOR = 0;
+        public static int STORAGE_MOTOR_ID = 4;
+        public static double STORAGE_DEFUALT_SPEED = 0.5; //FIX_ME change this to desired speed
+    }
    /**
     * public static final class DriveConstants {
     *   public static final int kLeftMotor1Port = 0;

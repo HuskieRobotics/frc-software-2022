@@ -1,6 +1,8 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.StorageConstants;
 import frc.robot.subsystems.*;
 
 /**
@@ -9,6 +11,7 @@ import frc.robot.subsystems.*;
  */
 public class sortStorage extends CommandBase{
     private Storage storage;
+
     public sortStorage(Storage storage) {
         this.storage = storage;
 
@@ -28,15 +31,15 @@ public class sortStorage extends CommandBase{
             this.storage.setStoragePower(0);
         }
         else if(!this.storage.collectorSensorUnblocked() & this.storage.shooterSensorUnblocked()){
-            this.storage.setStoragePower(.3); //change later make into constant
+            this.storage.setStoragePower(StorageConstants.STORAGE_DEFUALT_SPEED); 
         }
-       
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
         this.storage.setStoragePower(0);
+        
     }
 
     // Returns true when the command should end.
