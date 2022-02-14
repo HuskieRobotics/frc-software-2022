@@ -25,6 +25,7 @@ public class Constants {
         public static int COLLECTOR_MOTOR_ID = 5;
         public static int PEUNAMATICS_HUB_CAN_ID = 20; 
         public static int COLLECTOR_SOLENOID_CHANNEL = 0;
+        public static double COLLECTOR_DEFUALT_SPEED = 0.5; //FIX_ME change this to desired speed
 
     }
     public static final class StorageConstants{
