@@ -6,14 +6,14 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 
 import java.util.function.DoubleSupplier;
 
-public class DefaultDriveCommand extends CommandBase {
+public class FieldRelativeDriveCommand extends CommandBase {
     private final DrivetrainSubsystem m_drivetrainSubsystem;
 
     private final DoubleSupplier m_translationXSupplier;
     private final DoubleSupplier m_translationYSupplier;
     private final DoubleSupplier m_rotationSupplier;
 
-    public DefaultDriveCommand(DrivetrainSubsystem drivetrainSubsystem,
+    public FieldRelativeDriveCommand(DrivetrainSubsystem drivetrainSubsystem,
                                DoubleSupplier translationXSupplier,
                                DoubleSupplier translationYSupplier,
                                DoubleSupplier rotationSupplier) {
@@ -27,22 +27,21 @@ public class DefaultDriveCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        m_drivetrainSubsystem.setFieldRelative(false);
-        System.out.println("DEFAULT");
+        m_drivetrainSubsystem.setFieldRelative(true);
+        System.out.println("Field Relative");
     }
     @Override
     public void execute() {
         // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of field-oriented movement
 
             m_drivetrainSubsystem.drive(
-                new ChassisSpeeds(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
                         m_translationXSupplier.getAsDouble(),
                         m_translationYSupplier.getAsDouble(),
-                        m_rotationSupplier.getAsDouble()
+                        m_rotationSupplier.getAsDouble(),
+                        m_drivetrainSubsystem.getRotation()
                 )
         );
-    
-        
 
         
 
