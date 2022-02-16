@@ -137,7 +137,7 @@ public class RobotContainer {
         new ConditionalCommand(
           new SequentialCommandGroup(
             new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.COLLECTOR_DEFUALT_SPEED)),
-            new sortStorage(m_storage)), 
+            new SortStorageCommand(m_storage)), 
           new ParallelCommandGroup(
             new InstantCommand(() -> m_collector.retractCollectorPiston()),
             new InstantCommand(() -> m_storage.setStoragePower(0))),

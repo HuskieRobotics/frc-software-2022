@@ -9,10 +9,10 @@ import frc.robot.subsystems.*;
  * This command continuously runs the belt in the feeder until cargo is detected at the shooter-end of the feeder, at which
  *  point it stops the belt. If interrupted, this command stops the belt.
  */
-public class sortStorage extends CommandBase{
+public class SortStorageCommand extends CommandBase{
     private Storage storage;
 
-    public sortStorage(Storage storage) {
+    public SortStorageCommand(Storage storage) {
         this.storage = storage;
 
         this.addRequirements(this.storage);

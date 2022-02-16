@@ -21,6 +21,8 @@ package frc.robot;
  */
 public class Constants {
 
+    public static final boolean TUNING = false; 
+
     public static final class CollectorConstants{
         public static  double OUTTAKE_POWER = -.4;//FIX_ME
         public static int COLLECTOR_MOTOR_ID = 5;
