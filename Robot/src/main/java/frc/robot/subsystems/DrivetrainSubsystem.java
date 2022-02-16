@@ -96,7 +96,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public DrivetrainSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
-    this.isFieldRelative = true;
+    this.isFieldRelative = false;
     this.isJoystickControlAllowed = true;
     this.m_robotCenter = new Translation2d(0,0);
     this.m_frontLeftLocation = new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
