@@ -20,21 +20,7 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-   /**
-     * The left-to-right distance between the drivetrain wheels
-     *
-     * Should be measured from center to center.
-     */
-    public static final double DRIVETRAIN_TRACKWIDTH_METERS = .6; //23.5 inches; // FIXME Measure and set trackwidth
-    /**
-     * The front-to-back distance between the drivetrain wheels.
-     *
-     * Should be measured from center to center.
-     */
-    public static final double DRIVETRAIN_WHEELBASE_METERS = .6;//23.5 inches // FIXME Measure and set wheelbase
-
-    public static final int DRIVETRAIN_PIGEON_ID = 18; // FIXME Set Pigeon ID
-
+   
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 16; // FIXME Set front left module drive motor ID
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 15; // FIXME Set front left module steer motor ID
     public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 17; // FIXME Set front left steer encoder ID
@@ -60,6 +46,23 @@ public final class Constants {
     public static final double SWERVE_PID_P = 0;
     public static final double SWERVE_PID_I = 0;
     public static final double SWERVE_PID_D = 0;
+
+    public static final class DrivetrainConstants{
+        /**
+       * The left-to-right distance between the drivetrain wheels
+       *
+       * Should be measured from center to center.
+       */
+      public static final double TRACKWIDTH_METERS = .6; //23.5 inches; // FIXME Measure and set trackwidth
+      /**
+       * The front-to-back distance between the drivetrain wheels.
+       *
+       * Should be measured from center to center.
+       */
+      public static final double WHEELBASE_METERS = .6;//23.5 inches // FIXME Measure and set wheelbase
+
+      public static final int PIGEON_ID = 18; // FIXME Set Pigeon ID
+    }
 }
 
 
