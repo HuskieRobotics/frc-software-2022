@@ -4,7 +4,7 @@
   "encoding": false,
   "gearing denominator": 1.0,
   "gearing numerator": 6.75,
-  "gyro": "Pigeon",
+  "gyro": "None",
   "gyro ctor": "1",
   "is drivetrain": true,
   "motor controllers": [
