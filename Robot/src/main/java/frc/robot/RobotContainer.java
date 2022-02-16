@@ -123,7 +123,9 @@ private final Joystick joystick0 = new Joystick(0);
    */
   private void configureButtonBindings() {
     // Back button zeros the gyroscope
-    
+    //m_drivetrainSubsystem.zeroGyroscope();
+    final JoystickButton joystickButton1_9 = new JoystickButton(joystick1, 9);
+    joystickButton1_9.whenPressed(new InstantCommand(() -> m_drivetrainSubsystem.zeroGyroscope()));
     final JoystickButton joystickButton1_10 = new JoystickButton(joystick1, 10);
     joystickButton1_10.whenPressed(new InstantCommand(() -> m_drivetrainSubsystem.fieldRelativeToggle()));
     final JoystickButton joystickButton1_2 = new JoystickButton(joystick1, 2);
