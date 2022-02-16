@@ -55,11 +55,6 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 8; // FIXME Set back right steer encoder ID
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(297.509765625); // FIXME Measure and set back right steer offset
     //297.685546875 //359.637451171875
-
-    //this was written by us and can be deleted just used to make a pid object for a test
-    public static final double SWERVE_PID_P = 0;
-    public static final double SWERVE_PID_I = 0;
-    public static final double SWERVE_PID_D = 0;
 }
 
 
