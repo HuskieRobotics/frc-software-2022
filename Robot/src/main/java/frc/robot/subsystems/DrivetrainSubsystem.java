@@ -252,10 +252,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   public void driveVolts(double motorVoltage) {
-        this.frontLeftMotor.set(motorVoltage / MAX_VOLTAGE);
-        this.frontRightMotor.set(motorVoltage / MAX_VOLTAGE);
-        this.backLeftMotor.set(motorVoltage / MAX_VOLTAGE);
-        this.backRightMotor.set(motorVoltage / MAX_VOLTAGE);
+        this.frontLeftMotor.setVoltage(motorVoltage);
+        this.frontRightMotor.setVoltage(motorVoltage);
+        this.backLeftMotor.setVoltage(motorVoltage);
+        this.backRightMotor.setVoltage(motorVoltage);
   }
 
   public double getFrontLeftEncoderPosition() {
