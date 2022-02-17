@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
@@ -22,6 +24,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.Characterize;
 
 import static frc.robot.Constants.*;
 
@@ -56,6 +59,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
           Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
   private static final double SWERVE_PID_D = 0;
 
+  public static final int SLOT_INDEX = 0;
+  public static final int TIMEOUT_MS = 30;
+
+
   
 
   private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
@@ -88,6 +95,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private final Translation2d m_backLeftLocation;
   private final Translation2d m_backRightLocation;
   private Translation2d m_robotCenter;
+
+  private final WPI_TalonFX frontLeftMotor;
+  private final WPI_TalonFX frontRightMotor;
+  private final WPI_TalonFX backLeftMotor;
+  private final WPI_TalonFX backRightMotor;
+  
 
 
  private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, Rotation2d.fromDegrees(m_pigeon.getYaw()));
@@ -181,6 +194,28 @@ public class DrivetrainSubsystem extends SubsystemBase {
     tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
     tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
     tab.addNumber("Yaw",() -> m_pigeon.getYaw());
+
+    tab.add("Characterize Drivetrain", new Characterize(this));
+    this.frontLeftMotor = new WPI_TalonFX(FRONT_LEFT_MODULE_DRIVE_MOTOR);
+    this.frontRightMotor = new WPI_TalonFX(FRONT_RIGHT_MODULE_DRIVE_MOTOR);
+    this.backLeftMotor = new WPI_TalonFX(BACK_LEFT_MODULE_DRIVE_MOTOR);
+    this.backRightMotor = new WPI_TalonFX(BACK_RIGHT_MODULE_DRIVE_MOTOR);
+
+    this.frontLeftMotor.configFactoryDefault();
+    this.frontLeftMotor.configNeutralDeadband(0.001);
+    this.frontLeftMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, SLOT_INDEX, TIMEOUT_MS);
+
+    this.frontRightMotor.configFactoryDefault();
+    this.frontRightMotor.configNeutralDeadband(0.001);
+    this.frontRightMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, SLOT_INDEX, TIMEOUT_MS);
+
+    this.backLeftMotor.configFactoryDefault();
+    this.backLeftMotor.configNeutralDeadband(0.001);
+    this.backLeftMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, SLOT_INDEX, TIMEOUT_MS);
+
+    this.backRightMotor.configFactoryDefault();
+    this.backRightMotor.configNeutralDeadband(0.001);
+    this.backRightMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, SLOT_INDEX, TIMEOUT_MS);
   }
 
   /**
@@ -216,6 +251,46 @@ public class DrivetrainSubsystem extends SubsystemBase {
  
   }
 
+  public void driveVolts(double motorVoltage) {
+        this.frontLeftMotor.set(motorVoltage / MAX_VOLTAGE);
+        this.frontRightMotor.set(motorVoltage / MAX_VOLTAGE);
+        this.backLeftMotor.set(motorVoltage / MAX_VOLTAGE);
+        this.backRightMotor.set(motorVoltage / MAX_VOLTAGE);
+  }
+
+  public double getFrontLeftEncoderPosition() {
+          return this.frontLeftMotor.getSelectedSensorPosition();
+  }
+
+  public double getFrontRightEncoderPosition() {
+        return this.frontRightMotor.getSelectedSensorPosition();
+}
+
+public double getBackLeftEncoderPosition() {
+        return this.backLeftMotor.getSelectedSensorPosition();
+}
+
+public double getBackRightEncoderPosition() {
+        return this.backRightMotor.getSelectedSensorPosition();
+}
+
+public double getFrontLeftEncoderVelocity() {
+        return this.frontLeftMotor.getSelectedSensorVelocity();
+}
+
+public double getFrontRightEncoderVelocity() {
+        return this.frontRightMotor.getSelectedSensorVelocity();
+}
+
+public double getBackLeftEncoderVelocity() {
+        return this.backLeftMotor.getSelectedSensorVelocity();
+}
+
+public double getBackRightEncoderVelocity() {
+        return this.backRightMotor.getSelectedSensorVelocity();
+}
+
+
   @Override     
   public void periodic() {  
          
@@ -231,12 +306,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(m_chassisSpeeds.vxMetersPerSecond, m_chassisSpeeds.vyMetersPerSecond, m_chassisSpeeds.omegaRadiansPerSecond, getGyroscopeRotation());
              }
 */
+/*
         SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);    
            m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[0].angle.getRadians());
            m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
            m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[2].angle.getRadians());
            m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());
+*/
         }
+
 
   public boolean getFieldRelative(){
           return isFieldRelative;
