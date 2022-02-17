@@ -187,7 +187,8 @@ public Joystick getJoystick1() {
    */
   public Command getAutonomousCommand() {
     // The selected command will be run in autonomous
-    return m_chooser.getSelected();
+    //return m_chooser.getSelected();
+    return new AutoDriveForward(.5, m_drivetrainSubsystem);
   }
 
   private static double deadband(double value, double deadband) {

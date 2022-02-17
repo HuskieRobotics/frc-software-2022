@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
@@ -18,12 +20,15 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.*;
+
+import javax.print.attribute.standard.MediaSize.Other;
 
 public class DrivetrainSubsystem extends SubsystemBase {
   /**
@@ -74,7 +79,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   // cause the angle reading to increase until it wraps back over to zero.
   // FIXME Remove if you are using a Pigeon
   private final PigeonIMU m_pigeon = new PigeonIMU(DRIVETRAIN_PIGEON_ID);
-  
+  private final WPI_TalonFX motor = new WPI_TalonFX(16);
 
   // These are our modules. We initialize them in the constructor.
   private final SwerveModule m_frontLeftModule;
@@ -88,6 +93,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private final Translation2d m_backLeftLocation;
   private final Translation2d m_backRightLocation;
   private Translation2d m_robotCenter;
+  
 
 
  private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, Rotation2d.fromDegrees(m_pigeon.getYaw()));
@@ -103,7 +109,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     this.m_frontRightLocation = new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0);
     this.m_backLeftLocation = new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
     this.m_backRightLocation = new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0);
-
+    
     m_pigeon.setYaw(0.0);
 
     // There are 4 methods you can call to create your swerve modules.
@@ -238,8 +244,26 @@ public class DrivetrainSubsystem extends SubsystemBase {
            m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());
         }
 
+    public void setMotorPower(double power){
+        SwerveModuleState[] states = {
+                new SwerveModuleState(power, new Rotation2d(0)),
+                new SwerveModuleState(power, new Rotation2d(0)),
+                new SwerveModuleState(power, new Rotation2d(0)),
+                new SwerveModuleState(power, new Rotation2d(0)),
+        };   
+        m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[0].angle.getRadians());
+        m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
+        m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[2].angle.getRadians());
+        m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());
+
+    }    
+
   public boolean getFieldRelative(){
           return isFieldRelative;
+  }
+  public double getDistance(){
+          return motor.getSelectedSensorPosition();
+          
   }
 
   public void setFieldRelative(boolean fieldRelative) {
