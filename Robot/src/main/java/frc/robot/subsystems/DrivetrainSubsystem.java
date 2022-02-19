@@ -188,7 +188,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 BACK_RIGHT_MODULE_STEER_OFFSET);
 
                 tab.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
-                tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
+                tab.addNumber("Pose xs", () -> m_odometry.getPoseMeters().getX());
                 tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
                 tab.addNumber("Yaw", () -> m_pigeon.getYaw());
         }

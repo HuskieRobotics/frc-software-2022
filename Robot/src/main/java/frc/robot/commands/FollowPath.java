@@ -18,8 +18,8 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 public class FollowPath extends PPSwerveControllerCommand {
 
     public FollowPath(PathPlannerTrajectory trajectory, DrivetrainSubsystem subsystem) {
-        super(trajectory, subsystem::getPose, subsystem.getKinematics(), new PIDController(1, 1, 0),
-                new PIDController(1, 1, 0), new ProfiledPIDController(1, 1, 0, new Constraints(1, 1)),
+        super(trajectory, subsystem::getPose, subsystem.getKinematics(), new PIDController(2.2956, 0, 0),
+                new PIDController(2.2956, 0, 0), new ProfiledPIDController(0, 0, 0, new Constraints(1, 1)),
                 subsystem::setSwerveModuleStates, subsystem);
         addRequirements(subsystem);
     }
