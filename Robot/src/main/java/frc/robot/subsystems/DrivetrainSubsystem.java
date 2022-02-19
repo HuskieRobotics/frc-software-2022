@@ -18,6 +18,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -93,6 +95,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
  private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, Rotation2d.fromDegrees(m_pigeon.getYaw()));
 
   private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+  private NetworkTableEntry gyroNT;
 
   public DrivetrainSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
@@ -105,6 +108,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     this.m_backRightLocation = new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
     m_pigeon.setYaw(0.0);
+    m_pigeon.setFusedHeading(0.0);
 
     // There are 4 methods you can call to create your swerve modules.
     // The method you use depends on what motors you are using.
@@ -132,7 +136,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                     .withSize(2, 4)
                     .withPosition(0, 0),
             // This can either be STANDARD or FAST depending on your gear configuration
-            Mk3SwerveModuleHelper.GearRatio.STANDARD,
+            Mk3SwerveModuleHelper.GearRatio.FAST,
             // This is the ID of the drive motor
             FRONT_LEFT_MODULE_DRIVE_MOTOR,
             // This is the ID of the steer motor
@@ -148,7 +152,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
             tab.getLayout("Front Right Module", BuiltInLayouts.kList)
                     .withSize(2, 4)
                     .withPosition(2, 0),
-            Mk3SwerveModuleHelper.GearRatio.STANDARD,
+            Mk3SwerveModuleHelper.GearRatio.FAST,
             FRONT_RIGHT_MODULE_DRIVE_MOTOR,
             FRONT_RIGHT_MODULE_STEER_MOTOR,
             FRONT_RIGHT_MODULE_STEER_ENCODER,
@@ -159,7 +163,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
             tab.getLayout("Back Left Module", BuiltInLayouts.kList)
                     .withSize(2, 4)
                     .withPosition(4, 0),
-            Mk3SwerveModuleHelper.GearRatio.STANDARD,
+            Mk3SwerveModuleHelper.GearRatio.FAST,
             BACK_LEFT_MODULE_DRIVE_MOTOR,
             BACK_LEFT_MODULE_STEER_MOTOR,
             BACK_LEFT_MODULE_STEER_ENCODER,
@@ -170,7 +174,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
             tab.getLayout("Back Right Module", BuiltInLayouts.kList)
                     .withSize(2, 4)
                     .withPosition(6, 0),
-            Mk3SwerveModuleHelper.GearRatio.STANDARD,
+            Mk3SwerveModuleHelper.GearRatio.FAST,
             BACK_RIGHT_MODULE_DRIVE_MOTOR,
             BACK_RIGHT_MODULE_STEER_MOTOR,
             BACK_RIGHT_MODULE_STEER_ENCODER,
@@ -181,6 +185,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
     tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
     tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
     tab.addNumber("Yaw",() -> m_pigeon.getYaw());
+    this.gyroNT = Shuffleboard.getTab("Drivetrain")
+        .add("Gyro Periodic angle", 0.0)
+        .getEntry();
+
   }
 
   /**
@@ -218,6 +226,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   @Override     
   public void periodic() {  
+
+        ShuffleboardTab tab1 = Shuffleboard.getTab("Drivetrain");
          
         m_odometry.update(Rotation2d.fromDegrees(m_pigeon.getYaw()),
         new SwerveModuleState(m_frontLeftModule.getDriveVelocity(), new Rotation2d(m_frontLeftModule.getSteerAngle())),
@@ -225,6 +235,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         new SwerveModuleState(m_backLeftModule.getDriveVelocity(), new Rotation2d(m_backLeftModule.getSteerAngle())),
         new SwerveModuleState(m_backRightModule.getDriveVelocity(), new Rotation2d(m_backRightModule.getSteerAngle()))
         );
+        this.gyroNT.setDouble(m_pigeon.getFusedHeading());
         
   /*      
         if(this.getFieldRelative()){ 
