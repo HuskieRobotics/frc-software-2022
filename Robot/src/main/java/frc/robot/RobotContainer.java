@@ -168,7 +168,7 @@ public Joystick getJoystick1() {
    */
   public Command getAutonomousCommand() {
     // The selected command will be run in autonomous
-    return new FollowPath(PathPlanner.loadPath("straight", 2, 1), m_drivetrainSubsystem);
+    return new FollowPath(PathPlanner.loadPath("straight", 2, 1,true), m_drivetrainSubsystem);
   }
 
   private static double deadband(double value, double deadband) {
