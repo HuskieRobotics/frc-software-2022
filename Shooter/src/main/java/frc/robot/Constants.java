@@ -10,6 +10,7 @@
 
 
 package frc.robot;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants.  This class should not be used for any other purpose.  All constants should be
@@ -27,21 +28,5 @@ public class Constants {
     *   public static final int kRightMotor2Port = 3; 
     * }
     */ 
-
-    public static final class ShooterConstants {
-        //UPDATE CANID ON ROBOT
-        public static final int rightMotorID = 1;
-        public static final int leftMotorID = 2;
-        public static final int hoodMotorID = 3;
-        //CHANGE VALUE
-        public static final double HOOD_P = 0.1;
-    }
-    public static final int kSlotIdx = 0;
-    public static final int kPIDLoopIdx = 0;
-    public static final int kTimeoutMs = 30;
-    //TEST ALL VALUES!!
-    /* 	                                    			  kP   	 kI    kD      kF          Iz    PeakOut */
-    public final static Gains kGains_Velocit  = new Gains( .74,      0,   0,    .05265,        0,    1.00);
-    //kp = 1.2
 }
 
