@@ -178,11 +178,9 @@ public Joystick getJoystick1() {
     
 
     // The selected command will be run in autonomous
-    // FIXME: why reverse the path?
     return new FollowPath(PathPlanner.loadPath("straight",
         AutoConstants.kMaxSpeedMetersPerSecond,
-        AutoConstants.kMaxAccelerationMetersPerSecondSquared,
-        true), thetaController, m_drivetrainSubsystem);
+        AutoConstants.kMaxAccelerationMetersPerSecondSquared), thetaController, m_drivetrainSubsystem);
   }
 
   private static double deadband(double value, double deadband) {

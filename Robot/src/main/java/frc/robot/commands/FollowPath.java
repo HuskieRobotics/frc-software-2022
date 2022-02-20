@@ -10,16 +10,16 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
+import static frc.robot.Constants.*;
 
 /**
  * 
  *
  */
 public class FollowPath extends PPSwerveControllerCommand {
-    // 2.2956
     public FollowPath(PathPlannerTrajectory trajectory, ProfiledPIDController thetaController, DrivetrainSubsystem subsystem) {
-        super(trajectory, subsystem::getPose, subsystem.getKinematics(), new PIDController(2.295, 0, 0),
-                new PIDController(2.295, 0, 0), thetaController,
+        super(trajectory, subsystem::getPose, subsystem.getKinematics(), new PIDController(AutoConstants.kPXController, 0, 0),
+                new PIDController(AutoConstants.kPYController, 0, 0), thetaController,
                 subsystem::setSwerveModuleStates, subsystem);
         addRequirements(subsystem);
 
