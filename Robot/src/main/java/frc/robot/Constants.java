@@ -77,7 +77,7 @@ public final class Constants {
   
       public static final double kPXController = 2.2956;    // from sysId tool
       public static final double kPYController = 2.2956;    // from sysId tool
-      public static final double kPThetaController = 0;     // tune after verifying non-holonomic motion
+      public static final double kPThetaController = 4.9;     // tune after verifying non-holonomic motion
   
       // Constraint for the motion profilied robot angle controller
       public static final TrapezoidProfile.Constraints kThetaControllerConstraints =

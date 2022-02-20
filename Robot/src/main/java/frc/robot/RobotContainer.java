@@ -178,7 +178,7 @@ public Joystick getJoystick1() {
     
 
     // The selected command will be run in autonomous
-    return new FollowPath(PathPlanner.loadPath("straight",
+    return new FollowPath(PathPlanner.loadPath("curveTest",
         AutoConstants.kMaxSpeedMetersPerSecond,
         AutoConstants.kMaxAccelerationMetersPerSecondSquared), thetaController, m_drivetrainSubsystem);
   }
