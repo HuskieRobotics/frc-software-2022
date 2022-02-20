@@ -17,10 +17,14 @@ import frc.robot.subsystems.DrivetrainSubsystem;
  */
 public class FollowPath extends PPSwerveControllerCommand {
     // 2.2956
-    public FollowPath(PathPlannerTrajectory trajectory, DrivetrainSubsystem subsystem) {
+    public FollowPath(PathPlannerTrajectory trajectory, ProfiledPIDController thetaController, DrivetrainSubsystem subsystem) {
         super(trajectory, subsystem::getPose, subsystem.getKinematics(), new PIDController(2.295, 0, 0),
-                new PIDController(2.295, 0, 0), new ProfiledPIDController(0, 0, 0, new Constraints(1, 1)),
+                new PIDController(2.295, 0, 0), thetaController,
                 subsystem::setSwerveModuleStates, subsystem);
         addRequirements(subsystem);
+
+        // Reset odometry to the starting pose of the trajectory.
+        subsystem.resetOdometry(trajectory.getInitialPose());
+
     }
 }

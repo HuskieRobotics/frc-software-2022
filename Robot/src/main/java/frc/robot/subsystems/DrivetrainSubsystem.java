@@ -11,6 +11,7 @@ import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -97,6 +98,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         Rotation2d.fromDegrees(m_pigeon.getYaw()));
 
         private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+
+        private SimpleMotorFeedforward feedForward;
 
         public DrivetrainSubsystem() {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
@@ -188,10 +191,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 BACK_RIGHT_MODULE_STEER_ENCODER,
                                 BACK_RIGHT_MODULE_STEER_OFFSET);
 
+
+                this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts, AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
+
                 tab.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
-                tab.addNumber("Pose xs", () -> m_odometry.getPoseMeters().getX());
+                tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
                 tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
-                tab.addNumber("Yaw", () -> m_pigeon.getYaw());
+                tab.addNumber("Pose Rotation", () -> m_odometry.getPoseMeters().getRotation().getDegrees());
         }
 
         /**
@@ -218,6 +224,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         public Pose2d getPose() {
                 return m_odometry.getPoseMeters();
+        }
+
+        public void resetOdometry(Pose2d pose)
+        {
+                m_odometry.resetPosition(pose, Rotation2d.fromDegrees(m_pigeon.getYaw()));
         }
         
         public void drive(ChassisSpeeds chassisSpeeds) {
@@ -248,25 +259,31 @@ public class DrivetrainSubsystem extends SubsystemBase {
                  * getGyroscopeRotation());
                  * }
                  */
-                SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
-                m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[0].angle.getRadians());
-                m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[1].angle.getRadians());
-                m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[2].angle.getRadians());
-                m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[3].angle.getRadians());
+
+                 // FIXME: this should only occur in teleop
+                // SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
+                // m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+                //                 states[0].angle.getRadians());
+                // m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+                //                 states[1].angle.getRadians());
+                // m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+                //                 states[2].angle.getRadians());
+                // m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+                //                 states[3].angle.getRadians());
         }
         public void setSwerveModuleStates(SwerveModuleState[] states) {
-                m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[0].angle.getRadians());
-                m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[1].angle.getRadians());
-                m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[2].angle.getRadians());
-                m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[3].angle.getRadians());
+                m_frontLeftModule.set(this.calculateFeedforwardVoltage(states[0].speedMetersPerSecond), states[0].angle.getRadians());
+                m_frontRightModule.set(this.calculateFeedforwardVoltage(states[1].speedMetersPerSecond), states[0].angle.getRadians());
+                m_backLeftModule.set(this.calculateFeedforwardVoltage(states[2].speedMetersPerSecond), states[0].angle.getRadians());
+                m_backRightModule.set(this.calculateFeedforwardVoltage(states[3].speedMetersPerSecond), states[0].angle.getRadians());
+        }
+
+        private double calculateFeedforwardVoltage(double velocity) {
+                double voltage = this.feedForward.calculate(velocity);
+                if(voltage > MAX_VOLTAGE) {
+                        return MAX_VOLTAGE;
+                }
+                return voltage;
         }
         public SwerveDriveKinematics getKinematics() {
                 return m_kinematics;

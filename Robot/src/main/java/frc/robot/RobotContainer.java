@@ -13,6 +13,7 @@
 package frc.robot;
 
 import frc.robot.commands.*;
+import frc.robot.Constants.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,6 +24,7 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -167,8 +169,20 @@ public Joystick getJoystick1() {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+
+    ProfiledPIDController thetaController =
+        new ProfiledPIDController(
+            AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+    
+
     // The selected command will be run in autonomous
-    return new FollowPath(PathPlanner.loadPath("straight", 2, 1,true), m_drivetrainSubsystem);
+    // FIXME: why reverse the path?
+    return new FollowPath(PathPlanner.loadPath("straight",
+        AutoConstants.kMaxSpeedMetersPerSecond,
+        AutoConstants.kMaxAccelerationMetersPerSecondSquared,
+        true), thetaController, m_drivetrainSubsystem);
   }
 
   private static double deadband(double value, double deadband) {
