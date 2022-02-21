@@ -130,7 +130,7 @@ private final Joystick joystick0 = new Joystick(0);
     
 
     final JoystickButton joystickButton1_10 = new JoystickButton(joystick1, 10);
-    joystickButton1_10.whenPressed(new InstantCommand(() -> m_drivetrainSubsystem.fieldRelativeToggle()));
+    joystickButton1_10.whenPressed(new InstantCommand(m_drivetrainSubsystem::fieldRelativeToggle, m_drivetrainSubsystem));
     final JoystickButton joystickButton1_2 = new JoystickButton(joystick1, 2);
     joystickButton1_2.whileHeld(new InstantCommand(() -> m_drivetrainSubsystem.setXStance()));
     this.joystickButton1_3 = new JoystickButton(joystick1, 3);
