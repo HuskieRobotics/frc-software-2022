@@ -1,7 +1,9 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.RobotGlobal;
 import frc.robot.subsystems.DrivetrainSubsystem;
 
 import java.util.function.DoubleSupplier;
@@ -29,6 +31,8 @@ public class DefaultDriveCommand extends CommandBase {
     public void initialize() {
         m_drivetrainSubsystem.setFieldRelative(false);
         System.out.println("DEFAULT");
+        RobotGlobal.DriveState = "RobotRelative";
+        SmartDashboard.putString("Drivestate", RobotGlobal.DriveState);
     }
     @Override
     public void execute() {

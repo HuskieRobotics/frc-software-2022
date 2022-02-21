@@ -1,7 +1,11 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.RobotGlobal;
 import frc.robot.subsystems.DrivetrainSubsystem;
 
 import java.util.function.DoubleSupplier;
@@ -27,8 +31,11 @@ public class FieldRelativeDriveCommand extends CommandBase {
 
     @Override
     public void initialize() {
+        ShuffleboardTab tab2 = Shuffleboard.getTab("Drivetrain");
         m_drivetrainSubsystem.setFieldRelative(true);
         System.out.println("Field Relative");
+        RobotGlobal.DriveState = "FieldRelative";
+        SmartDashboard.putString("Drivestate", RobotGlobal.DriveState);
     }
     @Override
     public void execute() {
@@ -39,7 +46,7 @@ public class FieldRelativeDriveCommand extends CommandBase {
                         m_translationXSupplier.getAsDouble(),
                         m_translationYSupplier.getAsDouble(),
                         m_rotationSupplier.getAsDouble(),
-                        m_drivetrainSubsystem.getRotation()
+                        m_drivetrainSubsystem.getGyroscopeRotation()
                 )
         );
 
