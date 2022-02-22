@@ -27,6 +27,7 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.*;
@@ -74,7 +75,7 @@ private final Joystick joystick0 = new Joystick(0);
     // Left stick X axis -> left and right movement
     // Right stick X axis -> rotation
     
-    m_drivetrainSubsystem.setDefaultCommand(new FieldRelativeDriveCommand(
+    m_drivetrainSubsystem.setDefaultCommand(new DefaultDriveCommand(
         m_drivetrainSubsystem,
         () -> -modifyAxis(joystick0.getY()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
         () -> -modifyAxis(joystick0.getX()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
@@ -126,34 +127,22 @@ private final Joystick joystick0 = new Joystick(0);
    * Button}.
    */
   private void configureButtonBindings() {
-    // Back button zeros the gyroscope
-    
-
-    final JoystickButton joystickButton1_10 = new JoystickButton(joystick1, 10);
-    joystickButton1_10.whenPressed(new InstantCommand(m_drivetrainSubsystem::fieldRelativeToggle, m_drivetrainSubsystem));
     final JoystickButton joystickButton1_2 = new JoystickButton(joystick1, 2);
     joystickButton1_2.whileHeld(new InstantCommand(() -> m_drivetrainSubsystem.setXStance()));
     this.joystickButton1_3 = new JoystickButton(joystick1, 3);
-    final JoystickButton joystickButton1_4 = new JoystickButton(joystick1, 4);
-    
     this.joystickButton1_3.toggleWhenPressed(
-      new ConditionalCommand(
-        new DefaultDriveCommand(
-        m_drivetrainSubsystem,
-        () -> -modifyAxis(joystick0.getY()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-        () -> -modifyAxis(joystick0.getX()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-        () -> -modifyAxis(joystick1.getX()) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND),
-        new FieldRelativeDriveCommand(
-        m_drivetrainSubsystem,
-        () -> -modifyAxis(joystick0.getY()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-        () -> -modifyAxis(joystick0.getX()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-        () -> -modifyAxis(joystick1.getX()) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND),
-        joystickButton1_3 :: get));
-        
-        
+      new StartEndCommand(
+        m_drivetrainSubsystem :: enableFieldRelative,
+        m_drivetrainSubsystem :: disableFieldRelative,
+        m_drivetrainSubsystem));
+    
+    final JoystickButton joystickButton1_4 = new JoystickButton(joystick1, 4);
+    //change to use whenHeld(m_drivetrainSubsystem::setCenterGrav(0,0));
+    //create command?
+    joystickButton1_4.whenHeld(new InstantCommand(() -> m_drivetrainSubsystem.setCenterGrav(0, 0), m_drivetrainSubsystem));
 
-        
-        joystickButton1_4.whenPressed(new InstantCommand(() -> m_drivetrainSubsystem.setFieldRelative(true)));
+      
+
     
 // Create some buttons
 final JoystickButton joystickButton1_1 = new JoystickButton(joystick1, 1);        
