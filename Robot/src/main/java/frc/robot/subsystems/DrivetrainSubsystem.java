@@ -4,15 +4,13 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.sensors.PigeonIMU;
-import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -20,7 +18,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -30,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.DrivetrainConstants.*;
 
-import java.util.function.DoubleSupplier;
 
 public class DrivetrainSubsystem extends SubsystemBase {
   /**
@@ -49,7 +45,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * <p>
    * This is a measure of how fast the robot should be able to drive in a straight line.
    */
-  public static final double MAX_VELOCITY_METERS_PER_SECOND = 5880.0 / 60.0 *
+  public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
           SdsModuleConfigurations.MK4_L2.getDriveReduction() *
           SdsModuleConfigurations.MK4_L2.getWheelDiameter() * Math.PI;
   /**
@@ -60,8 +56,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   // Here we calculate the theoretical maximum angular velocity. You can also replace this with a measured amount.
   public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
           Math.hypot(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0);
-  private static final double SWERVE_PID_D = 0;
-
+  
   
 
   private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
@@ -87,7 +82,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private final SwerveModule m_backLeftModule;
   private final SwerveModule m_backRightModule;
   private boolean isFieldRelative;
-  private boolean isJoystickControlAllowed;
   private Translation2d m_robotCenter;
   private NetworkTableEntry fieldRelativeNT;
 
@@ -96,10 +90,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
  private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
+ private SimpleMotorFeedforward feedForward;
+
   public DrivetrainSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
     this.isFieldRelative = false;
-    this.isJoystickControlAllowed = true;
     this.m_robotCenter = new Translation2d(0,0);
 
     m_pigeon.setYaw(0.0);
@@ -175,10 +170,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
             BACK_RIGHT_MODULE_STEER_OFFSET
     );
 
+    this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts,
+                        AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
+
     tab.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
     tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
     tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
-    tab.addNumber("Yaw",() -> m_pigeon.getYaw());
+    tab.addNumber("Pose Rotation", () -> m_odometry.getPoseMeters().getRotation().getDegrees());
     this.fieldRelativeNT = Shuffleboard.getTab("Drivetrain")
                 .add("FieldRelativeState", this.isFieldRelative)
                 .getEntry();
@@ -205,6 +203,16 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public Rotation2d getGyroscopeRotation() {
     return Rotation2d.fromDegrees(m_pigeon.getYaw());
   }
+
+  public Pose2d getPose() {
+        return m_odometry.getPoseMeters();
+        }
+
+        public void resetOdometry(Pose2d pose)
+        {
+                m_odometry.resetPosition(pose, Rotation2d.fromDegrees(m_pigeon.getYaw()));
+        }
+
   //Implement change in center of gravity here
   public void drive(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
         if(isFieldRelative){
@@ -234,6 +242,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 states[3].angle.getRadians());
 }
 
+
+
   @Override     
   public void periodic() {  
         m_odometry.update(Rotation2d.fromDegrees(m_pigeon.getYaw()),
@@ -243,6 +253,25 @@ public class DrivetrainSubsystem extends SubsystemBase {
         new SwerveModuleState(m_backRightModule.getDriveVelocity(), new Rotation2d(m_backRightModule.getSteerAngle()))
         );
   }
+
+  public void setSwerveModuleStates(SwerveModuleState[] states) {
+        m_frontLeftModule.set(this.calculateFeedforwardVoltage(states[0].speedMetersPerSecond), states[0].angle.getRadians());
+        m_frontRightModule.set(this.calculateFeedforwardVoltage(states[1].speedMetersPerSecond), states[1].angle.getRadians());
+        m_backLeftModule.set(this.calculateFeedforwardVoltage(states[2].speedMetersPerSecond), states[2].angle.getRadians());
+        m_backRightModule.set(this.calculateFeedforwardVoltage(states[3].speedMetersPerSecond), states[3].angle.getRadians());
+}
+
+private double calculateFeedforwardVoltage(double velocity) {
+        double voltage = this.feedForward.calculate(velocity);
+        if(voltage > MAX_VOLTAGE) {
+                return MAX_VOLTAGE;
+        }
+        return voltage;
+}
+
+public SwerveDriveKinematics getKinematics() {
+                return m_kinematics;
+        }
 
   public boolean getFieldRelative(){
           return isFieldRelative;
@@ -284,7 +313,4 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
   }
-
-
-
 
