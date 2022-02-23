@@ -205,25 +205,42 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public Rotation2d getGyroscopeRotation() {
     return Rotation2d.fromDegrees(m_pigeon.getYaw());
   }
-
+  //Implement change in center of gravity here
   public void drive(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
         if(isFieldRelative){
+                m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                translationXSupplier,
+                translationYSupplier,
+                rotationSupplier,
+                getGyroscopeRotation()
+                );
+                SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
+                m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+                        states[0].angle.getRadians());
+                m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+                        states[1].angle.getRadians());
+                m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+                        states[2].angle.getRadians());
+                m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+                        states[3].angle.getRadians());
+        }
+        else if(!isFieldRelative){
                 m_chassisSpeeds = new ChassisSpeeds(
                         translationXSupplier,
                         translationYSupplier,
                         rotationSupplier
                 );
+                SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
+                m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+                        states[0].angle.getRadians());
+                m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+                        states[1].angle.getRadians());
+                m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+                        states[2].angle.getRadians());
+                m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
+                        states[3].angle.getRadians());
         }
-        else if(!isFieldRelative){
-                m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                        translationXSupplier,
-                        translationYSupplier,
-                        rotationSupplier,
-                        getGyroscopeRotation()
-                );
-        }
-
-  }
+}
 
   @Override     
   public void periodic() {  
@@ -233,12 +250,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         new SwerveModuleState(m_backLeftModule.getDriveVelocity(), new Rotation2d(m_backLeftModule.getSteerAngle())),
         new SwerveModuleState(m_backRightModule.getDriveVelocity(), new Rotation2d(m_backRightModule.getSteerAngle()))
         );
-        SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);    
-           m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[0].angle.getRadians());
-           m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
-           m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[2].angle.getRadians());
-           m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());
-        }
+  }
 
   public boolean getFieldRelative(){
           return isFieldRelative;
@@ -264,7 +276,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
           //BR
           m_backRightModule.set(0, Math.PI*-3/4);
   }
-
+ /*
+ Make center of gravity into a instance command and have the instance command change based on the method
+  need to implement the instance variable within the periodic method 
+  Create either a whenPressed or toggleWhenPressed method in robotContainer
+  Use below method to test
+ */
   public void setCenterGrav(int x, int y){
         Translation2d centerGravity = new Translation2d(x,y);
         SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds , centerGravity);    
