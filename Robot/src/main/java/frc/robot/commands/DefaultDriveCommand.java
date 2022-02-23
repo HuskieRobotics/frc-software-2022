@@ -1,7 +1,9 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.RobotGlobal;
 import frc.robot.subsystems.DrivetrainSubsystem;
 
 import java.util.function.DoubleSupplier;
@@ -25,49 +27,24 @@ public class DefaultDriveCommand extends CommandBase {
         addRequirements(drivetrainSubsystem);
     }
 
+    @Override
+    public void initialize() {
 
+    }
     @Override
     public void execute() {
         // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of field-oriented movement
-       
 
-        if(m_drivetrainSubsystem.getFieldRelative()){
             m_drivetrainSubsystem.drive(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                        m_translationXSupplier.getAsDouble(),
-                        m_translationYSupplier.getAsDouble(),
-                        m_rotationSupplier.getAsDouble(),
-                        m_drivetrainSubsystem.getGyroscopeRotation()
-                )
-        );
-
-        }
-
-        else{
-            m_drivetrainSubsystem.drive(
-                new ChassisSpeeds(
                         m_translationXSupplier.getAsDouble(),
                         m_translationYSupplier.getAsDouble(),
                         m_rotationSupplier.getAsDouble()
-                )
         );
-        }
-        
-
-        
-
-        
-       
-
-        
-
-        
-        
         //m_drivetrainSubsystem.drive(new ChassisSpeeds(m_translationXSupplier.getAsDouble(), m_translationYSupplier.getAsDouble(), m_rotationSupplier.getAsDouble()));
     }
 
     @Override
     public void end(boolean interrupted) {
-        m_drivetrainSubsystem.drive(new ChassisSpeeds(0.0, 0.0, 0.0));
+        m_drivetrainSubsystem.drive(0.0, 0.0, 0.0);
     }
 }
