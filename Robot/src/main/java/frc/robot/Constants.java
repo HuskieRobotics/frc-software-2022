@@ -62,4 +62,8 @@ public final class Constants {
 
     public static final int PIGEON_ID = 18;
   }
+
+  public static final class RobotGlobal {
+    public static String DriveState = "RobotRelative";
+  }
 }
