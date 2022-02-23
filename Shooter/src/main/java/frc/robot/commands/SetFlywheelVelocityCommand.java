@@ -6,9 +6,15 @@ import frc.robot.subsystems.Flywheel;
 
 public class SetFlywheelVelocityCommand extends CommandBase{
     private Flywheel flywheel;
+    private double velocity;
     public SetFlywheelVelocityCommand(Flywheel flywheel) {
         this.flywheel = flywheel;
+        this.velocity = flywheel.getLimelightVelocity();
         
+    }
+    public SetFlywheelVelocityCommand(Flywheel flywheel, double velocity){
+        this.flywheel = flywheel;
+        this.velocity = velocity;
     }
 
     // Called when the command is initially scheduled.
@@ -19,7 +25,7 @@ public class SetFlywheelVelocityCommand extends CommandBase{
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        flywheel.setVelocity(flywheel.getDesiredVelocity());
+        flywheel.setVelocity(this.velocity);
     }
 
     // Called once the command ends or is interrupted.

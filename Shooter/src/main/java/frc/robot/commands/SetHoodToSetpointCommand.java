@@ -7,8 +7,6 @@ import frc.robot.Constants.HoodConstants;
 import frc.robot.subsystems.Hood;
 
 public class SetHoodToSetpointCommand extends PIDCommand{
-   
-    
     public SetHoodToSetpointCommand(Hood hood) {
         /*super(
             new PIDController(HoodConstants.HOOD_P, 0, 0), 
