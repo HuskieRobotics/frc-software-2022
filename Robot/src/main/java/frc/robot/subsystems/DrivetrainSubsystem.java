@@ -4,15 +4,12 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.sensors.PigeonIMU;
-import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -21,7 +18,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -31,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.DrivetrainConstants.*;
 
-import java.util.function.DoubleSupplier;
 
 public class DrivetrainSubsystem extends SubsystemBase {
   /**
@@ -61,8 +56,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   // Here we calculate the theoretical maximum angular velocity. You can also replace this with a measured amount.
   public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
           Math.hypot(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0);
-  private static final double SWERVE_PID_D = 0;
-
+  
   
 
   private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
@@ -88,7 +82,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private final SwerveModule m_backLeftModule;
   private final SwerveModule m_backRightModule;
   private boolean isFieldRelative;
-  private boolean isJoystickControlAllowed;
   private Translation2d m_robotCenter;
   private NetworkTableEntry fieldRelativeNT;
 
@@ -102,7 +95,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public DrivetrainSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
     this.isFieldRelative = false;
-    this.isJoystickControlAllowed = true;
     this.m_robotCenter = new Translation2d(0,0);
 
     m_pigeon.setYaw(0.0);
@@ -277,6 +269,10 @@ private double calculateFeedforwardVoltage(double velocity) {
         return voltage;
 }
 
+public SwerveDriveKinematics getKinematics() {
+                return m_kinematics;
+        }
+
   public boolean getFieldRelative(){
           return isFieldRelative;
   }
@@ -318,37 +314,3 @@ private double calculateFeedforwardVoltage(double velocity) {
 
   }
 
-
-
-        public void feildRelativeOff() {
-                this.isFieldRelative = false;
-        }
-
-        public void enableJoystickControlls() {
-                this.isJoystickControlAllowed = true;
-        }
-
-        public void disableJoystickControlls() {
-                this.isJoystickControlAllowed = false;
-        }
-
-        public void setXStance() {
-                // FL
-                m_frontLeftModule.set(0, Math.PI * 5 / 4);
-                // FR
-                m_frontRightModule.set(0, Math.PI * -5 / 4);
-                // BL
-                m_backLeftModule.set(0, Math.PI * 3 / 4);
-                // BR
-                m_backRightModule.set(0, Math.PI * -3 / 4);
-        }
-
-        public void setCenterGrav(Translation2d center) {
-                this.m_robotCenter = center;
-
-        }
-
-        public void zeroGyroscopePose() {
-
-        }
-}
