@@ -46,12 +46,6 @@ public class Flywheel extends SubsystemBase {
 
     private double velocitySetPoint;
 
-    private NetworkTableEntry isAtSetpointNT;
-    private NetworkTableEntry rightEncoderReadingNT;
-    private NetworkTableEntry leftEncoderReadingNT;
-    private NetworkTableEntry rightClosedLoopErrorNT;
-    private NetworkTableEntry leftClosedLoopErrorNT;
-
     private NetworkTableEntry velocitySetPointNT;
     private NetworkTableEntry motorPowerNT;
     private NetworkTableEntry FConstantNT;
@@ -129,25 +123,14 @@ public class Flywheel extends SubsystemBase {
 
         // Each robot feature has its own Shuffleboard tab (i.e., "Shooter")
         //  Add indicators and associated commands to this Shuffleboard tab to assist with testing specific commands.
-        this.isAtSetpointNT = Shuffleboard.getTab("Shooter")
-                .add("FlywheelIsAtSetpoint", false)
-                .getEntry();
-        this.rightEncoderReadingNT = Shuffleboard.getTab("Shooter")
-                .add("FlywheelRightEncoderReading", 0.0)
-                .getEntry();
-        this.leftEncoderReadingNT = Shuffleboard.getTab("Shooter")
-                .add("FlywheelLeftEncoderReading", 0.0)
-                .getEntry();
+        Shuffleboard.getTab("Shooter").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
 
-        this.rightClosedLoopErrorNT = Shuffleboard.getTab("Shooter")
-                .add("FlywheelRightClosedLoopError", 0.0)
-                .getEntry();
-        this.leftClosedLoopErrorNT = Shuffleboard.getTab("Shooter")
-                .add("FlywheelLeftClosedLoopError", 0.0)
-                .getEntry();
+        Shuffleboard.getTab("Shooter").addNumber("FlywheelRightEncoderReading", this.talonRight::getSelectedSensorVelocity);
+        Shuffleboard.getTab("Shooter").addNumber("FlywheelLeftEncoderReading", this.talonLeft::getSelectedSensorVelocity);
+        Shuffleboard.getTab("Shooter").addNumber("FlywheelRightClosedLoopError", this.talonRight::getClosedLoopError);
+        Shuffleboard.getTab("Shooter").addNumber("FlywheelLeftClosedLoopError", this.talonLeft::getClosedLoopError);
 
-        Shuffleboard.getTab("Shooter").add("SpinFlywheelForFenderCommand",
-                new SpinFlywheelCommand(this, FENDER_VELOCITY));
+        Shuffleboard.getTab("Shooter").add("SpinFlywheelForFenderCommand", new SpinFlywheelCommand(this, FENDER_VELOCITY));
         Shuffleboard.getTab("Shooter").add("StopFlywheelCommand", new InstantCommand(this::stopFlywheel, this));
 
 
@@ -195,11 +178,6 @@ public class Flywheel extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        this.isAtSetpointNT.setBoolean(this.isAtSetpoint());
-        this.rightEncoderReadingNT.setDouble(this.talonRight.getSelectedSensorVelocity(SLOT_INDEX));
-        this.leftEncoderReadingNT.setDouble(this.talonLeft.getSelectedSensorVelocity(SLOT_INDEX));
-        this.rightClosedLoopErrorNT.setDouble(this.talonRight.getClosedLoopError(SLOT_INDEX));
-        this.leftClosedLoopErrorNT.setDouble(this.talonLeft.getClosedLoopError(SLOT_INDEX));
 
         // the following code will only run when we are tuning the system (i.e., not under normal robot operation)
         if (TUNING) {
