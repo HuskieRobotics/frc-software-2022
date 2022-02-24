@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.ErrorCode;
+import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
@@ -98,6 +100,53 @@ public class DrivetrainSubsystem extends SubsystemBase {
     this.m_robotCenter = new Translation2d(0,0);
 
     m_pigeon.setYaw(0.0);
+
+    // Ensure that the CANcoder has sent a CAN frame with the absolute encoder value since power-on.
+    // It is also important that each CANcoder is configured to "Boot to Absolute" in Phoenix Tuner.
+    CANCoder frontLeftEncoder = new CANCoder(FRONT_LEFT_MODULE_STEER_ENCODER);
+    CANCoder frontRightEncoder = new CANCoder(FRONT_RIGHT_MODULE_STEER_ENCODER);
+    CANCoder backLeftEncoder = new CANCoder(BACK_LEFT_MODULE_STEER_ENCODER);
+    CANCoder backRightEncoder = new CANCoder(BACK_RIGHT_MODULE_STEER_ENCODER);
+    ErrorCode err = ErrorCode.OK;
+    int tries = 0;
+
+    do
+    {
+        tries++;
+        frontLeftEncoder.getPosition();
+        if(frontLeftEncoder.getLastError() != ErrorCode.OK)
+        {
+                err = frontLeftEncoder.getLastError();
+        }
+
+        frontRightEncoder.getPosition();
+        if(frontRightEncoder.getLastError() != ErrorCode.OK)
+        {
+                err = frontRightEncoder.getLastError();
+        }
+
+        backLeftEncoder.getPosition();
+        if(backLeftEncoder.getLastError() != ErrorCode.OK)
+        {
+                err = backLeftEncoder.getLastError();
+        }
+
+        backRightEncoder.getPosition();
+        if(backRightEncoder.getLastError() != ErrorCode.OK)
+        {
+                err = backRightEncoder.getLastError();
+        }
+
+        try {
+                Thread.sleep(100);
+        } catch (InterruptedException e) {
+                e.printStackTrace();
+        }
+    }
+    while(err != ErrorCode.OK);
+
+    // display on Shuffleboard that all 
+    tab.add("encoders initialized", tries);
 
     // There are 4 methods you can call to create your swerve modules.
     // The method you use depends on what motors you are using.
