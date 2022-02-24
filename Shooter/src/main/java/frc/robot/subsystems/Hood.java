@@ -73,7 +73,8 @@ private WPI_TalonSRX hoodMotor;
     }
 
     public double getHoodSetpointLimeLight() {
-        return 0.0;//FIX_ME should return a hood angle based on our equation and limelight
+        
+        return 0.0;
     }
 
     public void setHoodMotorPower(double pwr) {
