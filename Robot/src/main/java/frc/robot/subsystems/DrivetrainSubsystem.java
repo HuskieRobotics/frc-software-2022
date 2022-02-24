@@ -194,6 +194,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
     
 
   }
+
+  public double getLimelightX(){
+       return NetworkTableEntry.getDefault().getTab("limelight").getEntry("tx").getDouble(0);
+  }
   public void zeroPoseGyroscope(){
           m_odometry.resetPosition(new Pose2d(m_odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0.0)),
           Rotation2d.fromDegrees(m_pigeon.getFusedHeading()));

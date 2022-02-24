@@ -48,6 +48,7 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 8;
     public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(297.509765625);
     // 297.685546875 //359.637451171875
+    public static final double P_LIMELIGHT = 1;
 
     /**
      * The left-to-right distance between the drivetrain wheels
@@ -86,4 +87,5 @@ public final class Constants {
           new TrapezoidProfile.Constraints(
               kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
+
 }

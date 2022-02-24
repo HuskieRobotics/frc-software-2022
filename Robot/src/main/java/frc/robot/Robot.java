@@ -14,11 +14,22 @@ package frc.robot;
 
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Path;
+
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoSink;
+import edu.wpi.first.cscore.VideoMode.PixelFormat;
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+import edu.wpi.first.cameraserver.CameraServer;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -33,6 +44,12 @@ public class Robot extends TimedRobot {
 
     private RobotContainer m_robotContainer;
 
+    public UsbCamera camera1;
+    public UsbCamera camera2;
+    public VideoSink server;
+    public NetworkTableEntry cameraSelection;
+
+
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -43,6 +60,24 @@ public class Robot extends TimedRobot {
         // autonomous chooser on the dashboard.
         m_robotContainer = RobotContainer.getInstance();
         HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);
+        //camera1 = new UsbCamera("no3d",0);
+        //camera2 = new UsbCamera("3d",1);
+        // camera1 = CameraServer.startAutomaticCapture(0);
+        // camera2 = CameraServer.startAutomaticCapture(1);
+        // camera1.setPixelFormat(PixelFormat.kYUYV);
+        // camera2.setPixelFormat(PixelFormat.kYUYV);
+        // camera1.setFPS(30);
+        // camera1.setResolution(320, 240);
+        // camera2.setFPS(30);
+        // camera2.setResolution(320, 240);
+
+        
+        // CameraServer.getServer();
+
+        // camera1.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+        // camera2.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+
+        
     }
 
     /**
@@ -60,6 +95,12 @@ public class Robot extends TimedRobot {
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
         SmartDashboard.putBoolean("joystick1_3", m_robotContainer.joystickButton1_3.get());
+        
+
+
+        
+        
+        
     }
 
 
@@ -110,6 +151,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopPeriodic() {
+
     }
 
     @Override
