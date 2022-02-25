@@ -7,7 +7,6 @@ import frc.robot.subsystems.SecondMechanism;
 
 public class ExtendClimberToHeightCommand extends CommandBase {
     private final Elevator m_elevator;
-    private double m_power;
     private double m_height;
 
 
@@ -25,14 +24,11 @@ public class ExtendClimberToHeightCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        if (m_elevator.getLeftElevatorMotorHeight() > m_height){
-            m_power *= -1;
-        }
     }
 
     @Override
     public void execute() {
-        m_elevator.setElevatorMotorPower(m_power);
+        m_elevator.setElevatorMotorPosition(m_height);
     }
 
     @Override

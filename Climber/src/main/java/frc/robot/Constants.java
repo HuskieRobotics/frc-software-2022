@@ -21,7 +21,6 @@ package frc.robot;
  */
 public class Constants {
     public static final boolean TUNING = true;
-    public static final int TEST = 0;
     public static final int SLOT_INDEX = 0;
     public static class ElevatorConstants{
         public static final double MAX_ELEVATOR_ENCODER_HEIGHT = 0; //FIX_ME find the max elevator height encoder value
@@ -32,11 +31,15 @@ public class Constants {
         public static final double ELEVATOR_MOTOR_POWER = 0; //FIX_ME find what we want the elevator motor power to be(maybe the max?)
         public static final int LEFT_ELEVATOR_MOTOR_CAN_ID = 18;
         public static final int RIGHT_ELEVATOR_MOTOR_CAN_ID = 19; 
-        public static final int kSlotIdx = 0;
-        public static final int kPIDLoopIdx = 0;
-        public static final int kTimeoutMs = 30;
-        public static final int ELEVATOR_POSITION_TOLERANCE = 0; //FIX_ME tune this should be how off our velocity can be 
-        public final static Gains kGains_Velocit  = new Gains( .74,      0,   0,    .05265,        0,    1.00);
+        public static final int kSlotIdx = 0;//FIXME copy and pasted from flywheel prolly dif
+        public static final int kPIDLoopIdx = 0;//FIXME copy and pasted from flywheel prolly dif
+        public static final int kTimeoutMs = 30;//FIXME copy and pasted from flywheel prolly dif
+        public static final int ELEVATOR_POSITION_TOLERANCE = 0; //FIX_ME tune this should be how off our position can be 
+        public final static Gains kGains_Velocit  = new Gains( .74,      0,   0,    .05265,        0,    1.00); //FIXME copy and pasted from flywheel prolly dif
+        public final static double MAX_ELEVATOR_VELOCITY = 0;//FIXME determine the max velocity of our robot
+        public final static double ELEVATOR_ACCELERATION = 0;//FIXME determine the acceleration of our robot, the slope of our motion profile if scureve = 0
+        public final static int SCURVE_STRENGTH = 0;//FIXME determine the strength of our "scurve" the curve of theacceloration of our motion profile [1,8]
+        
   }
     public class SecondMechanismConstants { 
         public static final int PNEUMATIC_HUB_CAN_ID = 20;
