@@ -21,7 +21,9 @@ package frc.robot;
  */
 public class Constants {
     public static final boolean TUNING = true;
-    public class ElevatorConstants{
+    public static final int TEST = 0;
+    public static final int SLOT_INDEX = 0;
+    public static class ElevatorConstants{
         public static final double MAX_ELEVATOR_ENCODER_HEIGHT = 0; //FIX_ME find the max elevator height encoder value
         public static final double MIN_ELEVATOR_ENCODER_HEIGHT = 0;
         public static final double SECOND_RUNG_ENCODER_HEIGHT = 0;//FIX_ME the height the elevator should be at to get on the second rung
@@ -29,7 +31,12 @@ public class Constants {
         public static final double FOURTH_RUNG_ENCODER_HEIGHT = 0;//FIX_ME the height the elevator should be at to get from the third to fourth rung
         public static final double ELEVATOR_MOTOR_POWER = 0; //FIX_ME find what we want the elevator motor power to be(maybe the max?)
         public static final int LEFT_ELEVATOR_MOTOR_CAN_ID = 18;
-        public static final int RIGHT_ELEVATOR_MOTOR_CAN_ID = 19;       
+        public static final int RIGHT_ELEVATOR_MOTOR_CAN_ID = 19; 
+        public static final int kSlotIdx = 0;
+        public static final int kPIDLoopIdx = 0;
+        public static final int kTimeoutMs = 30;
+        public static final int ELEVATOR_POSITION_TOLERANCE = 0; //FIX_ME tune this should be how off our velocity can be 
+        public final static Gains kGains_Velocit  = new Gains( .74,      0,   0,    .05265,        0,    1.00);
   }
     public class SecondMechanismConstants { 
         public static final int PNEUMATIC_HUB_CAN_ID = 20;

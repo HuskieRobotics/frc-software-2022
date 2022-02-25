@@ -14,14 +14,12 @@ public class ExtendClimberToHeightCommand extends CommandBase {
     public ExtendClimberToHeightCommand(Elevator subsystem){ 
         m_elevator = subsystem;
         addRequirements(m_elevator);
-        m_power = ElevatorConstants.ELEVATOR_MOTOR_POWER;
         m_height = ElevatorConstants.MIN_ELEVATOR_ENCODER_HEIGHT;
     }
 
     public ExtendClimberToHeightCommand(Elevator subsystem, double height){ 
         m_elevator = subsystem;
         addRequirements(m_elevator);
-        m_power = ElevatorConstants.ELEVATOR_MOTOR_POWER;
         m_height = height;
     }
 
@@ -44,12 +42,7 @@ public class ExtendClimberToHeightCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        if(m_elevator.getLeftElevatorMotorHeight() == m_height){  //FIX_ME should be changed to a tollerance(can be +- sonme value)
-            return true;
-        }
-        else{
-            return false;
-        }
+        return m_elevator.atLeftSetpoint();
     }
 
     @Override
