@@ -57,7 +57,7 @@ private WPI_TalonSRX hoodMotor;
 
     @Override
     public void periodic() {
-        this.shooterAngleNT.setDouble(this.limelight.getIdealHoodA());
+       
 
 
         // This method will be called once per scheduler run
