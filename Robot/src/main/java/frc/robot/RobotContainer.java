@@ -190,6 +190,10 @@ public Joystick getJoystick1() {
         AutoConstants.kMaxAccelerationMetersPerSecondSquared), thetaController, m_drivetrainSubsystem);
   }
 
+  public DrivetrainSubsystem getDrivetrainSubsystem() {
+    return m_drivetrainSubsystem;
+  }
+
   private static double deadband(double value, double deadband) {
     if (Math.abs(value) > deadband) {
       if (value > 0.0) {
