@@ -5,8 +5,16 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.Constants.LimelightConstants;
 
+
+
+
 public class Limelight {
     
+    private NetworkTableEntry limelightDistanceInNT;
+    private NetworkTableEntry velocityNT;
+    private NetworkTableEntry shooterAngleNT;
+
+
     double vx;
     double vy;
     double d2;
@@ -15,6 +23,7 @@ public class Limelight {
     double h1;
 
     public Limelight() {
+    
         d2 = getLimelightDistanceIn();
         d1 = d2 + LimelightConstants.D2_D1_OFFSET;
         h2 = LimelightConstants.HUB_H + 12;
