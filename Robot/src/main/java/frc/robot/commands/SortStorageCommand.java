@@ -32,7 +32,7 @@ public class SortStorageCommand extends CommandBase{
             this.m_storage.setStoragePower(0);
         }
         else if(!this.m_storage.isCollectorSensorUnblocked() & this.m_storage.isShooterSensorUnblocked()){
-            this.m_storage.setStoragePower(StorageConstants.STORAGE_DEFUALT_SPEED); 
+            this.m_storage.setStoragePower(StorageConstants.STORAGE_DEFAULT_SPEED); 
         }
     }
 
