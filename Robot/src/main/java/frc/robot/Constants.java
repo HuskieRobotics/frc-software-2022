@@ -81,7 +81,7 @@ public final class Constants {
       public static int SHOOTER_SENSOR = 1;
       public static int COLLECTOR_SENSOR = 0;
       public static int STORAGE_MOTOR_ID = 4;
-      public static double STORAGE_DEFUALT_SPEED = 0.5; //FIX_ME change this to desired speed
+      public static double STORAGE_DEFAULT_SPEED = 0.5; //FIX_ME change this to desired speed
   }
 
     public static final class AutoConstants {
