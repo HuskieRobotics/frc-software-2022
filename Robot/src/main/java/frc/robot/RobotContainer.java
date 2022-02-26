@@ -166,24 +166,16 @@ public class RobotContainer {
     ));
     
     //intake
-      // joystickButtons1[1].toggleWhenPressed(
-      //   new ConditionalCommand(
-      //     new SequentialCommandGroup(
-      //       new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.COLLECTOR_DEFUALT_SPEED)),
-      //       new SortStorageCommand(m_storage)), 
-      //     new ParallelCommandGroup(
-      //       new InstantCommand(() -> m_collector.retractCollectorPiston()),
-      //       new InstantCommand(() -> m_storage.setStoragePower(0))),
-      //     joystickButtons1[1] :: get));
       joystickButtons1[1].toggleWhenPressed(
         new ConditionalCommand(
-          new SequentialCommandGroup(
-            new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.COLLECTOR_DEFUALT_SPEED)),
-            new SortStorageCommand(m_storage)), 
           new ParallelCommandGroup(
-            new InstantCommand(() -> m_collector.setCollectorPower(0)),
-            new InstantCommand(() -> m_storage.setStoragePower(0))),
-            joystickButtons1[1] :: get));
+            new InstantCommand(() -> m_collector.disableCollector()),
+            new InstantCommand(() -> m_storage.setStoragePower(0.0))),
+          new SequentialCommandGroup(
+              new InstantCommand(() -> m_collector.enableCollector()),
+              new SortStorageCommand(m_storage),
+              new InstantCommand(() -> m_collector.disableCollector())),
+            m_collector::isEnabled));
               
     //outtake
     joystickButtons1[5].whenHeld(
