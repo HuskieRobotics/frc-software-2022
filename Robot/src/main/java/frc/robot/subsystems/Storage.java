@@ -80,8 +80,8 @@ private DigitalOutput shooterSensor1;
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        this.collectorSensorReadingNT.setBoolean(this.collectorSensorUnblocked());
-        this.shootSensorReadingNT.setBoolean(this.shooterSensorUnblocked());
+        this.collectorSensorReadingNT.setBoolean(this.isCollectorSensorUnblocked());
+        this.shootSensorReadingNT.setBoolean(this.isShooterSensorUnblocked());
         if(TUNING){
         double storagePower = this.storagePowerSetPointNT.getDouble(0.0); 
         this.setStoragePower(storagePower);
@@ -101,11 +101,11 @@ private DigitalOutput shooterSensor1;
         this.storage4.set(ControlMode.PercentOutput, power);
     }
 
-    public boolean shooterSensorUnblocked(){
+    public boolean isShooterSensorUnblocked(){
         return this.shooterSensor1.get();
     }
 
-    public boolean collectorSensorUnblocked(){
+    public boolean isCollectorSensorUnblocked(){
         return this.collectorSensor0.get();
     }
 
