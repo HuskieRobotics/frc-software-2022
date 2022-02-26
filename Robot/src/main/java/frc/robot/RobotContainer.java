@@ -165,13 +165,22 @@ public class RobotContainer {
     XboxButtons[0].whenPressed(new InstantCommand(() -> m_collector.toggleCollectorState()));
     
     //intake
+      // joystickButtons1[1].toggleWhenPressed(
+      //   new ConditionalCommand(
+      //     new SequentialCommandGroup(
+      //       new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.COLLECTOR_DEFUALT_SPEED)),
+      //       new SortStorageCommand(m_storage)), 
+      //     new ParallelCommandGroup(
+      //       new InstantCommand(() -> m_collector.retractCollectorPiston()),
+      //       new InstantCommand(() -> m_storage.setStoragePower(0))),
+      //     joystickButtons1[1] :: get));
       joystickButtons1[1].toggleWhenPressed(
         new ConditionalCommand(
           new SequentialCommandGroup(
             new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.COLLECTOR_DEFUALT_SPEED)),
             new SortStorageCommand(m_storage)), 
           new ParallelCommandGroup(
-            new InstantCommand(() -> m_collector.retractCollectorPiston()),
+            new InstantCommand(() -> m_collector.setCollectorPower(0)),
             new InstantCommand(() -> m_storage.setStoragePower(0))),
           joystickButtons1[1] :: get));
               
