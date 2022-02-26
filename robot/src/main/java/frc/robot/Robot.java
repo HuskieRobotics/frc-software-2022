@@ -34,10 +34,7 @@ public class Robot extends TimedRobot {
 
     private RobotContainer m_robotContainer;
 
-    private NetworkTableEntry shooterAngleNT;
-    private NetworkTableEntry limelightDistanceInNT;
-    private NetworkTableEntry velocityNT;
-    private Limelight limelight;
+
 
     /**
      * This function is run when the robot is first started up and should be
@@ -50,18 +47,6 @@ public class Robot extends TimedRobot {
         m_robotContainer = RobotContainer.getInstance();
         HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);
 
-        this.limelight = new Limelight();
-
-        limelight = new Limelight();
-        this.shooterAngleNT= Shuffleboard.getTab("LimeTuning")
-            .add("shooterAng", 0.0)
-            .getEntry();
-        this.limelightDistanceInNT= Shuffleboard.getTab("LimeTuning")
-            .add("DistanceOutput", 0.0)
-            .getEntry();
-        this.velocityNT= Shuffleboard.getTab("LimeTuning")
-                .add("IdealVelocity", 0.0)
-                .getEntry();
     }
 
     /**
@@ -73,9 +58,6 @@ public class Robot extends TimedRobot {
     */
     @Override
     public void robotPeriodic() {
-        this.velocityNT.setDouble(this.limelight.getIdealVelocity());
-        this.shooterAngleNT.setDouble(this.limelight.getIdealHoodA());
-        this.limelightDistanceInNT.setDouble(this.limelight.getLimelightDistanceIn());
         // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
         // commands, running already-scheduled commands, removing finished or interrupted commands,
         // and running subsystem periodic() methods.  This must be called from the robot's periodic

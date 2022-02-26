@@ -1,14 +1,14 @@
-package frc.robot.commands;
+    package frc.robot.commands;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Limelight;
+import frc.robot.LimelightMath;
 import frc.robot.subsystems.Flywheel;
 
 public class SetFlywheelVelocityCommand extends CommandBase{
     private Flywheel flywheel;
     private double velocity;
-    public SetFlywheelVelocityCommand(Flywheel flywheel, Limelight limelight) {
+    public SetFlywheelVelocityCommand(Flywheel flywheel, LimelightMath limelight) {
         this.flywheel = flywheel;
         this.velocity = limelight.getIdealVelocity();
         
