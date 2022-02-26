@@ -26,17 +26,17 @@ public class SortStorageCommand extends CommandBase{
     @Override
     public void execute() {
         if(!this.m_storage.isShooterSensorUnblocked()){
-            this.m_storage.setStoragePower(0);
+            this.m_storage.disableStorage();
         }
         else if(!this.m_storage.isCollectorSensorUnblocked() & this.m_storage.isShooterSensorUnblocked()){
-            this.m_storage.setStoragePower(StorageConstants.STORAGE_DEFAULT_SPEED); 
+            this.m_storage.enableStorage();
         }
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        this.m_storage.setStoragePower(0);
+        this.m_storage.disableStorage();
 
         
     }

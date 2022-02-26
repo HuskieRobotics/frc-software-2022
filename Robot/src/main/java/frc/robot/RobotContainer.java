@@ -85,7 +85,6 @@ public class RobotContainer {
   this.joystickButtons0 = new JoystickButton[13];
   this.joystickButtons1 = new JoystickButton[13];
   this.XboxButtons = new Button[17];//operatorButtons
-  //this.xboxButtons = new JoystickButton[10];
   for(int i = 1; i <= joystickButtons0.length; i++) {
       joystickButtons0[i-1] = new JoystickButton(joystick0, i);
       joystickButtons1[i-1] = new JoystickButton(joystick1, i);
@@ -170,7 +169,7 @@ public class RobotContainer {
         new ConditionalCommand(
           new ParallelCommandGroup(
             new InstantCommand(() -> m_collector.disableCollector()),
-            new InstantCommand(() -> m_storage.setStoragePower(0.0))),
+            new InstantCommand(() -> m_storage.disableStorage())),
           new SequentialCommandGroup(
               new InstantCommand(() -> m_collector.enableCollector()),
               new SortStorageCommand(m_storage),

@@ -74,7 +74,6 @@ import edu.wpi.first.wpilibj.Solenoid;
         .getEntry();
     Shuffleboard.getTab("Collector").add("deployCollector",  new InstantCommand(this :: deployCollectorPiston, this));
     Shuffleboard.getTab("Collector").add("retractCollector",  new InstantCommand(this :: retractCollectorPiston, this));
-    // Shuffleboard.getTab("Collector").add("toggleCollectorState", new InstantCommand(this::toggleCollectorState, this));
     }
     
 
@@ -88,17 +87,6 @@ import edu.wpi.first.wpilibj.Solenoid;
         }
 
     }
-
-    // public void setCollectorPower(double power){
-    //     this.collector5.set(ControlMode.PercentOutput, power);
-    //     if(power != 0){
-    //         this.collectorPiston.set(true);
-    //     }
-    //     else {
-    //         this.collectorPiston.set(false);
-    //     }
-        
-    // }
 
     public void setCollectorPower(double power) { 
         this.collector5.set(ControlMode.PercentOutput, power);
@@ -120,24 +108,12 @@ import edu.wpi.first.wpilibj.Solenoid;
         return isEnabled;
     }
 
-    // public void toggleCollectorState(){
-    //     if(this.collectorPiston.get()){
-    //         this.collectorPiston.set(false);
-    //         this.collector5.set(ControlMode.PercentOutput, 0);
-    //     }
-    //     else{
-    //         this.collectorPiston.set(true);
-    //         this.collector5.set(ControlMode.PercentOutput,CollectorConstants.COLLECTOR_DEFUALT_SPEED);
-    //     }
-    // }
-
     public void deployCollectorPiston(){
        this.collectorPiston.set(true);
     }
 
     public void retractCollectorPiston(){
         this.collectorPiston.set(false);
-        this.collector5.set(ControlMode.PercentOutput, 0);
     }
 
     public boolean isPistonExtended(){
