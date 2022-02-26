@@ -17,6 +17,7 @@ import frc.robot.Constants.CollectorConstants;
 import static frc.robot.Constants.*; 
 import frc.robot.commands.*;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -69,10 +70,11 @@ import edu.wpi.first.wpilibj.Solenoid;
         .getEntry();
     this.setCollectorSpeed = Shuffleboard.getTab("Collector")
         .add("Collector speed", 0.0)
+        .withWidget(BuiltInWidgets.kNumberSlider)
         .getEntry();
     Shuffleboard.getTab("Collector").add("deployCollector",  new InstantCommand(this :: deployCollectorPiston, this));
     Shuffleboard.getTab("Collector").add("retractCollector",  new InstantCommand(this :: retractCollectorPiston, this));
-    Shuffleboard.getTab("Collector").add("toggleCollectorState", new InstantCommand(this::toggleCollectorState, this));
+    // Shuffleboard.getTab("Collector").add("toggleCollectorState", new InstantCommand(this::toggleCollectorState, this));
     }
     
 
@@ -87,31 +89,44 @@ import edu.wpi.first.wpilibj.Solenoid;
 
     }
 
-    public void setCollectorPower(double power){
-        this.collector5.set(ControlMode.PercentOutput, power);
-        if(power != 0){
-            this.collectorPiston.set(true);
-        }
-        else {
-            this.collectorPiston.set(false);
-        }
+    // public void setCollectorPower(double power){
+    //     this.collector5.set(ControlMode.PercentOutput, power);
+    //     if(power != 0){
+    //         this.collectorPiston.set(true);
+    //     }
+    //     else {
+    //         this.collectorPiston.set(false);
+    //     }
         
+    // }
+
+    public void setCollectorPower(double power) { 
+        this.collector5.set(ControlMode.PercentOutput, power);
     }
 
-    public void toggleCollectorState(){
-        if(this.collectorPiston.get()){
-            this.collectorPiston.set(false);
-            this.collector5.set(ControlMode.PercentOutput, 0);
-        }
-        else{
-            this.collectorPiston.set(true);
-            this.collector5.set(ControlMode.PercentOutput,CollectorConstants.COLLECTOR_DEFUALT_SPEED);
-        }
+    public void disableCollector() {
+        this.collector5.set(ControlMode.PercentOutput, 0);
+        this.collectorPiston.set(false);
     }
+
+    public void enableCollector(){
+        this.collector5.set(ControlMode.PercentOutput, CollectorConstants.COLLECTOR_DEFUALT_SPEED);
+        this.collectorPiston.set(true);
+    }
+
+    // public void toggleCollectorState(){
+    //     if(this.collectorPiston.get()){
+    //         this.collectorPiston.set(false);
+    //         this.collector5.set(ControlMode.PercentOutput, 0);
+    //     }
+    //     else{
+    //         this.collectorPiston.set(true);
+    //         this.collector5.set(ControlMode.PercentOutput,CollectorConstants.COLLECTOR_DEFUALT_SPEED);
+    //     }
+    // }
 
     public void deployCollectorPiston(){
        this.collectorPiston.set(true);
-       
     }
 
     public void retractCollectorPiston(){
