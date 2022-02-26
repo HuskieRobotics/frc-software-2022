@@ -27,10 +27,10 @@ public class SortStorageCommand extends CommandBase{
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        if(!this.storage.shooterSensorUnblocked()){
+        if(!this.storage.isShooterSensorUnblocked()){
             this.storage.setStoragePower(0);
         }
-        else if(!this.storage.collectorSensorUnblocked() & this.storage.shooterSensorUnblocked()){
+        else if(!this.storage.isCollectorSensorUnblocked() & this.storage.isShooterSensorUnblocked()){
             this.storage.setStoragePower(StorageConstants.STORAGE_DEFUALT_SPEED); 
         }
     }
@@ -45,6 +45,6 @@ public class SortStorageCommand extends CommandBase{
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return !this.storage.collectorSensorUnblocked() & !this.storage.shooterSensorUnblocked();
+        return !this.storage.isCollectorSensorUnblocked() & !this.storage.isShooterSensorUnblocked();
     }
 }
