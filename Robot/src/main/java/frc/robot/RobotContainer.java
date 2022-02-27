@@ -85,7 +85,6 @@ public class RobotContainer {
   this.joystickButtons0 = new JoystickButton[13];
   this.joystickButtons1 = new JoystickButton[13];
   this.XboxButtons = new Button[17];//operatorButtons
-  //this.xboxButtons = new JoystickButton[10];
   for(int i = 1; i <= joystickButtons0.length; i++) {
       joystickButtons0[i-1] = new JoystickButton(joystick0, i);
       joystickButtons1[i-1] = new JoystickButton(joystick1, i);
@@ -166,24 +165,16 @@ public class RobotContainer {
     ));
     
     //intake
-      // joystickButtons1[1].toggleWhenPressed(
-      //   new ConditionalCommand(
-      //     new SequentialCommandGroup(
-      //       new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.COLLECTOR_DEFUALT_SPEED)),
-      //       new SortStorageCommand(m_storage)), 
-      //     new ParallelCommandGroup(
-      //       new InstantCommand(() -> m_collector.retractCollectorPiston()),
-      //       new InstantCommand(() -> m_storage.setStoragePower(0))),
-      //     joystickButtons1[1] :: get));
       joystickButtons1[1].toggleWhenPressed(
         new ConditionalCommand(
-          new SequentialCommandGroup(
-            new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.COLLECTOR_DEFUALT_SPEED)),
-            new SortStorageCommand(m_storage)), 
           new ParallelCommandGroup(
-            new InstantCommand(() -> m_collector.setCollectorPower(0)),
-            new InstantCommand(() -> m_storage.setStoragePower(0))),
-            joystickButtons1[1] :: get));
+            new InstantCommand(() -> m_collector.disableCollector()),
+            new InstantCommand(() -> m_storage.disableStorage())),
+          new SequentialCommandGroup(
+              new InstantCommand(() -> m_collector.enableCollector()),
+              new SortStorageCommand(m_storage),
+              new InstantCommand(() -> m_collector.disableCollector())),
+            m_collector::isEnabled));
               
     //outtake
     joystickButtons1[5].whenHeld(

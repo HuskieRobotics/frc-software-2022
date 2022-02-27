@@ -101,6 +101,14 @@ private DigitalInput shooterSensor1;
         this.storage4.set(ControlMode.PercentOutput, power);
     }
 
+    public void enableStorage(){ 
+        this.storage4.set(ControlMode.PercentOutput, StorageConstants.STORAGE_DEFAULT_SPEED);
+    }
+
+    public void disableStorage() {
+        this.storage4.set(ControlMode.PercentOutput, 0);   
+    }
+
     public boolean isShooterSensorUnblocked(){
         return this.shooterSensor1.get();
     }
@@ -112,9 +120,5 @@ private DigitalInput shooterSensor1;
     public double getStoragePower(){
         return this.storage4.get();
     }
-    
-    
-
-
 }
 
