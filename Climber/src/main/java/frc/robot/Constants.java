@@ -43,8 +43,6 @@ public class Constants {
   }
     public class SecondMechanismConstants { 
         public static final int PNEUMATIC_HUB_CAN_ID = 20;
-        public static final boolean SECOND_MECHANISM_PULL = true;
-        public static final boolean SECOND_MECHANISM_PUSH = false;
   }
 }
 

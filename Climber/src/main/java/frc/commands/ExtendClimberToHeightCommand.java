@@ -7,19 +7,19 @@ import frc.robot.subsystems.SecondMechanism;
 
 public class ExtendClimberToHeightCommand extends CommandBase {
     private final Elevator m_elevator;
-    private double m_height;
+    private double m_desiredHeight;
 
 
     public ExtendClimberToHeightCommand(Elevator subsystem){ 
         m_elevator = subsystem;
         addRequirements(m_elevator);
-        m_height = ElevatorConstants.MIN_ELEVATOR_ENCODER_HEIGHT;
+        m_desiredHeight = ElevatorConstants.MIN_ELEVATOR_ENCODER_HEIGHT;
     }
 
     public ExtendClimberToHeightCommand(Elevator subsystem, double height){ 
         m_elevator = subsystem;
         addRequirements(m_elevator);
-        m_height = height;
+        m_desiredHeight = height;
     }
 
     @Override
@@ -28,7 +28,7 @@ public class ExtendClimberToHeightCommand extends CommandBase {
 
     @Override
     public void execute() {
-        m_elevator.setElevatorMotorPosition(m_height);
+        m_elevator.setElevatorMotorPosition(m_desiredHeight);
     }
 
     @Override

@@ -123,13 +123,13 @@ public class RobotContainer {
         consoleButtons[2].whenPressed(
             new SequentialCommandGroup(
               new ExtendClimberToHeightCommand(m_elevator),
-              new InstantCommand(() -> m_secondMechanism.setSecondMechanism(Constants.SecondMechanismConstants.SECOND_MECHANISM_PULL)),
+              new InstantCommand(() -> m_secondMechanism.pullSecondMechansim()),
               new ExtendClimberToHeightCommand(m_elevator, Constants.ElevatorConstants.THIRD_RUNG_ENCODER_HEIGHT),
               new ParallelCommandGroup(
                 new ExtendClimberToHeightCommand(m_elevator),
-                new InstantCommand(() -> m_secondMechanism.setSecondMechanism(Constants.SecondMechanismConstants.SECOND_MECHANISM_PUSH))
+                new InstantCommand(() -> m_secondMechanism.pushSecondMechansim())
               ),
-              new InstantCommand(() -> m_secondMechanism.setSecondMechanism(Constants.SecondMechanismConstants.SECOND_MECHANISM_PULL)),
+              new InstantCommand(() -> m_secondMechanism.pullSecondMechansim()),
               new ExtendClimberToHeightCommand(m_elevator, Constants.ElevatorConstants.FOURTH_RUNG_ENCODER_HEIGHT),
               new ExtendClimberToHeightCommand(m_elevator)
             )
@@ -139,11 +139,11 @@ public class RobotContainer {
         consoleButtons[11].whenPressed(
             new SequentialCommandGroup(
               new ExtendClimberToHeightCommand(m_elevator),
-              new InstantCommand(() -> m_secondMechanism.setSecondMechanism(Constants.SecondMechanismConstants.SECOND_MECHANISM_PULL)),
+              new InstantCommand(() -> m_secondMechanism.pullSecondMechansim()),
               new ExtendClimberToHeightCommand(m_elevator, Constants.ElevatorConstants.THIRD_RUNG_ENCODER_HEIGHT),
               new ParallelCommandGroup(
                 new ExtendClimberToHeightCommand(m_elevator),
-                new InstantCommand(() -> m_secondMechanism.setSecondMechanism(Constants.SecondMechanismConstants.SECOND_MECHANISM_PUSH)))));
+                new InstantCommand(() -> m_secondMechanism.pushSecondMechansim()))));
 
           //configure climb to 2 rung climb sequence 
         consoleButtons[10].whenPressed(
