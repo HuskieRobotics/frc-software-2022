@@ -35,6 +35,8 @@ public class Constants {
    }
    public class HoodConstants{
        public static final int HOOD_P = 0; //FIX_ME find hood pid p value 
+       public static final int HOOD_MOTOR_CANID = 3;
+       
 
    }
 
