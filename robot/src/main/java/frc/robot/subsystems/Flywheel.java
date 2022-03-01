@@ -18,10 +18,10 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 
 import java.awt.geom.Point2D;
 
-import frc.robot.Constants;
-import frc.robot.LimelightMath;
-import frc.robot.Constants.LimelightConstants;
-import frc.robot.Constants.FlywheelConstants;
+import static frc.robot.Constants.*;
+import static frc.robot.LimelightMath.*;
+import static frc.robot.Constants.LimelightConstants.*;
+import static frc.robot.Constants.FlywheelConstants.*;
 import frc.robot.commands.*;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -99,31 +99,31 @@ private WPI_TalonFX rightFlywheelMotor;
 
 		/* Config sensor used for Primary PID [Velocity] */
         rightFlywheelMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,
-                                            FlywheelConstants.kPIDLoopIdx, 
-											FlywheelConstants.kTimeoutMs);
+                                            kPIDLoopIdx, 
+											kTimeoutMs);
         leftFlywheelMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,
-                                            FlywheelConstants.kPIDLoopIdx, 
-											FlywheelConstants.kTimeoutMs);
+                                            kPIDLoopIdx, 
+											kTimeoutMs);
 
 		/* Config the peak and nominal outputs */
-		rightFlywheelMotor.configNominalOutputForward(0, FlywheelConstants.kTimeoutMs);
-		rightFlywheelMotor.configNominalOutputReverse(0, FlywheelConstants.kTimeoutMs);
-		rightFlywheelMotor.configPeakOutputForward(1, FlywheelConstants.kTimeoutMs);
-		rightFlywheelMotor.configPeakOutputReverse(-1, FlywheelConstants.kTimeoutMs);
-        leftFlywheelMotor.configNominalOutputForward(0, FlywheelConstants.kTimeoutMs);
-		leftFlywheelMotor.configNominalOutputReverse(0, FlywheelConstants.kTimeoutMs);
-		leftFlywheelMotor.configPeakOutputForward(1, FlywheelConstants.kTimeoutMs);
-		leftFlywheelMotor.configPeakOutputReverse(-1, FlywheelConstants.kTimeoutMs);
+		rightFlywheelMotor.configNominalOutputForward(0, kTimeoutMs);
+		rightFlywheelMotor.configNominalOutputReverse(0, kTimeoutMs);
+		rightFlywheelMotor.configPeakOutputForward(1, kTimeoutMs);
+		rightFlywheelMotor.configPeakOutputReverse(-1, kTimeoutMs);
+        leftFlywheelMotor.configNominalOutputForward(0, kTimeoutMs);
+		leftFlywheelMotor.configNominalOutputReverse(0, kTimeoutMs);
+		leftFlywheelMotor.configPeakOutputForward(1, kTimeoutMs);
+		leftFlywheelMotor.configPeakOutputReverse(-1, kTimeoutMs);
 
 		/* Config the Velocity closed loop gains in slot0 */
-		rightFlywheelMotor.config_kF(FlywheelConstants.kPIDLoopIdx, FlywheelConstants.kGains_Velocit.kF, FlywheelConstants.kTimeoutMs);
-		rightFlywheelMotor.config_kP(FlywheelConstants.kPIDLoopIdx, FlywheelConstants.kGains_Velocit.kP, FlywheelConstants.kTimeoutMs);
-		rightFlywheelMotor.config_kI(FlywheelConstants.kPIDLoopIdx, FlywheelConstants.kGains_Velocit.kI, FlywheelConstants.kTimeoutMs);
-		rightFlywheelMotor.config_kD(FlywheelConstants.kPIDLoopIdx, FlywheelConstants.kGains_Velocit.kD, FlywheelConstants.kTimeoutMs);
-        leftFlywheelMotor.config_kF(FlywheelConstants.kPIDLoopIdx, FlywheelConstants.kGains_Velocit.kF, FlywheelConstants.kTimeoutMs);
-		leftFlywheelMotor.config_kP(FlywheelConstants.kPIDLoopIdx, FlywheelConstants.kGains_Velocit.kP, FlywheelConstants.kTimeoutMs);
-		leftFlywheelMotor.config_kI(FlywheelConstants.kPIDLoopIdx, FlywheelConstants.kGains_Velocit.kI, FlywheelConstants.kTimeoutMs);
-		leftFlywheelMotor.config_kD(FlywheelConstants.kPIDLoopIdx, FlywheelConstants.kGains_Velocit.kD, FlywheelConstants.kTimeoutMs);
+		rightFlywheelMotor.config_kF(kPIDLoopIdx, kGains_Velocit.kF, kTimeoutMs);
+		rightFlywheelMotor.config_kP(kPIDLoopIdx, kGains_Velocit.kP, kTimeoutMs);
+		rightFlywheelMotor.config_kI(kPIDLoopIdx, kGains_Velocit.kI, kTimeoutMs);
+		rightFlywheelMotor.config_kD(kPIDLoopIdx, kGains_Velocit.kD, kTimeoutMs);
+        leftFlywheelMotor.config_kF(kPIDLoopIdx, kGains_Velocit.kF, kTimeoutMs);
+		leftFlywheelMotor.config_kP(kPIDLoopIdx, kGains_Velocit.kP, kTimeoutMs);
+		leftFlywheelMotor.config_kI(kPIDLoopIdx, kGains_Velocit.kI, kTimeoutMs);
+		leftFlywheelMotor.config_kD(kPIDLoopIdx, kGains_Velocit.kD, kTimeoutMs);
 		/*
 		 * Talon FX does not need sensor phase set for its integrated sensor
 		 * This is because it will always be correct if the selected feedback device is integrated sensor (default value)
@@ -255,7 +255,7 @@ private WPI_TalonFX rightFlywheelMotor;
     // here. Call these from Commands.
 
     public double getVelocity() {
-        return this.leftFlywheelMotor.getSelectedSensorVelocity(Constants.SLOT_INDEX);
+        return this.leftFlywheelMotor.getSelectedSensorVelocity(SLOT_INDEX);
     }
 
     public void setVelocity(double velocitySetPoint) {
@@ -267,7 +267,7 @@ private WPI_TalonFX rightFlywheelMotor;
     }
 
     public boolean isAtSetpoint() {
-        return Math.abs(this.getVelocity() - this.velocitySetPoint) < FlywheelConstants.VELOCITY_TOLERANCE;
+        return Math.abs(this.getVelocity() - this.velocitySetPoint) < VELOCITY_TOLERANCE;
     }
 
     public void stopFlywheel() {
