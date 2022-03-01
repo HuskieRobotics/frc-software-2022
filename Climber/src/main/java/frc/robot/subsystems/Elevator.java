@@ -198,14 +198,14 @@ public Elevator() {
     }
 
     public void setElevatorMotorPower(double power){
-        leftElevatorMotor.set(TalonFXControlMode.PercentOutput, power);
-        rightElevatorMotor.set(TalonFXControlMode.PercentOutput, power);
+        leftElevatorMotor.set(ControlMode.PercentOutput, power);
+        rightElevatorMotor.set(ControlMode.PercentOutput, power);
     }
 
     public void setElevatorMotorPosition(double desiredEncoderPosition) {
         this.encoderPositionSetpoint = desiredEncoderPosition;
-        leftElevatorMotor.set(TalonFXControlMode.MotionMagic, desiredEncoderPosition);
-        rightElevatorMotor.set(TalonFXControlMode.MotionMagic, desiredEncoderPosition);
+        leftElevatorMotor.set(ControlMode.MotionMagic, desiredEncoderPosition);
+        rightElevatorMotor.set(ControlMode.MotionMagic, desiredEncoderPosition);
     }
 
     public boolean atLeftSetpoint(){
@@ -216,8 +216,8 @@ public Elevator() {
     }
 
     public void disableElevator() {
-        leftElevatorMotor.set(0.0);
-        rightElevatorMotor.set(0.0);
+        leftElevatorMotor.set(ControlMode.PercentOutput, 0.0);
+        rightElevatorMotor.set(ControlMode.PercentOutput,0.0);
     }
 }
 
