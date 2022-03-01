@@ -42,9 +42,14 @@ public class Constants {
        public static final double HUB_H = 104;
        public static final double ROBOT_H = 21.25;
        public static final double GRAV_CONST_FT = -32.17519788;
+       public static final double Flywheel_Radius_IN = 2;
+       public static final double Velocity_Multiplier = 2;
+       public static final double Ticks_Per_One_Rotation = 2048;
        public static final int LIMELIGHT_ANGLE_OFFSET=-2;
-       public static final int D2_D1_OFFSET = 2;
-       public static final int H2_H1_OFFSET = -2;
+       public static final int D2_D1_OFFSET_IN = 24;
+       public static final int H2_H1_OFFSET_IN = -24;
+       
+
    }
 
 }

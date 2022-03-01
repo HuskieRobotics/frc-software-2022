@@ -19,6 +19,8 @@ public class LimelightMath extends SubsystemBase{
     private NetworkTableEntry limelightDistanceInNT;
     private NetworkTableEntry velocityNT;
     private NetworkTableEntry tyNT;
+    private NetworkTableEntry getvx;
+    private NetworkTableEntry getvy;
     private double ty;
     double vx;
     double vy;
@@ -29,7 +31,7 @@ public class LimelightMath extends SubsystemBase{
     
         
         h2 = LimelightConstants.HUB_H + 12;
-        h1 = h2 + LimelightConstants.H2_H1_OFFSET;
+        h1 = h2 + LimelightConstants.H2_H1_OFFSET_IN;
         this.shooterAngleNT= Shuffleboard.getTab("LimeTuning")
             .add("shooterAng", 0.0)
             .getEntry();
@@ -42,6 +44,16 @@ public class LimelightMath extends SubsystemBase{
         this.tyNT = Shuffleboard.getTab("LimeTuning")
                 .add("ty", 0.0)
                 .getEntry();
+
+        this.getvx = Shuffleboard.getTab("LimeTuning")
+                .add("vx", 0.0)
+                .getEntry();
+        
+        this.getvy = Shuffleboard.getTab("LimeTuning")
+                .add("vy", 0.0)
+                .getEntry();
+
+
     }
 
     @Override
@@ -50,24 +62,26 @@ public class LimelightMath extends SubsystemBase{
         this.shooterAngleNT.setDouble(this.getIdealHoodA());
         this.limelightDistanceInNT.setDouble(this.getLimelightDistanceIn());
         this.tyNT.setDouble(this.ty);
+        this.getvx.setDouble(this.vx);
+        this.getvy.setDouble(this.vy);
         
     }
     
     private void resetVXVY() {
         double g = LimelightConstants.GRAV_CONST_FT*12;
         double d2= this.getLimelightDistanceIn();
-        double d1= d2 + LimelightConstants.D2_D1_OFFSET;
+        double d1= d2 + LimelightConstants.D2_D1_OFFSET_IN;
         vx = Math.sqrt(-(d1*d1)*d2*g+d1*(d2*d2)*g)/(Math.sqrt(2)*Math.sqrt(-d2*h1+d1*h2));
         vy = (g*((d2*d2*h1)-(d1*d1*h2)))/(Math.sqrt(d1*d2*(-d1+d2)*g)*Math.sqrt(-2*d2*h1+2*d1*h2));
     }
     public double getLimelightDistanceIn() {
         this.ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0.0);
-        // System.out.print(ty);
         
-        // d = (LimelightConstants.HUB_H-LimelightConstants.ROBOT_H)/(Math.tan(Math.toRadians(43+(-2)+(-13.91))));
-        double d = (LimelightConstants.HUB_H-LimelightConstants.ROBOT_H)/(Math.tan(Math.toRadians(43+LimelightConstants.LIMELIGHT_ANGLE_OFFSET+ty)));
+        
+        
+        double d = (LimelightConstants.HUB_H-LimelightConstants.ROBOT_H)/(Math.tan(Math.toRadians(43 *+LimelightConstants.LIMELIGHT_ANGLE_OFFSET+ ty)));
 
-        // double d = (LimelightConstants.HUB_H-LimelightConstants.ROBOT_H)/(Math.tan((43+LimelightConstants.LIMELIGHT_ANGLE_OFFSET+ty)*Math.PI/180));
+        
         return d;
     }
     public double getIdealVelocity() {  
@@ -76,7 +90,7 @@ public class LimelightMath extends SubsystemBase{
         double v;
     
         resetVXVY();
-        v = Math.sqrt((vx*vx)+(vy*vy));
+        v = Math.sqrt((vx*vx)+(vy*vy))*(LimelightConstants.Velocity_Multiplier)/(2*Math.PI*(LimelightConstants.Flywheel_Radius_IN))*(LimelightConstants.Ticks_Per_One_Rotation)/10;
 
         return v;
     }
