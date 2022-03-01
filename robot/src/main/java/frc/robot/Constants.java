@@ -34,7 +34,14 @@ public class Constants {
 
    }
    public class HoodConstants{
-       public static final int HOOD_P = 0; //FIX_ME find hood pid p value 
+       public static final double KP = 0; //FIX_ME find hood pid p value 
+       public static final double KI =0;
+       public static final double KD =0;
+       public static final double KFF =0;
+        public static final double K_MAX_OUTPUT=0;
+        public static final double K_MIN_OUTPUT=0;
+        public static final boolean TUNING = false;
+    
 
    }
 
