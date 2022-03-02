@@ -21,9 +21,8 @@ package frc.robot;
  */
 public class Constants {
     public static final boolean TUNING = true;
-    public static final int SLOT_INDEX = 0;
     public static class FlywheelConstants{
-        public static final int kSlotIdx = 0;
+        public static final int SLOT_INDEX = 0;
         public static final int kPIDLoopIdx = 0;
         public static final int kTimeoutMs = 30;
         public static final int VELOCITY_TOLERANCE = 0; //FIX_ME tune this should be how off our velocity can be 
