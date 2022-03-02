@@ -38,7 +38,7 @@ public class ExtendClimberToHeightCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return m_elevator.atLeftSetpoint();
+        return m_elevator.atSetpoint();
     }
 
     @Override
