@@ -31,7 +31,7 @@ public class RetractClimberMinimumCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return m_elevator.atSetpoint();
+        return m_elevator.atSetpoint() && m_elevator.atSetpoint();
     }
 
     @Override

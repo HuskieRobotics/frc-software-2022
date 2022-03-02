@@ -39,7 +39,9 @@ public class Constants {
         public final static double MAX_ELEVATOR_VELOCITY = 0;//FIXME determine the max velocity of our robot
         public final static double ELEVATOR_ACCELERATION = 0;//FIXME determine the acceleration of our robot, the slope of our motion profile if scureve = 0
         public final static int SCURVE_STRENGTH = 0;//FIXME determine the strength of our "scurve" the curve of theacceloration of our motion profile [1,8]
-        
+        public static final int PIGEON_ID = 0;//FIXME to reflect software reference sheet
+        public static final double PITCH_SETPOINT = 0;//FIXME deired pitch to be considered "done"
+        public static final double PITCH_TOLERANCE =  0;//FIXME  how far off our pitch can be 
   }
     public class SecondMechanismConstants { 
         public static final int PNEUMATIC_HUB_CAN_ID = 20;
