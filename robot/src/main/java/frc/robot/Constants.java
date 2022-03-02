@@ -29,7 +29,7 @@ public class Constants {
         
 
 
-    public final static Gains kGains_Velocit  = new Gains( .74,      0,   0,    .05265,        0,    1.00);
+    public final static Gains GAINS_VELOCITY  = new Gains( .74,      0,   0,    .05265,        0,    1.00);
 
    }
    public class HoodConstants{
