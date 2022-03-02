@@ -13,6 +13,10 @@
 package frc.robot;
 
 import frc.commands.ExtendClimberToHeightCommand;
+import frc.commands.ExtendClimberToMidRungCommand;
+import frc.commands.ReachToNextRungCommand;
+import frc.commands.RetractClimberFullCommand;
+import frc.commands.RetractClimberMinimumCommand;
 // import frc.robot.commands.*;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.SecondMechanism;
@@ -122,35 +126,35 @@ public class RobotContainer {
         // configure climb to fourth rung climb sequence 
         consoleButtons[2].whenPressed(
             new SequentialCommandGroup(
-              new ExtendClimberToHeightCommand(m_elevator),
+              new RetractClimberFullCommand(m_elevator),
               new InstantCommand(() -> m_secondMechanism.pullSecondMechansim()),
-              new ExtendClimberToHeightCommand(m_elevator, Constants.ElevatorConstants.THIRD_RUNG_ENCODER_HEIGHT),
+              new ReachToNextRungCommand(m_elevator),
               new ParallelCommandGroup(
-                new ExtendClimberToHeightCommand(m_elevator),
+                new RetractClimberFullCommand(m_elevator),
                 new InstantCommand(() -> m_secondMechanism.pushSecondMechansim())
               ),
               new InstantCommand(() -> m_secondMechanism.pullSecondMechansim()),
-              new ExtendClimberToHeightCommand(m_elevator, Constants.ElevatorConstants.FOURTH_RUNG_ENCODER_HEIGHT),
-              new ExtendClimberToHeightCommand(m_elevator)
+              new ReachToNextRungCommand(m_elevator),
+              new RetractClimberMinimumCommand(m_elevator)
             )
         );
 
         //configure climb to third rung climb sequence 
         consoleButtons[11].whenPressed(
             new SequentialCommandGroup(
-              new ExtendClimberToHeightCommand(m_elevator),
+              new RetractClimberFullCommand(m_elevator),
               new InstantCommand(() -> m_secondMechanism.pullSecondMechansim()),
-              new ExtendClimberToHeightCommand(m_elevator, Constants.ElevatorConstants.THIRD_RUNG_ENCODER_HEIGHT),
+              new ReachToNextRungCommand(m_elevator),
               new ParallelCommandGroup(
-                new ExtendClimberToHeightCommand(m_elevator),
+                new RetractClimberMinimumCommand(m_elevator),
                 new InstantCommand(() -> m_secondMechanism.pushSecondMechansim()))));
 
           //configure climb to 2 rung climb sequence 
         consoleButtons[10].whenPressed(
-          new ExtendClimberToHeightCommand(m_elevator));
+          new RetractClimberMinimumCommand(m_elevator));
           //configure raise elevator before starting climb
         consoleButtons[9].whenPressed(  
-          new ExtendClimberToHeightCommand(m_elevator, Constants.ElevatorConstants.SECOND_RUNG_ENCODER_HEIGHT));
+          new ExtendClimberToMidRungCommand(m_elevator));
         
   }
 
