@@ -5,7 +5,8 @@
 package frc.robot.subsystems;
 
 
-import com.ctre.phoenix.sensors.PigeonIMU;
+//import com.ctre.phoenix.sensors.PigeonIMU;
+import com.ctre.phoenix.sensors.Pigeon2;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
@@ -73,7 +74,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   // By default we use a Pigeon for our gyroscope. But if you use another gyroscope, like a NavX, you can change this.
   // The important thing about how you configure your gyroscope is that rotating the robot counter-clockwise should
   // cause the angle reading to increase until it wraps back over to zero.
-  private final PigeonIMU m_pigeon = new PigeonIMU(PIGEON_ID);
+  private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
   
 
   // These are our modules. We initialize them in the constructor.
@@ -190,13 +191,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
    */
   
   public void zeroGyroscope() {
-    m_pigeon.setFusedHeading(0.0);
+    //m_pigeon.setFusedHeading(0.0);
     
 
   }
   public void zeroPoseGyroscope(){
-          m_odometry.resetPosition(new Pose2d(m_odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0.0)),
-          Rotation2d.fromDegrees(m_pigeon.getFusedHeading()));
+         // m_odometry.resetPosition(new Pose2d(m_odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0.0)),
+          //Rotation2d.fromDegrees(m_pigeon.getFusedHeading()));
   }
   
 
