@@ -77,10 +77,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
 
   // These are our modules. We initialize them in the constructor.
-  private final SwerveModule m_frontLeftModule;
-  private final SwerveModule m_frontRightModule;
-  private final SwerveModule m_backLeftModule;
-  private final SwerveModule m_backRightModule;
+  private SwerveModule m_frontLeftModule;
+  private SwerveModule m_frontRightModule;
+  private SwerveModule m_backLeftModule;
+  private SwerveModule m_backRightModule;
   private boolean isFieldRelative;
   private Translation2d m_robotCenter;
   private NetworkTableEntry fieldRelativeNT;
@@ -192,30 +192,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 .add("FieldRelativeState", this.isFieldRelative)
                 .getEntry();
     
-  
-  }
-
-  /*
-   * Sets the gyroscope angle to zero. This can be used to set the direction the robot is currently facing to the
-   * 'forwards' direction.
-   */
-  
-  public void zeroGyroscope() {
-    m_pigeon.setYaw(0.0);
-  }
-  public void zeroPoseGyroscope(){
-          m_odometry.resetPosition(new Pose2d(m_odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0.0)),
-          Rotation2d.fromDegrees(m_pigeon.getYaw()));
-  }
-  
-  public Rotation2d getGyroscopeRotation() {
-    return Rotation2d.fromDegrees(m_pigeon.getYaw());
-  }
-
-  public Pose2d getPose() {
-        return m_odometry.getPoseMeters();
-        }
-
         tab.addBoolean("Encoders Init", () -> getEncoderInitialization());
         tab.addNumber("Encoders Init Tries", () -> getEncoderInitializationTries());
     }
@@ -304,14 +280,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
      */
 
     public void zeroGyroscope() {
-        m_pigeon.setFusedHeading(0.0);
+        m_pigeon.setYaw(0.0);
 
     }
 
     public void zeroPoseGyroscope() {
         m_odometry.resetPosition(
                 new Pose2d(m_odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0.0)),
-                Rotation2d.fromDegrees(m_pigeon.getFusedHeading()));
+                Rotation2d.fromDegrees(m_pigeon.getYaw()));
     }
 
     public Rotation2d getGyroscopeRotation() {
@@ -452,7 +428,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
             CANCoder backRightEncoder = new CANCoder(BACK_RIGHT_MODULE_STEER_ENCODER);
             ErrorCode err = ErrorCode.OK;
 
-            frontLeftEncoder.getAbsolutePosition()
+            frontLeftEncoder.getAbsolutePosition();
             if (frontLeftEncoder.getLastError() != ErrorCode.OK) {
                 err = frontLeftEncoder.getLastError();
             }
