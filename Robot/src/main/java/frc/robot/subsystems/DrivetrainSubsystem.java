@@ -4,8 +4,9 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+
 //import com.ctre.phoenix.sensors.PigeonIMU;
+import com.ctre.phoenix.sensors.Pigeon2;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
@@ -74,6 +75,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   // The important thing about how you configure your gyroscope is that rotating the robot counter-clockwise should
   // cause the angle reading to increase until it wraps back over to zero.
   private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
+  
 
   // These are our modules. We initialize them in the constructor.
   private final SwerveModule m_frontLeftModule;
@@ -81,7 +83,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private final SwerveModule m_backLeftModule;
   private final SwerveModule m_backRightModule;
   private boolean isFieldRelative;
-  private Translation2d m_robotCenter;
+  //private Translation2d m_robotCenter;
   private NetworkTableEntry fieldRelativeNT;
 
 
@@ -94,7 +96,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public DrivetrainSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
     this.isFieldRelative = false;
-    this.m_robotCenter = new Translation2d(0,0);
+    //this.m_robotCenter = new Translation2d(0,0);
 
     m_pigeon.setYaw(0.0);
 

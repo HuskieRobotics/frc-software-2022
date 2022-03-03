@@ -22,7 +22,10 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
  * It is advised to statically import this class (or one of its inner classes)
  * wherever the constants are needed, to reduce verbosity.
  */
+
 public final class Constants {
+  
+  public static final boolean TUNING = false; 
 
   /* DRIVETRAIN CONSTANTS */
 
@@ -63,6 +66,22 @@ public final class Constants {
     public static final double WHEELBASE_METERS = 0.5969;// 23.5 inches
 
     public static final int PIGEON_ID = 18;
+  }
+
+  public static final class CollectorConstants{
+      public static final double OUTTAKE_POWER = -0.7;//FIX_ME
+      public static final int COLLECTOR_MOTOR_ID = 5;
+      public static final int PEUNAMATICS_HUB_CAN_ID = 20; 
+      public static final int COLLECTOR_SOLENOID_CHANNEL = 0;
+      public static final double COLLECTOR_DEFUALT_SPEED = 0.7; //FIX_ME change this to desired speed
+
+  }
+  public static final class StorageConstants{
+      public static final double OUTTAKE_POWER = -.4;//FIX_ME
+      public static final int SHOOTER_SENSOR = 1;
+      public static final int COLLECTOR_SENSOR = 0;
+      public static final int STORAGE_MOTOR_ID = 4;
+      public static final double STORAGE_DEFAULT_SPEED = 0.5; //FIX_ME change this to desired speed
   }
 
     public static final class AutoConstants {
