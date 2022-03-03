@@ -69,11 +69,11 @@ public final class Constants {
   }
 
   public static final class CollectorConstants{
-      public static final double OUTTAKE_POWER = -.4;//FIX_ME
+      public static final double OUTTAKE_POWER = -0.7;//FIX_ME
       public static final int COLLECTOR_MOTOR_ID = 5;
       public static final int PEUNAMATICS_HUB_CAN_ID = 20; 
       public static final int COLLECTOR_SOLENOID_CHANNEL = 0;
-      public static final double COLLECTOR_DEFUALT_SPEED = 0.5; //FIX_ME change this to desired speed
+      public static final double COLLECTOR_DEFUALT_SPEED = 0.7; //FIX_ME change this to desired speed
 
   }
   public static final class StorageConstants{
