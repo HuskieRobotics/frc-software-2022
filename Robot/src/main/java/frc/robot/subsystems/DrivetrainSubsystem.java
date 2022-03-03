@@ -83,7 +83,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private final SwerveModule m_backLeftModule;
   private final SwerveModule m_backRightModule;
   private boolean isFieldRelative;
-  private Translation2d m_robotCenter;
+  //private Translation2d m_robotCenter;
   private NetworkTableEntry fieldRelativeNT;
 
 
@@ -96,7 +96,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public DrivetrainSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
     this.isFieldRelative = false;
-    this.m_robotCenter = new Translation2d(0,0);
+    //this.m_robotCenter = new Translation2d(0,0);
 
     m_pigeon.setYaw(0.0);
 
