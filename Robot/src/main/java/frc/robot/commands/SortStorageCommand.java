@@ -27,7 +27,7 @@ public class SortStorageCommand extends CommandBase{
         if(!this.m_storage.isShooterSensorUnblocked()){
             this.m_storage.disableStorage();
         }
-        else if(!this.m_storage.isCollectorSensorUnblocked() & this.m_storage.isShooterSensorUnblocked()){
+        else if(!this.m_storage.isCollectorSensorUnblocked() && this.m_storage.isShooterSensorUnblocked()){
             this.m_storage.enableStorage();
         }
     }
