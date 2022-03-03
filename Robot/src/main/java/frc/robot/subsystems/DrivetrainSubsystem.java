@@ -191,16 +191,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
    */
   
   public void zeroGyroscope() {
-    //m_pigeon.setFusedHeading(0.0);
-    
-
+    m_pigeon.setYaw(0.0);
   }
   public void zeroPoseGyroscope(){
-         // m_odometry.resetPosition(new Pose2d(m_odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0.0)),
-          //Rotation2d.fromDegrees(m_pigeon.getFusedHeading()));
+          m_odometry.resetPosition(new Pose2d(m_odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0.0)),
+          Rotation2d.fromDegrees(m_pigeon.getYaw()));
   }
   
-
   public Rotation2d getGyroscopeRotation() {
     return Rotation2d.fromDegrees(m_pigeon.getYaw());
   }
