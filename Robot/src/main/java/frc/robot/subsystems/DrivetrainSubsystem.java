@@ -23,6 +23,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.*;
@@ -83,6 +84,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private final SwerveModule m_backLeftModule;
   private final SwerveModule m_backRightModule;
   private boolean isFieldRelative;
+  private boolean xStanceOn;
   //private Translation2d m_robotCenter;
   private NetworkTableEntry fieldRelativeNT;
 
@@ -96,6 +98,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public DrivetrainSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
     this.isFieldRelative = false;
+    this.xStanceOn = false;
     //this.m_robotCenter = new Translation2d(0,0);
 
     m_pigeon.setYaw(0.0);
@@ -182,6 +185,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 .add("FieldRelativeState", this.isFieldRelative)
                 .getEntry();
     
+        Shuffleboard.getTab("Drivetrain").add("enable x-stance",  new InstantCommand(this :: setXStance, this));
+        Shuffleboard.getTab("Drivetrain").add("disable x-stance",  new InstantCommand(this :: disableXStance, this));
   
   }
 
@@ -213,6 +218,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   //Implement change in center of gravity here
   public void drive(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
+        if(!xStanceOn) {
+
+        
         if(isFieldRelative){
                 m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 translationXSupplier,
@@ -238,6 +246,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 states[2].angle.getRadians());
         m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                 states[3].angle.getRadians());
+        }
 }
 
 
@@ -286,6 +295,7 @@ public SwerveDriveKinematics getKinematics() {
   }
 
   public void setXStance(){
+          xStanceOn = true;
           //FL
           m_frontLeftModule.set(0, Math.PI*5/4);
           //FR
@@ -294,6 +304,10 @@ public SwerveDriveKinematics getKinematics() {
           m_backLeftModule.set(0, Math.PI*3/4);
           //BR
           m_backRightModule.set(0, Math.PI*-3/4);
+  }
+
+  public void disableXStance() {
+          xStanceOn = false;
   }
  /*
  Make center of gravity into a instance command and have the instance command change based on the method
