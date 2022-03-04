@@ -221,10 +221,114 @@ public class RobotContainer {
 
     
 
-    // The selected command will be run in autonomous
+    // ****test****
     return new FollowPath(PathPlanner.loadPath("curveTest",
         AutoConstants.kMaxSpeedMetersPerSecond,
         AutoConstants.kMaxAccelerationMetersPerSecondSquared), thetaController, m_drivetrainSubsystem);
+
+    //****BlueAuto1****
+    // return new SequentialCommandGroup(
+    //   new InstantCommand(() -> m_collector.enableCollector()),
+    //   new SortStorageCommand(m_storage),
+    //   new FollowPath(PathPlanner.loadPath("Blue1(1)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem),
+    //   new FollowPath(PathPlanner.loadPath("Blue1(2)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem)
+    //   //add shoot from fender command
+    // );
+
+    //****BlueAuto2****
+    // return new SequentialCommandGroup(
+    //   new InstantCommand(() -> m_collector.enableCollector()),
+    //   new SortStorageCommand(m_storage),
+    //   new FollowPath(PathPlanner.loadPath("Blue2(1)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem),
+    //   new FollowPath(PathPlanner.loadPath("Blue2(2)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem)
+      //add shoot from fender command
+    // );
+
+    //****BlueAuto3****
+    // return new SequentialCommandGroup(
+    //   new InstantCommand(() -> m_collector.enableCollector()),
+    //   new SortStorageCommand(m_storage),
+    //   new FollowPath(PathPlanner.loadPath("Blue3(1)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem),
+    //   new FollowPath(PathPlanner.loadPath("Blue3(2)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem)
+    //   //add shoot from fender command
+    // );
+
+    //****BlueAuto4****
+    // return new SequentialCommandGroup(
+    //   new InstantCommand(() -> m_collector.enableCollector()),
+    //   new SortStorageCommand(m_storage),
+    //   new FollowPath(PathPlanner.loadPath("Blue4(1)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem),
+    //   new FollowPath(PathPlanner.loadPath("Blue4(2)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem)
+    //   //add shoot from fender command
+    // );
+
+        //****RedAuto1****
+    // return new SequentialCommandGroup(
+    //   new InstantCommand(() -> m_collector.enableCollector()),
+    //   new SortStorageCommand(m_storage),
+    //   new FollowPath(PathPlanner.loadPath("Red1(1)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem),
+    //   new FollowPath(PathPlanner.loadPath("Red1(2)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem)
+    //   //add shoot from fender command
+    // );
+
+    //****RedAuto2****
+    // return new SequentialCommandGroup(
+    //   new InstantCommand(() -> m_collector.enableCollector()),
+    //   new SortStorageCommand(m_storage),
+    //   new FollowPath(PathPlanner.loadPath("Red2(1)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem),
+    //   new FollowPath(PathPlanner.loadPath("Red2(2)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem)
+      //add shoot from fender command
+    // );
+
+    //****RedAuto3****
+    // return new SequentialCommandGroup(
+    //   new InstantCommand(() -> m_collector.enableCollector()),
+    //   new SortStorageCommand(m_storage),
+    //   new FollowPath(PathPlanner.loadPath("Red3(1)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem),
+    //   new FollowPath(PathPlanner.loadPath("Red3(2)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem)
+    //   //add shoot from fender command
+    // );
+
+    //****RedAuto4****
+    // return new SequentialCommandGroup(
+    //   new InstantCommand(() -> m_collector.enableCollector()),
+    //   new SortStorageCommand(m_storage),
+    //   new FollowPath(PathPlanner.loadPath("Red4(1)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem),
+    //   new FollowPath(PathPlanner.loadPath("Red4(2)",
+    //       AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+    //       thetaController, m_drivetrainSubsystem)
+    //   //add shoot from fender command
+    // );
   }
 
   private static double deadband(double value, double deadband) {
