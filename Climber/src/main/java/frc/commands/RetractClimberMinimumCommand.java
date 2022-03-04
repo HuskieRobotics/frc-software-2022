@@ -3,8 +3,6 @@ package frc.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.SecondMechanism;
-
 
 public class RetractClimberMinimumCommand extends CommandBase {
     private final Elevator m_elevator;
@@ -21,7 +19,7 @@ public class RetractClimberMinimumCommand extends CommandBase {
 
     @Override
     public void execute() {
-        m_elevator.setElevatorMotorPosition(ElevatorConstants.MIN_DETACGH_ENCODER_HEIGHT);
+        m_elevator.setElevatorMotorPosition(ElevatorConstants.MIN_DETACH_ENCODER_HEIGHT);
     }
 
     @Override

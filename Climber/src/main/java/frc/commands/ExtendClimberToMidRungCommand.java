@@ -2,8 +2,6 @@ package frc.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.SecondMechanism;
-
 
 public class ExtendClimberToMidRungCommand extends CommandBase {
     private final Elevator m_elevator;
