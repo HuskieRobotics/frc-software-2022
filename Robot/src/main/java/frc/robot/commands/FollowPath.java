@@ -20,12 +20,12 @@ public class FollowPath extends PPSwerveControllerCommand {
         addRequirements(subsystem);
 
         // Reset odometry to the starting pose of the trajectory.
-        subsystem.resetOdometry(trajectory.getInitialPose());
+        subsystem.resetOdometry(trajectory.getInitialState());
 
     }
 
-    @Override
-    public void execute(){
-        
-    }
+    // @Override
+    // public void execute(){
+
+    // }
 }

@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 
 //import com.ctre.phoenix.sensors.PigeonIMU;
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
@@ -20,6 +22,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -35,7 +38,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * <p>
    * This can be reduced to cap the robot's maximum speed. Typically, this is useful during initial testing of the robot.
    */
-  public static final double MAX_VOLTAGE = 5.0;
+  public static final double MAX_VOLTAGE = 6.0;
   //13.0 
   //  The formula for calculating the theoretical maximum velocity is:
   //   <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> * pi
@@ -86,7 +89,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private boolean isFieldRelative;
   //private Translation2d m_robotCenter;
   private NetworkTableEntry fieldRelativeNT;
-
+  private PathPlannerTrajectory currentTrajectory;
+  private NetworkTableEntry trajXNT;
+  private NetworkTableEntry trajYNT;
+  private NetworkTableEntry trajPRNT;
+  private NetworkTableEntry trajHRNT;
+  private NetworkTableEntry trajTimeNT;
+  private final Timer m_timer = new Timer();
 
  private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics, Rotation2d.fromDegrees(m_pigeon.getYaw()));
 
@@ -182,8 +191,21 @@ public class DrivetrainSubsystem extends SubsystemBase {
     this.fieldRelativeNT = Shuffleboard.getTab("Drivetrain")
                 .add("FieldRelativeState", this.isFieldRelative)
                 .getEntry();
-    
-  
+    this.trajXNT = Shuffleboard.getTab("Drivetrain")
+                .add("Traj X", 0.0)
+                .getEntry();
+    this.trajYNT = Shuffleboard.getTab("Drivetrain")
+                .add("Traj Y", 0.0)
+                .getEntry();
+    this.trajPRNT = Shuffleboard.getTab("Drivetrain")
+                .add("Traj PR", 0.0)
+                .getEntry();
+    this.trajHRNT = Shuffleboard.getTab("Drivetrain")
+                .add("Traj HR", 0.0)
+                .getEntry();
+    this.trajTimeNT = Shuffleboard.getTab("Drivetrain")
+                .add("Traj Time", 0.0)
+                .getEntry();
   }
 
   /*
@@ -207,9 +229,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
         return m_odometry.getPoseMeters();
         }
 
-        public void resetOdometry(Pose2d pose)
+        public void resetOdometry(PathPlannerState state)
         {
-                m_odometry.resetPosition(pose, Rotation2d.fromDegrees(m_pigeon.getYaw()));
+                m_odometry.resetPosition(new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation),
+                        Rotation2d.fromDegrees(m_pigeon.getYaw()));
         }
 
   //Implement change in center of gravity here
@@ -251,7 +274,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
         new SwerveModuleState(m_backLeftModule.getDriveVelocity(), new Rotation2d(m_backLeftModule.getSteerAngle())),
         new SwerveModuleState(m_backRightModule.getDriveVelocity(), new Rotation2d(m_backRightModule.getSteerAngle()))
         );
-  }
+
+        if(this.currentTrajectory != null) {
+                double curTime = m_timer.get();
+                var desiredState = (PathPlannerState) this.currentTrajectory.sample(curTime);
+                this.trajXNT.setNumber(desiredState.poseMeters.getX());
+                this.trajYNT.setNumber(desiredState.poseMeters.getY());
+                this.trajPRNT.setNumber(desiredState.poseMeters.getRotation().getDegrees());
+                this.trajHRNT.setNumber(desiredState.holonomicRotation.getDegrees());
+                this.trajTimeNT.setNumber(curTime);
+        }
+}
 
   public void setSwerveModuleStates(SwerveModuleState[] states) {
         m_frontLeftModule.set(this.calculateFeedforwardVoltage(states[0].speedMetersPerSecond), states[0].angle.getRadians());
@@ -309,6 +342,12 @@ public SwerveDriveKinematics getKinematics() {
            m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
            m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[2].angle.getRadians());
            m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());
+        }
+
+        public void setCurrentTrajectory(PathPlannerTrajectory trajectory){
+                this.currentTrajectory = trajectory;
+                m_timer.reset();
+                m_timer.start();
         }
 
   }

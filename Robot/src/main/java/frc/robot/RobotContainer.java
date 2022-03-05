@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj.GenericHID;
 
 import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -105,7 +106,7 @@ public class RobotContainer {
         m_drivetrainSubsystem,
         () -> -modifyAxis(joystick0.getY()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
         () -> -modifyAxis(joystick0.getX()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-        () -> -modifyAxis(joystick1.getX()) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * -1));
+        () -> -modifyAxis(joystick1.getX()) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
         
 
       
@@ -310,13 +311,17 @@ public class RobotContainer {
     //);
 
     //****RedAuto3****
+    PathPlannerTrajectory trajectory = PathPlanner.loadPath("Red3(1)", 
+      AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+    m_drivetrainSubsystem.setCurrentTrajectory(trajectory);
+
     return new SequentialCommandGroup(
       new InstantCommand(() -> m_collector.enableCollector()),
       //new SortStorageCommand(m_storage),
       new FollowPath(PathPlanner.loadPath("Red3(1)",
           AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
           thetaController, m_drivetrainSubsystem)
-     // new WaitCommand(5)
+      // new WaitCommand(5)
       // new FollowPath(PathPlanner.loadPath("Red3(2)",
       //     AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
       //     thetaController, m_drivetrainSubsystem)
