@@ -34,23 +34,23 @@ public final class Constants {
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 16;
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 15;
     public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 17;
-    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(329.58984375 - 180);
-    // 330.194091796875
+    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(149.589843);
+    // 329.58984375
     public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 10;
     public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 9;
     public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 11;
-    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(352.96875 - 180);
-    // 353.3203125
+    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(172.96875);
+    // 352.96875
     public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 13;
     public static final int BACK_LEFT_MODULE_STEER_MOTOR = 12;
     public static final int BACK_LEFT_MODULE_STEER_ENCODER = 14;
-    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(283.271484375 - 180 );
-    // 286.42730712890625
+    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(103.27148);
+    // 283.271484375
     public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 7;
     public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 6;
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 8;
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(297.333984375 - 180);
-    // 297.509765625
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(117.333984);
+    //297.333984375
 
     /**
      * The left-to-right distance between the drivetrain wheels
@@ -72,7 +72,7 @@ public final class Constants {
       public static final double OUTTAKE_POWER = -0.7;//FIX_ME
       public static final int COLLECTOR_MOTOR_ID = 5;
       public static final int PEUNAMATICS_HUB_CAN_ID = 20; 
-      public static final int COLLECTOR_SOLENOID_CHANNEL = 0;
+      public static final int COLLECTOR_SOLENOID_CHANNEL = 1;
       public static final double COLLECTOR_DEFUALT_SPEED = 0.7; //FIX_ME change this to desired speed
 
   }
@@ -81,7 +81,7 @@ public final class Constants {
       public static final int SHOOTER_SENSOR = 1;
       public static final int COLLECTOR_SENSOR = 0;
       public static final int STORAGE_MOTOR_ID = 4;
-      public static final double STORAGE_DEFAULT_SPEED = 0.5; //FIX_ME change this to desired speed
+      public static final double STORAGE_DEFAULT_SPEED = 0.4; //FIX_ME change this to desired speed
   }
 
     public static final class AutoConstants {
