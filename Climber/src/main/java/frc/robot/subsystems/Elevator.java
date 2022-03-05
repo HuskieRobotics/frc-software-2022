@@ -23,6 +23,7 @@ import frc.commands.ReachToNextRungCommand;
 import frc.commands.RetractClimberFullCommand;
 import frc.commands.RetractClimberMinimumCommand;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
@@ -285,11 +286,9 @@ public Elevator() {
 
     public void setElevatorMotorPosition(double desiredEncoderPosition) {
         this.encoderPositionSetpoint = desiredEncoderPosition;
-        this.rightElevatorMotor.set(TalonFXControlMode.MotionMagic, desiredEncoderPosition);
+        this.rightElevatorMotor.set(ControlMode.MotionMagic, desiredEncoderPosition);
+        // this.rightElevatorMotor.set(TalonFXControlMode.MotionMagic, desiredEncoderPosition, DemandType.ArbitraryFeedForward, feedFwdTerm);
         this.leftElevatorMotor.follow(this.rightElevatorMotor);
-        
-        //_rightMaster.set(TalonFXControlMode.MotionMagic, target_sensorUnits, DemandType.ArbitraryFeedForward, feedFwdTerm);
-		//_leftMaster.follow(_rightMaster);
     }
 
     public boolean atSetpoint(){
