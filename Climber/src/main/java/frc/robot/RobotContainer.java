@@ -76,13 +76,13 @@ public class RobotContainer {
         consoleButtons[2].whenPressed(
             new SequentialCommandGroup(
               new RetractClimberFullCommand(m_elevator),
-              new InstantCommand(() -> m_secondMechanism.secondaryArmIn()),
+              new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
               new ReachToNextRungCommand(m_elevator),
               new ParallelCommandGroup(
                 new RetractClimberFullCommand(m_elevator),
-                new InstantCommand(() -> m_secondMechanism.secondaryArmOut())
+                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut())
               ),
-              new InstantCommand(() -> m_secondMechanism.secondaryArmIn()),
+              new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
               new ReachToNextRungCommand(m_elevator),
               new RetractClimberMinimumCommand(m_elevator)
             )
@@ -92,11 +92,11 @@ public class RobotContainer {
         consoleButtons[11].whenPressed(
             new SequentialCommandGroup(
               new RetractClimberFullCommand(m_elevator),
-              new InstantCommand(() -> m_secondMechanism.secondaryArmOut()),
+              new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut()),
               new ReachToNextRungCommand(m_elevator),
               new ParallelCommandGroup(
                 new RetractClimberMinimumCommand(m_elevator),
-                new InstantCommand(() -> m_secondMechanism.secondaryArmIn()))));
+                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()))));
 
         //configure climb to 2 rung climb sequence 
         consoleButtons[10].whenPressed(

@@ -35,9 +35,9 @@ public class SecondaryArm extends SubsystemBase {
          addChild("Secondary Mechanism", this.secondaryMechanism);
  
 
-         Shuffleboard.getTab("Secondary Arm").add("Second Arm Out", new InstantCommand(this :: secondaryArmOut));
-         Shuffleboard.getTab("Secondary Arm").add("Second Arm In", new InstantCommand(this :: secondaryArmIn));
-         Shuffleboard.getTab("Secondary Arm").addBoolean("Second Arm In?", this :: getisIn);
+         Shuffleboard.getTab("Secondary Arm").add("Second Arm Out", new InstantCommand(this :: moveSecondaryArmOut));
+         Shuffleboard.getTab("Secondary Arm").add("Second Arm In", new InstantCommand(this :: moveSecondaryArmIn));
+         Shuffleboard.getTab("Secondary Arm").addBoolean("Second Arm In?", this :: isIn);
     }
 
     @Override
@@ -55,14 +55,14 @@ public class SecondaryArm extends SubsystemBase {
 
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
-    public boolean getisIn(){
+    public boolean isIn(){
         return this.isIn;
     }
-    public void secondaryArmIn() { 
+    public void moveSecondaryArmIn() { 
         this.secondaryMechanism.set(true);
         this.isIn = true;
     }
-    public void secondaryArmOut() { 
+    public void moveSecondaryArmOut() { 
         this.secondaryMechanism.set(false);
         this.isIn = false;
     }

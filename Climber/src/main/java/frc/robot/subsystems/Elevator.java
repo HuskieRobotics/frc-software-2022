@@ -27,7 +27,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import static frc.robot.Constants.TUNING;
 import static frc.robot.Constants.SLOT_INDEX;
-import static frc.robot.Constants.ElevatorConstants;
+import static frc.robot.Constants.ElevatorConstants.*;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -46,14 +46,14 @@ public class Elevator extends SubsystemBase {
     private NetworkTableEntry DConstantNT;
     private WPI_TalonFX leftElevatorMotor;
     private WPI_TalonFX rightElevatorMotor;
-    private final Pigeon2 m_pigeon = new Pigeon2(ElevatorConstants.PIGEON_ID);
+    private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
     private double encoderPositionSetpoint;
 
 
 public Elevator() {
 
-    this.leftElevatorMotor = new WPI_TalonFX(ElevatorConstants.LEFT_ELEVATOR_MOTOR_CAN_ID); 
-    this.rightElevatorMotor = new WPI_TalonFX(ElevatorConstants.RIGHT_ELEVATOR_MOTOR_CAN_ID); 
+    this.leftElevatorMotor = new WPI_TalonFX(LEFT_ELEVATOR_MOTOR_CAN_ID); 
+    this.rightElevatorMotor = new WPI_TalonFX(RIGHT_ELEVATOR_MOTOR_CAN_ID); 
     
 
         //set directions
@@ -63,34 +63,37 @@ public Elevator() {
         this.leftElevatorMotor.configFactoryDefault();
 
         /* Config neutral deadband to be the smallest possible */
+        this.rightElevatorMotor.configNeutralDeadband(0.001);
+        this.leftElevatorMotor.configNeutralDeadband(0.001);
+        
         /* Config sensor used for Primary PID [Velocity] */
         this.rightElevatorMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,
                 SLOT_INDEX,
-                ElevatorConstants.kTimeoutMs);
+                kTimeoutMs);
         this.leftElevatorMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.RemoteSensor0,
-                SLOT_INDEX, ElevatorConstants.kTimeoutMs);
+                SLOT_INDEX, kTimeoutMs);
     
 
 
         /* Config the peak and nominal outputs */
-	    this.rightElevatorMotor.configNominalOutputForward(0, ElevatorConstants.kTimeoutMs);
-	    this.rightElevatorMotor.configNominalOutputReverse(0, ElevatorConstants.kTimeoutMs);
-		this.rightElevatorMotor.configPeakOutputForward(1, ElevatorConstants.kTimeoutMs);
-		this.rightElevatorMotor.configPeakOutputReverse(-1, ElevatorConstants.kTimeoutMs);
-        this.leftElevatorMotor.configNominalOutputForward(0, ElevatorConstants.kTimeoutMs);
-		this.leftElevatorMotor.configNominalOutputReverse(0, ElevatorConstants.kTimeoutMs);
-		this.leftElevatorMotor.configPeakOutputForward(1, ElevatorConstants.kTimeoutMs);
-		this.leftElevatorMotor.configPeakOutputReverse(-1, ElevatorConstants.kTimeoutMs);
+	    this.rightElevatorMotor.configNominalOutputForward(0, kTimeoutMs);
+	    this.rightElevatorMotor.configNominalOutputReverse(0, kTimeoutMs);
+		this.rightElevatorMotor.configPeakOutputForward(1, kTimeoutMs);
+		this.rightElevatorMotor.configPeakOutputReverse(-1, kTimeoutMs);
+        this.leftElevatorMotor.configNominalOutputForward(0, kTimeoutMs);
+		this.leftElevatorMotor.configNominalOutputReverse(0, kTimeoutMs);
+		this.leftElevatorMotor.configPeakOutputForward(1, kTimeoutMs);
+		this.leftElevatorMotor.configPeakOutputReverse(-1, kTimeoutMs);
 
 		/* Config the Velocity closed loop gains in slot0 */
-		this.rightElevatorMotor.config_kF(ElevatorConstants.kPIDLoopIdx, ElevatorConstants.kGains_Velocit.kF, ElevatorConstants.kTimeoutMs);
-		this.rightElevatorMotor.config_kP(ElevatorConstants.kPIDLoopIdx, ElevatorConstants.kGains_Velocit.kP, ElevatorConstants.kTimeoutMs);
-		this.rightElevatorMotor.config_kI(ElevatorConstants.kPIDLoopIdx, ElevatorConstants.kGains_Velocit.kI, ElevatorConstants.kTimeoutMs);
-		this.rightElevatorMotor.config_kD(ElevatorConstants.kPIDLoopIdx, ElevatorConstants.kGains_Velocit.kD, ElevatorConstants.kTimeoutMs);
-        this.leftElevatorMotor.config_kF(ElevatorConstants.kPIDLoopIdx, ElevatorConstants.kGains_Velocit.kF, ElevatorConstants.kTimeoutMs);
-		this.leftElevatorMotor.config_kP(ElevatorConstants.kPIDLoopIdx, ElevatorConstants.kGains_Velocit.kP, ElevatorConstants.kTimeoutMs);
-		this.leftElevatorMotor.config_kI(ElevatorConstants.kPIDLoopIdx, ElevatorConstants.kGains_Velocit.kI, ElevatorConstants.kTimeoutMs);
-		this.leftElevatorMotor.config_kD(ElevatorConstants.kPIDLoopIdx, ElevatorConstants.kGains_Velocit.kD, ElevatorConstants.kTimeoutMs);
+		this.rightElevatorMotor.config_kF(kPIDLoopIdx, kGains_Velocit.kF, kTimeoutMs);
+		this.rightElevatorMotor.config_kP(kPIDLoopIdx, kGains_Velocit.kP, kTimeoutMs);
+		this.rightElevatorMotor.config_kI(kPIDLoopIdx, kGains_Velocit.kI, kTimeoutMs);
+		this.rightElevatorMotor.config_kD(kPIDLoopIdx, kGains_Velocit.kD, kTimeoutMs);
+        this.leftElevatorMotor.config_kF(kPIDLoopIdx, kGains_Velocit.kF, kTimeoutMs);
+		this.leftElevatorMotor.config_kP(kPIDLoopIdx, kGains_Velocit.kP, kTimeoutMs);
+		this.leftElevatorMotor.config_kI(kPIDLoopIdx, kGains_Velocit.kI, kTimeoutMs);
+		this.leftElevatorMotor.config_kD(kPIDLoopIdx, kGains_Velocit.kD, kTimeoutMs);
 		/*
 		 * Talon FX does not need sensor phase set for its integrated sensor
 		 * This is because it will always be correct if the selected feedback device is integrated sensor (default value)
@@ -100,15 +103,15 @@ public Elevator() {
 		 */
         
          /*configure the magic motion profile*/
-         this.leftElevatorMotor.configMotionSCurveStrength(ElevatorConstants.SCURVE_STRENGTH, ElevatorConstants.kTimeoutMs);
-         this.rightElevatorMotor.configMotionSCurveStrength(ElevatorConstants.SCURVE_STRENGTH, ElevatorConstants.kTimeoutMs);
-         this.leftElevatorMotor.configMotionCruiseVelocity(ElevatorConstants.MAX_ELEVATOR_VELOCITY, ElevatorConstants.kTimeoutMs);
-         this.rightElevatorMotor.configMotionCruiseVelocity(ElevatorConstants.MAX_ELEVATOR_VELOCITY, ElevatorConstants.kTimeoutMs);
-         this.leftElevatorMotor.configMotionAcceleration(ElevatorConstants.ELEVATOR_ACCELERATION, ElevatorConstants.kTimeoutMs);
-         this.rightElevatorMotor.configMotionAcceleration(ElevatorConstants.ELEVATOR_ACCELERATION, ElevatorConstants.kTimeoutMs);
+         this.leftElevatorMotor.configMotionSCurveStrength(SCURVE_STRENGTH, kTimeoutMs);
+         this.rightElevatorMotor.configMotionSCurveStrength(SCURVE_STRENGTH, kTimeoutMs);
+         this.leftElevatorMotor.configMotionCruiseVelocity(MAX_ELEVATOR_VELOCITY, kTimeoutMs);
+         this.rightElevatorMotor.configMotionCruiseVelocity(MAX_ELEVATOR_VELOCITY, kTimeoutMs);
+         this.leftElevatorMotor.configMotionAcceleration(ELEVATOR_ACCELERATION, kTimeoutMs);
+         this.rightElevatorMotor.configMotionAcceleration(ELEVATOR_ACCELERATION, kTimeoutMs);
 
         /* zero the sensors*/
-        leftElevatorMotor.setSelectedSensorPosition(0, ElevatorConstants.kPIDLoopIdx, ElevatorConstants. kTimeoutMs);
+        leftElevatorMotor.setSelectedSensorPosition(0, kPIDLoopIdx,  kTimeoutMs);
 
          
         Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this :: getElevatorEncoderHeight);
@@ -128,7 +131,7 @@ public Elevator() {
         this.positionSetPointNT = Shuffleboard.getTab("Elevator")
             .add("Position Setpoint", 0.0)
             .withWidget(BuiltInWidgets.kNumberSlider)
-            .withProperties(Map.of("min", 0, "max", ElevatorConstants.MAX_ELEVATOR_HEIGHT))
+            .withProperties(Map.of("min", 0, "max", MAX_ELEVATOR_HEIGHT))
             .getEntry();
 
         this.FConstantNT = Shuffleboard.getTab("Elevator")
@@ -171,22 +174,14 @@ public Elevator() {
         this.rightElevatorMotor.set(ControlMode.PercentOutput, motorPower);
 
 
-            // this.rightElevatorMotor.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0),
-            // ElevatorConstants.kTimeoutMs);
-            // this.rightElevatorMotor.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0),
-            // ElevatorConstants.kTimeoutMs);
-            // this.rightElevatorMotor.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0),
-            // ElevatorConstants.kTimeoutMs);
-            // this.rightElevatorMotor.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0),
-            // ElevatorConstants.kTimeoutMs);
-            // this.leftElevatorMotor.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0),
-            // ElevatorConstants.kTimeoutMs);
-            // this.leftElevatorMotor.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0),
-            // ElevatorConstants.kTimeoutMs);
-            // this.leftElevatorMotor.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0),
-            // ElevatorConstants.kTimeoutMs);
-            // this.leftElevatorMotor.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0),
-            // ElevatorConstants.kTimeoutMs);
+            // this.rightElevatorMotor.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0), kTimeoutMs);
+            // this.rightElevatorMotor.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0), kTimeoutMs);
+            // this.rightElevatorMotor.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0), kTimeoutMs);
+            // this.rightElevatorMotor.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0), kTimeoutMs);
+            // this.leftElevatorMotor.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0), kTimeoutMs);
+            // this.leftElevatorMotor.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0), kTimeoutMs);
+            // this.leftElevatorMotor.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0), kTimeoutMs);
+            // this.leftElevatorMotor.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0), kTimeoutMs);
 
             // double desiredEncoderPosition = this.positionSetPointNT.getDouble(0.0);
             // this.setElevatorMotorPosition(desiredEncoderPosition);
@@ -222,7 +217,7 @@ public Elevator() {
     }
 
     public boolean atSetpoint(){
-        return Math.abs(this.getElevatorEncoderHeight() - this.encoderPositionSetpoint) > ElevatorConstants.ELEVATOR_POSITION_TOLERANCE;
+        return Math.abs(this.getElevatorEncoderHeight() - this.encoderPositionSetpoint) < ELEVATOR_POSITION_TOLERANCE;
     }
 
     public void disableElevator() {
@@ -231,7 +226,7 @@ public Elevator() {
     }
 
     public boolean atPitch(){
-        return Math.abs(m_pigeon.getPitch() - ElevatorConstants.PITCH_SETPOINT) > ElevatorConstants.PITCH_TOLERANCE;
+        return Math.abs(m_pigeon.getPitch() - PITCH_SETPOINT) < PITCH_TOLERANCE;
     }
 }
 
