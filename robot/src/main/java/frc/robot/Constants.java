@@ -41,7 +41,12 @@ public class Constants {
         public static final double K_MAX_OUTPUT=0;
         public static final double K_MIN_OUTPUT=0;
         public static final boolean TUNING = false;
-    
+
+        public static final double HOOD_DEGREES_TO_HOOD_ENCODER=0; // encodervalue/degrees ratio
+        public static final double SMART_MOTION_MAXVEL=0;
+        public static final double SMART_MOTION_MINVEL=0;
+        public static final double SMART_MOTION_MAXACC=0;
+        public static final double SMART_MOTION_ALLOWEDERR=0;
 
    }
 
