@@ -32,8 +32,7 @@ import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
-import static frc.robot.Constants.TUNING;
-import static frc.robot.Constants.SLOT_INDEX;
+import static frc.robot.Constants.*;
 import static frc.robot.Constants.ElevatorConstants.*;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -53,6 +52,9 @@ public class Elevator extends SubsystemBase {
     private NetworkTableEntry PConstantNT;
     private NetworkTableEntry IConstantNT;
     private NetworkTableEntry DConstantNT;
+    private NetworkTableEntry sCurveConstantNT;
+    private NetworkTableEntry velocityConstantNT;
+    private NetworkTableEntry accelerationConstantNT;
     private WPI_TalonFX leftElevatorMotor;
     private WPI_TalonFX rightElevatorMotor;
     private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
@@ -69,7 +71,7 @@ public Elevator() {
     this.leftElevatorMotor.configFactoryDefault();
 
 	/** Invert Directions for Left and Right */
-	TalonFXInvertType _leftInvert = TalonFXInvertType.CounterClockwise; //Same as invert = "false"
+	//TalonFXInvertType _leftInvert = TalonFXInvertType.CounterClockwise; //Same as invert = "false"
 	TalonFXInvertType _rightInvert = TalonFXInvertType.Clockwise; //Same as invert = "true"
 
 	/** Config Objects for motor controllers */
@@ -168,6 +170,8 @@ public Elevator() {
     
         Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this :: getElevatorEncoderHeight);
         Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon :: getPitch);
+        Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this.rightElevatorMotor :: getClosedLoopTarget);
+        Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error", this.rightElevatorMotor :: getClosedLoopError);
         Shuffleboard.getTab("Elevator").add("Extend Climber to Mid", new ExtendClimberToMidRungCommand(this));
         Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(this));
         Shuffleboard.getTab("Elevator").add("Retract Climber Full", new RetractClimberFullCommand(this));
@@ -209,6 +213,24 @@ public Elevator() {
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                 .getEntry();
+            
+        this.sCurveConstantNT = Shuffleboard.getTab("Elevator")
+                .add("Scurve Strength", 0.0)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0, "max", 8.0)) // specify widget properties here
+                .getEntry();
+
+        this.velocityConstantNT = Shuffleboard.getTab("Elevator")
+                .add("Max Velocity", 0.0)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
+                .getEntry();
+
+        this.accelerationConstantNT = Shuffleboard.getTab("Elevator")
+                .add("Max Acceleration", 0.0)
+                .withWidget(BuiltInWidgets.kNumberSlider)
+                .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
+                .getEntry();
 
 
         this.encoderPositionSetpoint = 0.0;
@@ -230,11 +252,9 @@ public Elevator() {
             // this.rightElevatorMotor.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0), kTimeoutMs);
             // this.rightElevatorMotor.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0), kTimeoutMs);
             // this.rightElevatorMotor.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0), kTimeoutMs);
-            // this.leftElevatorMotor.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0), kTimeoutMs);
-            // this.leftElevatorMotor.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0), kTimeoutMs);
-            // this.leftElevatorMotor.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0), kTimeoutMs);
-            // this.leftElevatorMotor.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0), kTimeoutMs);
-
+            // this.rightElevatorMotor.configMotionSCurveStrength((int) this.sCurveConstantNT.getDouble(0.0), kTimeoutMs);
+            // this.rightElevatorMotor.configMotionCruiseVelocity(this.velocityConstantNT.getDouble(0.0), kTimeoutMs);
+            // this.rightElevatorMotor.configMotionAcceleration(this.accelerationConstantNT.getDouble(0.0), kTimeoutMs);
             // double desiredEncoderPosition = this.positionSetPointNT.getDouble(0.0);
             // this.setElevatorMotorPosition(desiredEncoderPosition);
 
@@ -256,6 +276,7 @@ public Elevator() {
     public double getElevatorEncoderHeight(){
         return this.rightElevatorMotor.getSelectedSensorPosition();
     }
+
 
     public void setElevatorMotorPower(double power){
         this.leftElevatorMotor.set(ControlMode.PercentOutput, power);
