@@ -39,10 +39,10 @@ public class Constants {
         public static final int kSlotIdx = 0;
         public static final int kPIDLoopIdx = 0;
         public static final int kTimeoutMs = 30;
-        public static final Gains kGains_Velocit  = new Gains( .74,      0,   0,    .05265,        0,    1.00);
+        public static final Gains GAINS_POSITION  = new Gains( 0,      0,   0,    0,        0,    1.00);
         //FIXME additional config
-        public static final double MAX_ELEVATOR_VELOCITY = 0;
-        public static final double ELEVATOR_ACCELERATION = 0;
+        public static final double MAX_ELEVATOR_VELOCITY = 2000;
+        public static final double ELEVATOR_ACCELERATION = 2000;
         public static final int SCURVE_STRENGTH = 0;
        
         //CAN ID
