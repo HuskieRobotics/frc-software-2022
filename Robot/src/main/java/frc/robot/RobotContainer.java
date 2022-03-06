@@ -18,9 +18,9 @@ import frc.robot.commands.*;
 import frc.robot.Constants.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
-
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Button;
@@ -159,10 +159,11 @@ public class RobotContainer {
         //add shoot from fender command
       );
 
+      ShuffleboardTab tab = Shuffleboard.getTab("Auto");
     m_chooser.addOption("Red 2", autoCommand2);
     m_chooser.addOption("Red 3", autoCommand3);
 
-    SmartDashboard.putData("Auto Mode", m_chooser);
+    tab.add("Auto Mode", m_chooser);
   }
 
   public static RobotContainer getInstance() {
