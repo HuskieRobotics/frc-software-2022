@@ -105,4 +105,16 @@ public final class Constants {
           new TrapezoidProfile.Constraints(
               kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
+
+    public static class ButtonConstants {
+      public static final int CLIMBER_UP = 2;
+      public static final int CLIMB_2 = 1;
+      public static final int CLIMB_3 = 7;
+      public static final int CLIMB_4 = 8;
+      public static final int FENDER = 9;
+      public static final int FIELD_WALL = 6;
+      public static final int LAUNCHPAD = 5;
+      public static final int TARMAC = 4;
+      
+    }
 }

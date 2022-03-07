@@ -57,6 +57,7 @@ public class RobotContainer {
     private final Joystick joystick0 = new Joystick(0);
     private final Joystick operatorConsole = new Joystick(3);//operatorButtons 
     private final XboxController xboxController = new XboxController(2);
+    //private final Button[] xboxButtons = new Buttons[10];
   
 
   private static RobotContainer m_robotContainer = new RobotContainer();
@@ -84,7 +85,8 @@ public class RobotContainer {
     this.joystickButtons0 = new JoystickButton[12];
     this.joystickButtons1 = new JoystickButton[12];
     this.operatorButtons = new JoystickButton[12];//operatorButtons
-    for(int i = 0; i < joystickButtons0.length; i++) {
+
+    for(int i = 1; i <= joystickButtons0.length; i++) {
       joystickButtons0[i] = new JoystickButton(joystick0, i);
       joystickButtons1[i] = new JoystickButton(joystick1, i);
       operatorButtons[i] = new JoystickButton(operatorConsole, i);
@@ -150,12 +152,14 @@ public class RobotContainer {
       new InstantCommand(() -> m_drivetrainSubsystem.disableFieldRelative()),
       new InstantCommand(() -> m_drivetrainSubsystem.enableFieldRelative()),
       m_drivetrainSubsystem::getFieldRelative));
+
+  //joystick0[7].whenPressed(System.out.println("press"));
     
     //change to use whenHeld(m_drivetrainSubsystem::setCenterGrav(0,0));
     //create command?
     joystickButtons1[4].whenHeld(new InstantCommand(() -> m_drivetrainSubsystem.setCenterGrav(0, 0), m_drivetrainSubsystem));
-    xboxController.Button.kB.whenPressed(new InstantCommand(() -> m_collector.enableCollector()));
-    xboxController.Button.kY.whenPressed(new InstantCommand(() -> m_collector.disableCollector()));
+    //xboxController.Button.kB.whenPressed(new InstantCommand(() -> m_collector.enableCollector()));
+    //xboxController.Button.kY.whenPressed(new InstantCommand(() -> m_collector.disableCollector()));
 
   
 
