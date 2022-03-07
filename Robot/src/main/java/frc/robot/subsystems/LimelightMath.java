@@ -22,10 +22,10 @@ public class LimelightMath extends SubsystemBase{
     private NetworkTableEntry getvx;
     private NetworkTableEntry getvy;
     private double ty;
-    double vx;
-    double vy;
-    double h2;
-    double h1;
+    private double vx;
+    private double vy;
+    private double h2;
+    private double h1;
 
     public LimelightMath() {
     
