@@ -287,6 +287,9 @@ public Elevator() {
     public void setElevatorMotorPosition(double desiredEncoderPosition) {
         this.encoderPositionSetpoint = desiredEncoderPosition;
         this.rightElevatorMotor.set(ControlMode.MotionMagic, desiredEncoderPosition);
+        // the feedforward term will be different depending if the elevator is going up or down
+        //		and if it under load or not; use the desiredEncoderPosition to determine the
+        //		corresponding feed forward term
         // this.rightElevatorMotor.set(TalonFXControlMode.MotionMagic, desiredEncoderPosition, DemandType.ArbitraryFeedForward, feedFwdTerm);
         this.leftElevatorMotor.follow(this.rightElevatorMotor);
     }
