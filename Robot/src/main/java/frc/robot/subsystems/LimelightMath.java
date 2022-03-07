@@ -105,4 +105,16 @@ public class LimelightMath extends SubsystemBase{
         
 
     }
+    
+    public void ledOff(){
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
+    }
+
+    public void ledOn(){
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3);
+    }
+
+    public void ledSetDefaultState(){
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0);
+    }
 }
