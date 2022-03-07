@@ -153,7 +153,7 @@ public class RobotContainer {
       new InstantCommand(() -> m_drivetrainSubsystem.enableFieldRelative()),
       m_drivetrainSubsystem::getFieldRelative));
 
-  //joystick0[7].whenPressed(System.out.println("press"));
+  joystickButtons0[7].whenPressed(new InstantCommand(() -> System.out.println("press")));
     
     //change to use whenHeld(m_drivetrainSubsystem::setCenterGrav(0,0));
     //create command?
