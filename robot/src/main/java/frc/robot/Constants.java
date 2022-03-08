@@ -25,7 +25,7 @@ public class Constants {
         public static final int SLOT_INDEX = 0;
         public static final int PID_LOOP_INDEX = 0;
         public static final int TIMEOUT_MS = 30;
-        public static final int VELOCITY_TOLERANCE = 0; //FIX_ME tune this should be how off our velocity can be 
+        public static final int VELOCITY_TOLERANCE = 500; //FIX_ME tune this should be how off our velocity can be 
         
 
 
