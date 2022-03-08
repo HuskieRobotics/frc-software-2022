@@ -150,8 +150,8 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-  joystickButtons1[2].whileHeld(new InstantCommand(() -> m_drivetrainSubsystem.setXStance()));
-  joystickButtons1[3].toggleWhenPressed(
+  joystickButtons1[3].whileHeld(new InstantCommand(() -> m_drivetrainSubsystem.setXStance()));
+  joystickButtons0[3].toggleWhenPressed(
     new ConditionalCommand(
       new InstantCommand(() -> m_drivetrainSubsystem.disableFieldRelative()),
       new InstantCommand(() -> m_drivetrainSubsystem.enableFieldRelative()),
