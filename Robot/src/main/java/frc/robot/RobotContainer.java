@@ -14,6 +14,7 @@ package frc.robot;
 
 import frc.robot.Constants.CollectorConstants;
 import frc.robot.Constants.StorageConstants;
+import static frc.robot.Constants.JoystickConstants.*;
 import frc.robot.commands.*;
 import frc.robot.Constants.*;
 import frc.robot.subsystems.*;
@@ -23,13 +24,11 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj.GenericHID;
 
 import com.pathplanner.lib.PathPlanner;
@@ -88,13 +87,13 @@ public class RobotContainer {
   this.joystickButtons1 = new JoystickButton[13];
   this.operatorButtons = new JoystickButton[13];
   this.xboxButtons = new JoystickButton[10];
-  for(int i = 1; i <= joystickButtons0.length; i++) {
+  for(int i = 1; i < joystickButtons0.length; i++) {
       joystickButtons0[i] = new JoystickButton(joystick0, i);
       joystickButtons1[i] = new JoystickButton(joystick1, i);
       operatorButtons[i] = new JoystickButton(operatorConsole, i);
   }
 
-  for(int i = 1; i <= xboxButtons.length; i++){
+  for(int i = 1; i < xboxButtons.length; i++){
     xboxButtons[i-1] = new JoystickButton(xboxController, i);
   }
     m_drivetrainSubsystem.register();
@@ -161,8 +160,8 @@ public class RobotContainer {
     //change to use whenHeld(m_drivetrainSubsystem::setCenterGrav(0,0));
     //create command?
     joystickButtons1[4].whenHeld(new InstantCommand(() -> m_drivetrainSubsystem.setCenterGrav(0, 0), m_drivetrainSubsystem));
-    xboxButtons[3].whenPressed(new InstantCommand(() -> m_collector.enableCollector()));
-    xboxButtons[2].whenPressed(new InstantCommand(() -> m_collector.disableCollector()));
+    xboxButtons[BUTTON_X].whenPressed(new InstantCommand(() -> m_collector.enableCollector()));
+    xboxButtons[BUTTON_B].whenPressed(new InstantCommand(() -> m_collector.disableCollector()));
 
       
 
