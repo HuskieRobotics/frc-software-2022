@@ -132,24 +132,12 @@ private WPI_TalonFX rightFlywheelMotor;
 		 * https://phoenix-documentation.readthedocs.io/en/latest/ch14_MCSensor.html#sensor-phase
 		 */
         // flywheelRight.setSensorPhase(true);
-        this.velocitySetPoint = 0.0;
-
-        this.isAtSetpointNT = Shuffleboard.getTab("Shooter")
-                .add("FlywheelIsAtSetpoint", false)
-                .getEntry();
-        this.rightEncoderReadingNT = Shuffleboard.getTab("Shooter")
-                .add("FlywheelRightEncoderReading", 0.0)
-                .getEntry();
-        this.leftEncoderReadingNT = Shuffleboard.getTab("Shooter")
-                .add("FlywheelLeftEncoderReading", 0.0)
-                .getEntry();
-
-        this.rightClosedLoopErrorNT = Shuffleboard.getTab("Shooter")
-                .add("FlywheelRightClosedLoopError", 0.0)
-                .getEntry();
-        this.leftClosedLoopErrorNT = Shuffleboard.getTab("Shooter")
-                .add("FlywheelLeftClosedLoopError", 0.0)
-                .getEntry();
+        
+        Shuffleboard.getTab("Shooter").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
+        Shuffleboard.getTab("Shooter").addNumber("FlywheelRightEncoderReading", this.talonRight::getSelectedSensorVelocity);
+        Shuffleboard.getTab("Shooter").addNumber("FlywheelLeftEncoderReading", this.talonLeft::getSelectedSensorVelocity);
+        Shuffleboard.getTab("Shooter").addNumber("FlywheelRightClosedLoopError", this.talonRight::getClosedLoopError);
+        Shuffleboard.getTab("Shooter").addNumber("FlywheelLeftClosedLoopError", this.talonLeft::getClosedLoopError);
 
         // Shuffleboard.getTab("Shooter").add("SpinFlywheelForFenderCommand",
         //         new SpinFlywheelCommand(this, FENDER_VELOCITY));
@@ -204,12 +192,7 @@ private WPI_TalonFX rightFlywheelMotor;
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        this.isAtSetpointNT.setBoolean(this.isAtSetpoint());
-        this.rightEncoderReadingNT.setDouble(this.rightFlywheelMotor.getSelectedSensorVelocity(FlywheelConstants.SLOT_INDEX));
-        this.leftEncoderReadingNT.setDouble(this.leftFlywheelMotor.getSelectedSensorVelocity(FlywheelConstants.SLOT_INDEX));
-        this.rightClosedLoopErrorNT.setDouble(this.rightFlywheelMotor.getClosedLoopError(FlywheelConstants.SLOT_INDEX));
-        this.leftClosedLoopErrorNT.setDouble(this.leftFlywheelMotor.getClosedLoopError(FlywheelConstants.SLOT_INDEX));
-
+        
         // the following code will only run when we are tuning the system (i.e., not under normal robot operation)
         if (Constants.TUNING) {
 
