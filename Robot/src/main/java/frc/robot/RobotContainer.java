@@ -82,11 +82,11 @@ public class RobotContainer {
   */
   private RobotContainer() {
 
-    this.joystickButtons0 = new JoystickButton[12];
-    this.joystickButtons1 = new JoystickButton[12];
-    this.operatorButtons = new JoystickButton[12];//operatorButtons
+    this.joystickButtons0 = new JoystickButton[13];
+    this.joystickButtons1 = new JoystickButton[13];
+    this.operatorButtons = new JoystickButton[13];//operatorButtons
 
-    for(int i = 1; i <= joystickButtons0.length; i++) {
+    for(int i = 1; i < joystickButtons0.length; i++) {
       joystickButtons0[i] = new JoystickButton(joystick0, i);
       joystickButtons1[i] = new JoystickButton(joystick1, i);
       operatorButtons[i] = new JoystickButton(operatorConsole, i);
