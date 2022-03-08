@@ -4,6 +4,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.LimelightMath;
 import frc.robot.subsystems.Flywheel;
+import frc.robot.Constants;
 
 public class SetFlywheelVelocityCommand extends CommandBase{
     private Flywheel flywheel;
@@ -37,6 +38,11 @@ public class SetFlywheelVelocityCommand extends CommandBase{
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return false;
+        if(flywheel.getVelocity() > this.velocity - Constants.FlywheelConstants.TOLERANCE  && flywheel.getVelocity() < this.velocity + Constants.FlywheelConstants.TOLERANCE){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }
