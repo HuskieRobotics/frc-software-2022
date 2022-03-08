@@ -21,16 +21,17 @@ package frc.robot;
  */
 public class Constants {
     public static final boolean TUNING = true;
-    public static final int SLOT_INDEX = 0;
     public static class FlywheelConstants{
-        public static final int kSlotIdx = 0;
-        public static final int kPIDLoopIdx = 0;
-        public static final int kTimeoutMs = 30;
-        public static final int VELOCITY_TOLERANCE = 0; //FIX_ME tune this should be how off our velocity can be 
+        public static final int SLOT_INDEX = 0;
+        public static final int PID_LOOP_INDEX = 0;
+        public static final int TIMEOUT_MS = 30;
+        public static final int VELOCITY_TOLERANCE = 500; //FIX_ME tune this should be how off our velocity can be 
+        public static final int LEFT_FLYWHEELMOTOR_CANID = 2;
+        public static final int RIGHT_FLYWHEELMOTOR_CANID = 1;
         
 
 
-    public final static Gains kGains_Velocit  = new Gains( .74,      0,   0,    .05265,        0,    1.00);
+    public final static Gains GAINS_VELOCITY  = new Gains( .74, /* kP */  0, /* kI */   0,  /* kD */  .05265,   /* kF */     0,  /* kIzone */  1.00 /* kPeakOutput */);
 
    }
    public class HoodConstants{
