@@ -20,7 +20,7 @@ import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
-
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Button;
@@ -86,9 +86,8 @@ public class RobotContainer {
   */
   private RobotContainer() {
 
-    testSRX = new WPI_TalonSRX(12);
+    testSRX = new WPI_TalonSRX(4);
 
-    testSRX.set(ControlMode.PercentOutput, 1);
 
     this.joystickButtons0 = new JoystickButton[13];
     this.joystickButtons1 = new JoystickButton[13];
@@ -100,8 +99,8 @@ public class RobotContainer {
       operatorButtons[i] = new JoystickButton(operatorConsole, i);
     }
 
-    joystickButtons0[7].whenPressed(new InstantCommand(() -> System.out.println("press")));
-    
+    //joystickButtons0[7].whenPressed(new InstantCommand(() -> testSRX.set(ControlMode.PercentOutput, 1)));
+    Shuffleboard.getTab("Collector").addBoolean("button 7", joystickButtons0[7]::get);
     //m_drivetrainSubsystem.register();
     //m_storage.register();
     //m_collector.register();
