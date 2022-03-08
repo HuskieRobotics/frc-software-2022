@@ -15,11 +15,11 @@ package frc.robot.subsystems;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.subsystems.LimelightMath;
 
 import java.awt.geom.Point2D;
 
 import frc.robot.Constants;
-import frc.robot.LimelightMath;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.Constants.FlywheelConstants;
 import frc.robot.commands.*;
@@ -99,10 +99,10 @@ private WPI_TalonFX rightFlywheelMotor;
 
 		/* Config sensor used for Primary PID [Velocity] */
         rightFlywheelMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,
-                                            FlywheelConstants.PID_LOOP_IDX, 
+                                            FlywheelConstants.PID_LOOP_INDEX, 
 											FlywheelConstants.TIMEOUT_MS);
         leftFlywheelMotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,
-                                            FlywheelConstants.PID_LOOP_IDX, 
+                                            FlywheelConstants.PID_LOOP_INDEX, 
 											FlywheelConstants.TIMEOUT_MS);
 
 		/* Config the peak and nominal outputs */
@@ -116,14 +116,14 @@ private WPI_TalonFX rightFlywheelMotor;
 		leftFlywheelMotor.configPeakOutputReverse(-1, FlywheelConstants.TIMEOUT_MS);
 
 		/* Config the Velocity closed loop gains in slot0 */
-		rightFlywheelMotor.config_kF(FlywheelConstants.PID_LOOP_IDX, FlywheelConstants.kGains_Velocit.kF, FlywheelConstants.TIMEOUT_MS);
-		rightFlywheelMotor.config_kP(FlywheelConstants.PID_LOOP_IDX, FlywheelConstants.kGains_Velocit.kP, FlywheelConstants.TIMEOUT_MS);
-		rightFlywheelMotor.config_kI(FlywheelConstants.PID_LOOP_IDX, FlywheelConstants.kGains_Velocit.kI, FlywheelConstants.TIMEOUT_MS);
-		rightFlywheelMotor.config_kD(FlywheelConstants.PID_LOOP_IDX, FlywheelConstants.kGains_Velocit.kD, FlywheelConstants.TIMEOUT_MS);
-        leftFlywheelMotor.config_kF(FlywheelConstants.PID_LOOP_IDX, FlywheelConstants.kGains_Velocit.kF, FlywheelConstants.TIMEOUT_MS);
-		leftFlywheelMotor.config_kP(FlywheelConstants.PID_LOOP_IDX, FlywheelConstants.kGains_Velocit.kP, FlywheelConstants.TIMEOUT_MS);
-		leftFlywheelMotor.config_kI(FlywheelConstants.PID_LOOP_IDX, FlywheelConstants.kGains_Velocit.kI, FlywheelConstants.TIMEOUT_MS);
-		leftFlywheelMotor.config_kD(FlywheelConstants.PID_LOOP_IDX, FlywheelConstants.kGains_Velocit.kD, FlywheelConstants.TIMEOUT_MS);
+		rightFlywheelMotor.config_kF(FlywheelConstants.PID_LOOP_INDEX, FlywheelConstants.GAINS_VELOCITY.kF, FlywheelConstants.TIMEOUT_MS);
+		rightFlywheelMotor.config_kP(FlywheelConstants.PID_LOOP_INDEX, FlywheelConstants.GAINS_VELOCITY.kP, FlywheelConstants.TIMEOUT_MS);
+		rightFlywheelMotor.config_kI(FlywheelConstants.PID_LOOP_INDEX, FlywheelConstants.GAINS_VELOCITY.kI, FlywheelConstants.TIMEOUT_MS);
+		rightFlywheelMotor.config_kD(FlywheelConstants.PID_LOOP_INDEX, FlywheelConstants.GAINS_VELOCITY.kD, FlywheelConstants.TIMEOUT_MS);
+        leftFlywheelMotor.config_kF(FlywheelConstants.PID_LOOP_INDEX, FlywheelConstants.GAINS_VELOCITY.kF, FlywheelConstants.TIMEOUT_MS);
+		leftFlywheelMotor.config_kP(FlywheelConstants.PID_LOOP_INDEX, FlywheelConstants.GAINS_VELOCITY.kP, FlywheelConstants.TIMEOUT_MS);
+		leftFlywheelMotor.config_kI(FlywheelConstants.PID_LOOP_INDEX, FlywheelConstants.GAINS_VELOCITY.kI, FlywheelConstants.TIMEOUT_MS);
+		leftFlywheelMotor.config_kD(FlywheelConstants.PID_LOOP_INDEX, FlywheelConstants.GAINS_VELOCITY.kD, FlywheelConstants.TIMEOUT_MS);
 		/*
 		 * Talon FX does not need sensor phase set for its integrated sensor
 		 * This is because it will always be correct if the selected feedback device is integrated sensor (default value)
@@ -205,10 +205,10 @@ private WPI_TalonFX rightFlywheelMotor;
     public void periodic() {
         // This method will be called once per scheduler run
         this.isAtSetpointNT.setBoolean(this.isAtSetpoint());
-        this.rightEncoderReadingNT.setDouble(this.rightFlywheelMotor.getSelectedSensorVelocity(Constants.SLOT_INDEX));
-        this.leftEncoderReadingNT.setDouble(this.leftFlywheelMotor.getSelectedSensorVelocity(Constants.SLOT_INDEX));
-        this.rightClosedLoopErrorNT.setDouble(this.rightFlywheelMotor.getClosedLoopError(Constants.SLOT_INDEX));
-        this.leftClosedLoopErrorNT.setDouble(this.leftFlywheelMotor.getClosedLoopError(Constants.SLOT_INDEX));
+        this.rightEncoderReadingNT.setDouble(this.rightFlywheelMotor.getSelectedSensorVelocity(FlywheelConstants.SLOT_INDEX));
+        this.leftEncoderReadingNT.setDouble(this.leftFlywheelMotor.getSelectedSensorVelocity(FlywheelConstants.SLOT_INDEX));
+        this.rightClosedLoopErrorNT.setDouble(this.rightFlywheelMotor.getClosedLoopError(FlywheelConstants.SLOT_INDEX));
+        this.leftClosedLoopErrorNT.setDouble(this.leftFlywheelMotor.getClosedLoopError(FlywheelConstants.SLOT_INDEX));
 
         // the following code will only run when we are tuning the system (i.e., not under normal robot operation)
         if (Constants.TUNING) {
@@ -255,7 +255,7 @@ private WPI_TalonFX rightFlywheelMotor;
     // here. Call these from Commands.
 
     public double getVelocity() {
-        return this.leftFlywheelMotor.getSelectedSensorVelocity(Constants.SLOT_INDEX);
+        return this.leftFlywheelMotor.getSelectedSensorVelocity(FlywheelConstants.SLOT_INDEX);
     }
 
     public void setVelocity(double velocitySetPoint) {
