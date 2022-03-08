@@ -82,6 +82,8 @@ private WPI_TalonSRX hoodMotor;
         return 0.0;
     }
 
+    
+
     public void setHoodMotorPower(double pwr) {
         this.hoodMotor.set(ControlMode.PercentOutput, pwr);
     }
