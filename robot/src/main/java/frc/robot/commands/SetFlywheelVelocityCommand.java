@@ -11,11 +11,14 @@ public class SetFlywheelVelocityCommand extends CommandBase{
     public SetFlywheelVelocityCommand(Flywheel flywheel, LimelightMath limelight) {
         this.flywheel = flywheel;
         this.velocity = limelight.getIdealVelocity();
+        addRequirements(this.flywheel);
+
         
     }
     public SetFlywheelVelocityCommand(Flywheel flywheel, double velocity){
         this.flywheel = flywheel;
         this.velocity = velocity;
+        addRequirements(this.flywheel);
     }
 
     // Called when the command is initially scheduled.
