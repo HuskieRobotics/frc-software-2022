@@ -14,7 +14,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 
-import frc.robot.Constants;
+import static frc.robot.Constants.*;
 import static frc.robot.Constants.FlywheelConstants.*;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -232,7 +232,7 @@ public class Flywheel extends SubsystemBase {
 
         // the following code will only run when we are tuning the system (i.e., not
         // under normal robot operation)
-        if (Constants.TUNING) {
+        if (TUNING) {
 
             // when tuning, we first set motor power and check the resulting velocity
             // once we have determined our feedforward constant, comment the following lines
