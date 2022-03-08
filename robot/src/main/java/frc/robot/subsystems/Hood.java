@@ -78,6 +78,7 @@ public class Hood extends SubsystemBase {
 
     // Encoder object created to display position values
     hoodEncoder = hoodMotor.getEncoder(); 
+    hoodEncoder.setPosition(0.0);
 
     m_pidController.setP(KP);
     m_pidController.setI(KI);
