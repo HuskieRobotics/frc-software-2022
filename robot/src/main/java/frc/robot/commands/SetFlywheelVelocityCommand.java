@@ -1,9 +1,9 @@
     package frc.robot.commands;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.LimelightMath;
 import frc.robot.subsystems.Flywheel;
+import static frc.robot.Constants.FlywheelConstants.*;
 
 public class SetFlywheelVelocityCommand extends CommandBase{
     private Flywheel flywheel;
@@ -11,11 +11,14 @@ public class SetFlywheelVelocityCommand extends CommandBase{
     public SetFlywheelVelocityCommand(Flywheel flywheel, LimelightMath limelight) {
         this.flywheel = flywheel;
         this.velocity = limelight.getIdealVelocity();
+        addRequirements(this.flywheel);
+
         
     }
     public SetFlywheelVelocityCommand(Flywheel flywheel, double velocity){
         this.flywheel = flywheel;
         this.velocity = velocity;
+        addRequirements(this.flywheel);
     }
 
     // Called when the command is initially scheduled.
@@ -37,6 +40,11 @@ public class SetFlywheelVelocityCommand extends CommandBase{
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return false;
+        if(Math.abs(flywheel.getVelocity() - this.velocity) < VELOCITY_TOLERANCE) {
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }
