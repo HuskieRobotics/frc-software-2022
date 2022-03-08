@@ -50,12 +50,16 @@ import edu.wpi.first.wpilibj2.command.Command;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    private final Button[] XboxButtons;//operatorButtons 
+    private final JoystickButton[] operatorButtons;
     private final JoystickButton[] joystickButtons0;
     private final JoystickButton[] joystickButtons1;
-    private final Joystick joystick1 = new Joystick(1);
+    private final JoystickButton[] xboxButtons;
+    
     private final Joystick joystick0 = new Joystick(0);
-    private final XboxController xboxController;
+    private final Joystick joystick1 = new Joystick(1);
+    private final Joystick operatorConsole = new Joystick(2);
+    private final XboxController xboxController = new XboxController(3);
+    
   
 
   private static RobotContainer m_robotContainer = new RobotContainer();
@@ -80,16 +84,18 @@ public class RobotContainer {
   */
   private RobotContainer() {
     
-  this.xboxController = new XboxController(2);
   this.joystickButtons0 = new JoystickButton[13];
   this.joystickButtons1 = new JoystickButton[13];
-  this.XboxButtons = new Button[17];//operatorButtons
+  this.operatorButtons = new JoystickButton[13];
+  this.xboxButtons = new JoystickButton[10];
   for(int i = 1; i <= joystickButtons0.length; i++) {
-      joystickButtons0[i-1] = new JoystickButton(joystick0, i);
-      joystickButtons1[i-1] = new JoystickButton(joystick1, i);
+      joystickButtons0[i] = new JoystickButton(joystick0, i);
+      joystickButtons1[i] = new JoystickButton(joystick1, i);
+      operatorButtons[i] = new JoystickButton(operatorConsole, i);
   }
-  for(int i = 1; i <= XboxButtons.length; i++){
-    XboxButtons[i-1] = new JoystickButton(xboxController, i);
+
+  for(int i = 1; i <= xboxButtons.length; i++){
+    xboxButtons[i-1] = new JoystickButton(xboxController, i);
   }
     m_drivetrainSubsystem.register();
     m_storage.register();
@@ -155,8 +161,8 @@ public class RobotContainer {
     //change to use whenHeld(m_drivetrainSubsystem::setCenterGrav(0,0));
     //create command?
     joystickButtons1[4].whenHeld(new InstantCommand(() -> m_drivetrainSubsystem.setCenterGrav(0, 0), m_drivetrainSubsystem));
-    XboxButtons[1].whenPressed(new InstantCommand(() -> m_collector.enableCollector()));
-    XboxButtons[3].whenPressed(new InstantCommand(() -> m_collector.disableCollector()));
+    xboxButtons[3].whenPressed(new InstantCommand(() -> m_collector.enableCollector()));
+    xboxButtons[2].whenPressed(new InstantCommand(() -> m_collector.disableCollector()));
 
       
 
