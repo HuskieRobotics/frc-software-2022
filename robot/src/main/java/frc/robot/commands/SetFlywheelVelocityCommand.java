@@ -10,6 +10,9 @@ public class SetFlywheelVelocityCommand extends CommandBase{
     private double velocity;
     public SetFlywheelVelocityCommand(Flywheel flywheel, LimelightMath limelight) {
         this.flywheel = flywheel;
+        // FIXME: this will get the ideal velocity when the command is constructed; not when the command is scheduled
+        //      The next line should be moved to the initialzie method. However, I'm not sure why there are two 
+        //      constructors. Can we get rid of one of them?
         this.velocity = limelight.getIdealVelocity();
         addRequirements(this.flywheel);
 
