@@ -21,6 +21,7 @@ package frc.robot;
  */
 public class Constants {
     public static final boolean TUNING = true;
+    
     public static class FlywheelConstants{
         public static final int SLOT_INDEX = 0;
         public static final int PID_LOOP_INDEX = 0;
