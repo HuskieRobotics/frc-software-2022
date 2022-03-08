@@ -23,9 +23,9 @@ public class Constants {
     public static final boolean TUNING = true;
     public static final int SLOT_INDEX = 0;
     public static class FlywheelConstants{
-        public static final int kSlot_Idx = 0;
-        public static final int kPID_LoopIdx = 0;
-        public static final int kTimeout_Ms = 30;
+        public static final int SLOT_IDX = 0;
+        public static final int PID_LOOP_IDX = 0;
+        public static final int TIMEOUT_MS = 30;
         public static final int VELOCITY_TOLERANCE = 0; //FIX_ME tune this should be how off our velocity can be 
         public static final int LEFT_FLYWHEELMOTOR_CANID = 2;
         public static final int RIGHT_FLYWHEELMOTOR_CANID = 1;
