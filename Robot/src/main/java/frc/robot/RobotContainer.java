@@ -160,9 +160,7 @@ public class RobotContainer {
     //change to use whenHeld(m_drivetrainSubsystem::setCenterGrav(0,0));
     //create command?
     joystickButtons1[4].whenHeld(new InstantCommand(() -> m_drivetrainSubsystem.setCenterGrav(0, 0), m_drivetrainSubsystem));
-    xboxButtons[BUTTON_X].whenPressed(new InstantCommand(() -> m_collector.enableCollector()));
-    xboxButtons[BUTTON_B].whenPressed(new InstantCommand(() -> m_collector.disableCollector()));
-
+    
       
 
 
@@ -171,7 +169,7 @@ public class RobotContainer {
     
     //Change Colletor state
     
-    joystickButtons1[0].toggleWhenPressed(
+    operatorButtons[11].toggleWhenPressed(
       new ConditionalCommand(
         new InstantCommand(() -> m_collector.disableCollector()),
         new InstantCommand(() -> m_collector.enableCollector()),
@@ -191,20 +189,33 @@ public class RobotContainer {
               new InstantCommand(() -> m_collector.disableCollector())),
             m_collector::isEnabled));
               
-    //outtake
-    joystickButtons1[5].whenHeld(
+    //unjam all
+    xboxButtons[BUTTON_X].whenHeld(
       new ParallelCommandGroup(
         new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.OUTTAKE_POWER)),
         new InstantCommand(() -> m_storage.setStoragePower(StorageConstants.OUTTAKE_POWER))
       )
     );
-    joystickButtons1[5].whenReleased(
+    xboxButtons[BUTTON_X].whenReleased(
       new ParallelCommandGroup(
         new InstantCommand(() -> m_collector.setCollectorPower(0)),
         new InstantCommand(() -> m_storage.setStoragePower(0))
       )
     );
 
+    //unjam collector
+    xboxButtons[BUTTON_B].whenHeld(
+        new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.OUTTAKE_POWER)));
+
+    xboxButtons[BUTTON_B].whenReleased(
+        new InstantCommand(() -> m_collector.setCollectorPower(0)));
+
+      //Reset statemachine Button A
+
+      //Reset Gyro
+      xboxButtons[BUTTON_Y].whenPressed(
+        new InstantCommand(()-> m_drivetrainSubsystem.zeroGyroscope())
+      );
   }
 
 
