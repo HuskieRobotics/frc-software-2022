@@ -42,8 +42,8 @@ public class Constants {
         public static final int kTimeoutMs = 30;
         public static final Gains GAINS_POSITION  = new Gains( 0 /* kP */, 0 /* kI */, 0 /* kD */, 0 /* kF */, 0 /* kIZone */, 1.00 /* max output */);
         //FIXME additional config
-        public static final double MAX_ELEVATOR_VELOCITY = 2000;
-        public static final double ELEVATOR_ACCELERATION = 2000;
+        public static final double MAX_ELEVATOR_VELOCITY = 21305.0 / 2;  // theoretical maximum 21305
+        public static final double ELEVATOR_ACCELERATION = MAX_ELEVATOR_VELOCITY / 2;
         public static final int SCURVE_STRENGTH = 0;
        
         //CAN ID
