@@ -105,4 +105,30 @@ public final class Constants {
           new TrapezoidProfile.Constraints(
               kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
+    public static final class JoystickConstants {
+      public static final int CLIMBER_UP = 2;
+      public static final int CLIMB_2 = 1;
+      public static final int CLIMB_3 = 7;
+      public static final int CLIMB_4 = 6;
+      public static final int FENDER = 9; 
+      public static final int FIELD_WALL = 6;
+      public static final int LAUNCHPAD = 5;
+      public static final int TARMAC = 4;
+      public static final int SHOOT = 3; 
+      public static final int SHOOT_SLOW = 10;
+      public static final int UNASSIGNED = 11;
+      public static final int CLIMB_CAM = 12;
+
+      public static final int BUTTON_A = 1;
+      public static final int BUTTON_B = 2;
+      public static final int BUTTON_X = 3;
+      public static final int BUTTON_Y = 4;
+      public static final int BUTTON_LB = 5; 
+      public static final int BUTTON_RB = 6;
+      public static final int BUTTON_BACK = 7;
+      public static final int BUTTON_START = 8;
+      public static final int LEFT_JOYSTICK_BUTTON = 9;
+      public static final int RIGHT_JOYSTICK_BUTTON = 10;
+      
+    }
 }

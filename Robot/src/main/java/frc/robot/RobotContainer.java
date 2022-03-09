@@ -14,6 +14,7 @@ package frc.robot;
 
 import frc.robot.Constants.CollectorConstants;
 import frc.robot.Constants.StorageConstants;
+import static frc.robot.Constants.JoystickConstants.*;
 import frc.robot.commands.*;
 import frc.robot.Constants.*;
 import frc.robot.subsystems.*;
@@ -23,13 +24,11 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj.GenericHID;
 
 import com.pathplanner.lib.PathPlanner;
@@ -50,12 +49,16 @@ import edu.wpi.first.wpilibj2.command.Command;
  * (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    private final Button[] XboxButtons;//operatorButtons 
+    private final JoystickButton[] operatorButtons;
     private final JoystickButton[] joystickButtons0;
     private final JoystickButton[] joystickButtons1;
-    private final Joystick joystick1 = new Joystick(1);
+    private final JoystickButton[] xboxButtons;
+    
     private final Joystick joystick0 = new Joystick(0);
-    private final XboxController xboxController;
+    private final Joystick joystick1 = new Joystick(1);
+    private final Joystick operatorConsole = new Joystick(2);
+    private final XboxController xboxController = new XboxController(3);
+    
   
 
   private static RobotContainer m_robotContainer = new RobotContainer();
@@ -80,16 +83,18 @@ public class RobotContainer {
   */
   private RobotContainer() {
     
-  this.xboxController = new XboxController(2);
   this.joystickButtons0 = new JoystickButton[13];
   this.joystickButtons1 = new JoystickButton[13];
-  this.XboxButtons = new Button[17];//operatorButtons
-  for(int i = 1; i <= joystickButtons0.length; i++) {
-      joystickButtons0[i-1] = new JoystickButton(joystick0, i);
-      joystickButtons1[i-1] = new JoystickButton(joystick1, i);
+  this.operatorButtons = new JoystickButton[13];
+  this.xboxButtons = new JoystickButton[10];
+  for(int i = 1; i < joystickButtons0.length; i++) {
+      joystickButtons0[i] = new JoystickButton(joystick0, i);
+      joystickButtons1[i] = new JoystickButton(joystick1, i);
+      operatorButtons[i] = new JoystickButton(operatorConsole, i);
   }
-  for(int i = 1; i <= XboxButtons.length; i++){
-    XboxButtons[i-1] = new JoystickButton(xboxController, i);
+
+  for(int i = 1; i < xboxButtons.length; i++){
+    xboxButtons[i-1] = new JoystickButton(xboxController, i);
   }
     m_drivetrainSubsystem.register();
     m_storage.register();
@@ -145,8 +150,8 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-  joystickButtons1[2].whileHeld(new InstantCommand(() -> m_drivetrainSubsystem.setXStance()));
-  joystickButtons1[3].toggleWhenPressed(
+  joystickButtons1[3].whileHeld(new InstantCommand(() -> m_drivetrainSubsystem.setXStance()));
+  joystickButtons0[3].toggleWhenPressed(
     new ConditionalCommand(
       new InstantCommand(() -> m_drivetrainSubsystem.disableFieldRelative()),
       new InstantCommand(() -> m_drivetrainSubsystem.enableFieldRelative()),
@@ -155,9 +160,7 @@ public class RobotContainer {
     //change to use whenHeld(m_drivetrainSubsystem::setCenterGrav(0,0));
     //create command?
     joystickButtons1[4].whenHeld(new InstantCommand(() -> m_drivetrainSubsystem.setCenterGrav(0, 0), m_drivetrainSubsystem));
-    XboxButtons[1].whenPressed(new InstantCommand(() -> m_collector.enableCollector()));
-    XboxButtons[3].whenPressed(new InstantCommand(() -> m_collector.disableCollector()));
-
+    
       
 
 
@@ -166,7 +169,7 @@ public class RobotContainer {
     
     //Change Colletor state
     
-    joystickButtons1[0].toggleWhenPressed(
+    operatorButtons[11].toggleWhenPressed(
       new ConditionalCommand(
         new InstantCommand(() -> m_collector.disableCollector()),
         new InstantCommand(() -> m_collector.enableCollector()),
@@ -186,20 +189,33 @@ public class RobotContainer {
               new InstantCommand(() -> m_collector.disableCollector())),
             m_collector::isEnabled));
               
-    //outtake
-    joystickButtons1[5].whenHeld(
+    //unjam all
+    xboxButtons[BUTTON_X].whenHeld(
       new ParallelCommandGroup(
         new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.OUTTAKE_POWER)),
         new InstantCommand(() -> m_storage.setStoragePower(StorageConstants.OUTTAKE_POWER))
       )
     );
-    joystickButtons1[5].whenReleased(
+    xboxButtons[BUTTON_X].whenReleased(
       new ParallelCommandGroup(
         new InstantCommand(() -> m_collector.setCollectorPower(0)),
         new InstantCommand(() -> m_storage.setStoragePower(0))
       )
     );
 
+    //unjam collector
+    xboxButtons[BUTTON_B].whenHeld(
+        new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.OUTTAKE_POWER)));
+
+    xboxButtons[BUTTON_B].whenReleased(
+        new InstantCommand(() -> m_collector.setCollectorPower(0)));
+
+      //Reset statemachine Button A
+
+      //Reset Gyro
+      xboxButtons[BUTTON_Y].whenPressed(
+        new InstantCommand(()-> m_drivetrainSubsystem.zeroGyroscope())
+      );
   }
 
 
