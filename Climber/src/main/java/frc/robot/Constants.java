@@ -25,21 +25,22 @@ public class Constants {
     public static class ElevatorConstants{
 
         //FIXME these encoder values need to be tuned
-        public static final double MAX_ELEVATOR_HEIGHT = 0;
+        public static final double MAX_ELEVATOR_HEIGHT = 100000;
         public static final double MIN_DETACH_ENCODER_HEIGHT = 0;
         public static final double MIN_ELEVATOR_ENCODER_HEIGHT = 0;
         public static final double MID_RUNG_HEIGHT = 0;
-        public static final double REACH_TO_NEXT_RUNG_HEIGHT = 0;
+        public static final double REACH_TO_NEXT_RUNG_HEIGHT = 0; // not sure if this is needed; use MAX_ELEVATOR_HEIGHT?
         public static final double PITCH_SETPOINT = 0;
         public static final double PITCH_TOLERANCE =  0;
-        public static final int ELEVATOR_POSITION_TOLERANCE = 0; 
-        public static final double ELEVATOR_MOTOR_POWER = 0;
+        public static final int ELEVATOR_POSITION_TOLERANCE = 0;
+        public static final double ARBITRARY_FEED_FORWARD_EXTEND = 0;
+        public static final double ARBITRARY_FEED_FORWARD_RETRACT = 0;
 
         //FIXME Talon Config, these values from flywheel
         public static final int kSlotIdx = 0;
         public static final int kPIDLoopIdx = 0;
         public static final int kTimeoutMs = 30;
-        public static final Gains GAINS_POSITION  = new Gains( 0,      0,   0,    0,        0,    1.00);
+        public static final Gains GAINS_POSITION  = new Gains( 0 /* kP */, 0 /* kI */, 0 /* kD */, 0 /* kF */, 0 /* kIZone */, 1.00 /* max output */);
         //FIXME additional config
         public static final double MAX_ELEVATOR_VELOCITY = 2000;
         public static final double ELEVATOR_ACCELERATION = 2000;

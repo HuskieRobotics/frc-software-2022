@@ -173,6 +173,7 @@ public Elevator() {
         Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon :: getPitch);
         Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this.rightElevatorMotor :: getClosedLoopTarget);
         Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error", this.rightElevatorMotor :: getClosedLoopError);
+        Shuffleboard.getTab("Elevator").addNumber("Velocity", this.rightElevatorMotor :: getSelectedSensorVelocity);
         Shuffleboard.getTab("Elevator").add("Extend Climber to Mid", new ExtendClimberToMidRungCommand(this));
         Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(this));
         Shuffleboard.getTab("Elevator").add("Retract Climber Full", new RetractClimberFullCommand(this));
@@ -192,47 +193,46 @@ public Elevator() {
             .getEntry();
 
         this.FConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Flywheel F", 0.0)
+                .add("Flywheel F", GAINS_POSITION.kF)
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                 .getEntry();
 
         this.PConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Flywheel P", 0.0)
+                .add("Flywheel P", GAINS_POSITION.kP)
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                 .getEntry();
 
         this.IConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Flywheel I", 0.0)
+                .add("Flywheel I", GAINS_POSITION.kI)
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                 .getEntry();
 
         this.DConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Flywheel D", 0.0)
+                .add("Flywheel D", GAINS_POSITION.kD)
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                 .getEntry();
             
         this.sCurveConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Scurve Strength", 0.0)
+                .add("Scurve Strength", SCURVE_STRENGTH)
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 8.0)) // specify widget properties here
                 .getEntry();
 
         this.velocityConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Max Velocity", 0.0)
+                .add("Max Velocity", MAX_ELEVATOR_VELOCITY)
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
                 .getEntry();
 
         this.accelerationConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Max Acceleration", 0.0)
+                .add("Max Acceleration", ELEVATOR_ACCELERATION)
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
                 .getEntry();
-
 
         this.encoderPositionSetpoint = 0.0;
     }
@@ -245,9 +245,8 @@ public Elevator() {
          // once we have determined our feedforward constant, comment the following lines
          // and uncomment the ones to tune the PID
         double motorPower = this.elevatorMotorPowerNT.getDouble(0.0); 
-        this.leftElevatorMotor.set(ControlMode.PercentOutput, motorPower);
-        this.rightElevatorMotor.set(ControlMode.PercentOutput, motorPower);
-
+        this.setElevatorMotorPower(motorPower);
+        
 
             // this.rightElevatorMotor.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0), kTimeoutMs);
             // this.rightElevatorMotor.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0), kTimeoutMs);
@@ -280,18 +279,31 @@ public Elevator() {
 
 
     public void setElevatorMotorPower(double power){
-        this.leftElevatorMotor.set(ControlMode.PercentOutput, power);
-        this.rightElevatorMotor.set(ControlMode.PercentOutput, power);
+        if(this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 100 ||
+                this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 100 ) {
+            this.disableElevator();
+        }
+        else {
+            this.leftElevatorMotor.set(ControlMode.PercentOutput, power);
+            this.rightElevatorMotor.set(ControlMode.PercentOutput, power);
+        }
     }
 
     public void setElevatorMotorPosition(double desiredEncoderPosition) {
-        this.encoderPositionSetpoint = desiredEncoderPosition;
         this.rightElevatorMotor.set(ControlMode.MotionMagic, desiredEncoderPosition);
+
         // the feedforward term will be different depending if the elevator is going up or down
         //		and if it under load or not; use the desiredEncoderPosition to determine the
         //		corresponding feed forward term
-        // this.rightElevatorMotor.set(TalonFXControlMode.MotionMagic, desiredEncoderPosition, DemandType.ArbitraryFeedForward, feedFwdTerm);
+        if(desiredEncoderPosition > this.encoderPositionSetpoint) { // extending unloaded
+            this.rightElevatorMotor.set(TalonFXControlMode.MotionMagic, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_EXTEND);
+        }
+        else { // retracting loaded
+            this.rightElevatorMotor.set(TalonFXControlMode.MotionMagic, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_RETRACT);
+        }
         this.leftElevatorMotor.follow(this.rightElevatorMotor);
+
+        this.encoderPositionSetpoint = desiredEncoderPosition;
     }
 
     public boolean atSetpoint(){
