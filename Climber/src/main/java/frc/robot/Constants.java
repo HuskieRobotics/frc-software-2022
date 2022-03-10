@@ -35,6 +35,7 @@ public class Constants {
         public static final int ELEVATOR_POSITION_TOLERANCE = 0;
         public static final double ARBITRARY_FEED_FORWARD_EXTEND = 0;
         public static final double ARBITRARY_FEED_FORWARD_RETRACT = 0;
+        public static final double DEFAULT_MOTOR_POWER = 0;
 
         //FIXME Talon Config, these values from flywheel
         public static final int kSlotIdx = 0;
