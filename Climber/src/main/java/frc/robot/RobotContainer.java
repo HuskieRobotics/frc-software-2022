@@ -127,13 +127,8 @@ public class RobotContainer {
         consoleButtons[0].whenPressed(new RetractClimberFullCommand(m_elevator));
 
         //climber emergency pause
-        boolean held1 = false;
-        boolean held2 = false;
-        consoleButtons[0].whileHeld(()->held1 = true;), Elevator);
-        consoleButtons[1].whileHeld(()->held2 = true;), Elevator);
-        if (held1 && held2)
-        {
-          new InstantCommand(() -> m_elevator.setElevatorMotorPower(0.0));
-        }
+
+        //FIXME this should be changed to start buttons and pass in the back button
+        consoleButtons[0].whenPressed(new InstantCommand(() -> m_elevator.elevatorPause(consoleButtons[0].get())));
   }
 }

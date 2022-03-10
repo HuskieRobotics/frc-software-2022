@@ -319,6 +319,12 @@ public Elevator() {
         return Math.abs(m_pigeon.getPitch() - PITCH_SETPOINT) < PITCH_TOLERANCE;
     }
 
+
+    public void elevatorPause(boolean isStartPressed){
+        if(isStartPressed) {
+            this.disableElevator();
+        }
+    }
     /** 
 	 * Determines if SensorSum or SensorDiff should be used 
 	 * for combining left/right sensors into Robot Distance.  
