@@ -14,10 +14,19 @@ package frc.robot;
 
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoSink;
+import edu.wpi.first.cscore.VideoMode.PixelFormat;
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -31,6 +40,12 @@ public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
 
     private RobotContainer m_robotContainer;
+    private JoystickButton xbox1;
+
+    UsbCamera usb0; 
+    UsbCamera usb1;
+    VideoSink server;
+ 
 
     /**
      * This function is run when the robot is first started up and should be
@@ -41,7 +56,23 @@ public class Robot extends TimedRobot {
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
         m_robotContainer = RobotContainer.getInstance();
+        XboxController xboxController = new XboxController(3); 
+        this.xbox1 = new JoystickButton(xboxController, 1);
+
+        usb0 = CameraServer.startAutomaticCapture(0);
+        usb0.setResolution(320,240);
+        usb0.setFPS(30);
+        usb0.setPixelFormat(PixelFormat.kYUYV);
+        usb0.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+        usb1 = CameraServer.startAutomaticCapture(1);
+        usb1.setResolution(320,240);
+        usb1.setFPS(15);
+        usb1.setPixelFormat(PixelFormat.kYUYV);
+        usb1.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+        server = CameraServer.getServer();
         HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);
+        
+        
     }
 
     /**
@@ -53,6 +84,7 @@ public class Robot extends TimedRobot {
     */
     @Override
     public void robotPeriodic() {
+        
         // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
         // commands, running already-scheduled commands, removing finished or interrupted commands,
         // and running subsystem periodic() methods.  This must be called from the robot's periodic
@@ -110,6 +142,13 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopPeriodic() {
+        if(this.xbox1.get()){
+            server.setSource(usb1);
+        }
+        else{
+            server.setSource(usb0);
+        }
+
     }
 
     @Override

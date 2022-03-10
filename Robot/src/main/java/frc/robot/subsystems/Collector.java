@@ -117,6 +117,8 @@ import edu.wpi.first.wpilibj.Solenoid;
         return this.collectorPiston.get();
     }
 
+    
+
     @Override
     public void simulationPeriodic() {
         // This method will be called once per scheduler run when in simulation
