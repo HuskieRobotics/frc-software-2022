@@ -130,5 +130,12 @@ public class RobotContainer {
 
         //FIXME this should be changed to start buttons and pass in the back button
         consoleButtons[0].whenPressed(new InstantCommand(() -> m_elevator.elevatorPause(consoleButtons[0].get())));
+
+        consoleButtons[0].toggleWhenPressed(
+          new ConditionalCommand(
+            new InstantCommand(() -> m_elevator.disableElevatorControl()),
+            new InstantCommand(() -> m_elevator.enableElevatorControl()),
+            m_elevator :: isElevatorControlEnabled));
+
   }
 }

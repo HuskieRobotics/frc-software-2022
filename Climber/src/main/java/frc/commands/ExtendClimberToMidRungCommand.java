@@ -17,7 +17,7 @@ public class ExtendClimberToMidRungCommand extends CommandBase {
     }
 
     @Override
-    public void execute() {
+    public void execute() {  
         m_elevator.setElevatorMotorPosition(ElevatorConstants.MID_RUNG_HEIGHT);
     }
 
@@ -28,6 +28,9 @@ public class ExtendClimberToMidRungCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
+        if(m_elevator.isElevatorControlEnabled()){
+            return true;
+        }
         return m_elevator.atSetpoint() && m_elevator.atSetpoint();
     }
 

@@ -29,6 +29,9 @@ public class RetractClimberMinimumCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
+        if(m_elevator.isElevatorControlEnabled()){
+            return true;
+        }
         return m_elevator.atSetpoint() && m_elevator.atSetpoint();
     }
 
