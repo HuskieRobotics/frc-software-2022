@@ -16,11 +16,14 @@ import frc.commands.ExtendClimberToMidRungCommand;
 import frc.commands.ReachToNextRungCommand;
 import frc.commands.RetractClimberFullCommand;
 import frc.commands.RetractClimberMinimumCommand;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.SecondaryArm;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -106,7 +109,31 @@ public class RobotContainer {
         consoleButtons[9].whenPressed(  
           new ExtendClimberToMidRungCommand(m_elevator));
         
+        //FIXME change the following few commands to xbox buttons after merged to main
+        //toggle secondary arm override
+        consoleButtons[0].toggleWhenPressed(
+          new ConditionalCommand(
+            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut()), 
+            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
+            m_secondMechanism :: isIn));
+
+        //elevator up override
+        consoleButtons[0].whileHeld(new InstantCommand(() -> m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER)));
+
+        //elevator down override
+        consoleButtons[0].whileHeld(new InstantCommand(() -> m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER * -1)));
+
+        //resetElevator 
+        consoleButtons[0].whenPressed(new RetractClimberFullCommand(m_elevator));
+
+        //climber emergency pause
+        boolean held1 = false;
+        boolean held2 = false;
+        consoleButtons[0].whileHeld(()->held1 = true;), Elevator);
+        consoleButtons[1].whileHeld(()->held2 = true;), Elevator);
+        if (held1 && held2)
+        {
+          new InstantCommand(() -> m_elevator.setElevatorMotorPower(0.0));
+        }
   }
-
 }
-
