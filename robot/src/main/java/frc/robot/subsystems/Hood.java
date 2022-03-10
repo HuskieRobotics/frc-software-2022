@@ -48,6 +48,7 @@ public class Hood extends SubsystemBase {
     private NetworkTableEntry IConstantHoodNT; 
     private NetworkTableEntry DConstantHoodNT; 
     private NetworkTableEntry rotationsNT;
+    private NetworkTableEntry setRotationsNT;
     private RelativeEncoder hoodEncoder;
     private LimelightMath lm;
 
@@ -121,6 +122,11 @@ public class Hood extends SubsystemBase {
         this.rotationsNT = Shuffleboard.getTab("HoodTuning")
                 .add("rotations", 0.0)
                 .getEntry();
+        this.setRotationsNT = Shuffleboard.getTab("HoodTuning")
+                .add("setRotations", 0.0)
+                .getEntry();
+
+
 
         Shuffleboard.getTab("Hood").addNumber("HoodEncoderReading", this::getHoodEncoderPosition);
         Shuffleboard.getTab("Hood").addNumber("HoodLimelightRotations", this::getHoodSetpointLimeLight);
@@ -138,6 +144,8 @@ public class Hood extends SubsystemBase {
             // once we have determined our feedforward constant, comment the following lines
             double motorPower = this.motorPowerNT.getDouble(0.0);
             this.setHoodMotorPower(motorPower);
+            double hoodSetPoint = this.setRotationsNT.getDouble(0.0);
+            this.setHoodSetpoint(hoodSetPoint);
             
             // uncomment these lines after determining feed forward
             // m_pidController.setFF(FConstantHoodNT.getDouble(0.0));
@@ -179,6 +187,7 @@ public class Hood extends SubsystemBase {
     }
 
     public void setHoodSetpoint(double rotations){
+
         /**
          * PIDController objects are commanded to a set point using the 
          * SetReference() method.
