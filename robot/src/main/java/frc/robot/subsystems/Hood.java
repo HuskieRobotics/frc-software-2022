@@ -47,7 +47,6 @@ public class Hood extends SubsystemBase {
     private NetworkTableEntry PConstantHoodNT; 
     private NetworkTableEntry IConstantHoodNT; 
     private NetworkTableEntry DConstantHoodNT; 
-    private NetworkTableEntry rotationsNT;
     private NetworkTableEntry setRotationsNT;
     private RelativeEncoder hoodEncoder;
     private LimelightMath lm;
@@ -119,9 +118,6 @@ public class Hood extends SubsystemBase {
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                 .getEntry();
-        this.rotationsNT = Shuffleboard.getTab("HoodTuning")
-                .add("rotations", 0.0)
-                .getEntry();
         this.setRotationsNT = Shuffleboard.getTab("HoodTuning")
                 .add("setRotations", 0.0)
                 .getEntry();
@@ -144,8 +140,6 @@ public class Hood extends SubsystemBase {
             // once we have determined our feedforward constant, comment the following lines
             double motorPower = this.motorPowerNT.getDouble(0.0);
             this.setHoodMotorPower(motorPower);
-            double hoodSetPoint = this.setRotationsNT.getDouble(0.0);
-            this.setHoodSetpoint(hoodSetPoint);
             
             // uncomment these lines after determining feed forward
             // m_pidController.setFF(FConstantHoodNT.getDouble(0.0));
@@ -153,7 +147,7 @@ public class Hood extends SubsystemBase {
             // m_pidController.setI(IConstantHoodNT.getDouble(0.0));
             // m_pidController.setD(DConstantHoodNT.getDouble(0.0));
             
-            // double rotations = this.rotationsNT.getDouble(0.0);
+            // double rotations = this.setRotationsNT.getDouble(0.0);
             // this.setHoodSetpoint(rotations);
         }
        
@@ -202,7 +196,7 @@ public class Hood extends SubsystemBase {
          *  com.revrobotics.CANSparkMax.ControlType.kVelocity
          *  com.revrobotics.CANSparkMax.ControlType.kVoltage
          */
-        m_pidController.setReference(rotations, CANSparkMax.ControlType.kPosition);
+        m_pidController.setReference(rotations, CANSparkMax.ControlType.kPosition, PID_SLOT, ARBITRARY_FEED_FORWARD_IN_VOLTS);
     }
 
 
