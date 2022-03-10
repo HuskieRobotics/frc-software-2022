@@ -11,8 +11,7 @@ public class SetFlywheelVelocityCommand extends CommandBase{
     public SetFlywheelVelocityCommand(Flywheel flywheel, LimelightMath limelight) {
         this.flywheel = flywheel;
         // FIXME: this will get the ideal velocity when the command is constructed; not when the command is scheduled
-        //      The next line should be moved to the initialzie method. However, I'm not sure why there are two 
-        //      constructors. Can we get rid of one of them?
+        //      The next line should be moved to the initialzie method.
         this.velocity = limelight.getIdealVelocity();
         addRequirements(this.flywheel);
 
@@ -43,11 +42,6 @@ public class SetFlywheelVelocityCommand extends CommandBase{
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        if(Math.abs(flywheel.getVelocity() - this.velocity) < VELOCITY_TOLERANCE) {
-            return true;
-        }
-        else{
-            return false;
-        }
+        return flywheel.isAtSetpoint();
     }
 }
