@@ -19,6 +19,7 @@ import static frc.robot.Constants.FlywheelConstants.*;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.SetFlywheelVelocityCommand;
 
 import java.util.Map;
 
@@ -177,6 +178,10 @@ public class Flywheel extends SubsystemBase {
                 this.rightFlywheelMotor::getClosedLoopError);
         Shuffleboard.getTab("Shooter").addNumber("FlywheelLeftClosedLoopError",
                 this.leftFlywheelMotor::getClosedLoopError);
+
+        Shuffleboard.getTab("Shooter").add("Wall Shot", new SetFlywheelVelocityCommand(this, WALL_SHOT_VELOCITY));
+        Shuffleboard.getTab("Shooter").add("Fender Shot", new SetFlywheelVelocityCommand(this, FENDER_SHOT_VELOCITY));
+        Shuffleboard.getTab("Shooter").add("Stop Flywheel", new InstantCommand(this :: stopFlywheel));
 
         // Shuffleboard.getTab("Shooter").add("SpinFlywheelForFenderCommand",
         // new SpinFlywheelCommand(this, FENDER_VELOCITY));
