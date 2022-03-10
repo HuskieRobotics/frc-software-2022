@@ -208,7 +208,7 @@ public class Hood extends SubsystemBase {
          *  com.revrobotics.CANSparkMax.ControlType.kVelocity
          *  com.revrobotics.CANSparkMax.ControlType.kVoltage
          */
-        m_pidController.setReference(rotations, CANSparkMax.ControlType.kPosition, PID_SLOT, ARBITRARY_FEED_FORWARD_IN_VOLTS);
+        m_pidController.setReference(rotations, CANSparkMax.ControlType.kPosition, PID_SLOT, ARBITRARY_FEED_FORWARD_IN_PERCENT, SparkMaxPIDController.ArbFFUnits.kPercentOut);
     }
 
 

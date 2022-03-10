@@ -34,8 +34,8 @@ public class Constants {
 
     public final static Gains GAINS_VELOCITY  = new Gains( .74, /* kP */  0, /* kI */   0,  /* kD */  .05265,   /* kF */     0,  /* kIzone */  1.00 /* kPeakOutput */);
 
-        public static final int WALL_SHOT_VELOCITY = 8000; // FIX_ME tune this
-        public static final int FENDER_SHOT_VELOCITY = 6000; // FIX_ME tune this
+        public static final int WALL_SHOT_VELOCITY = 11000; // FIX_ME tune this
+        public static final int FENDER_SHOT_VELOCITY = 9000; // FIX_ME tune this
 
    }
    public class HoodConstants{
@@ -49,7 +49,7 @@ public class Constants {
         public static final double K_MIN_OUTPUT=-0.2;
 
         public static final int PID_SLOT = 0;
-        public static final double ARBITRARY_FEED_FORWARD_IN_VOLTS = 0.0;   // FIX_ME find arbitrary feed foward for hood
+        public static final double ARBITRARY_FEED_FORWARD_IN_PERCENT = 0.0;   // FIX_ME find arbitrary feed foward for hood
         
         public static final int FENDER_ANGLE_POSITION = 0;   // FIX_ME udpate once the value is known
         public static final int WALL_ANGLE_POSITION = 0;    // FIX_ME udpate once the value is known
