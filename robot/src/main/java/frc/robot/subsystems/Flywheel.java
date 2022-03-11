@@ -12,6 +12,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.NetworkTableEntry;
 
 import static frc.robot.Constants.*;
@@ -171,14 +172,13 @@ public class Flywheel extends SubsystemBase {
 
         this.velocitySetPoint = 0.0;
         Shuffleboard.getTab("Shooter").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
+        Shuffleboard.getTab("Shooter").addNumber("FlywheelVelocity", this::getVelocity);
         Shuffleboard.getTab("Shooter").addNumber("FlywheelRightEncoderReading",
                 this.rightFlywheelMotor::getSelectedSensorVelocity);
         Shuffleboard.getTab("Shooter").addNumber("FlywheelLeftEncoderReading",
                 this.leftFlywheelMotor::getSelectedSensorVelocity);
         Shuffleboard.getTab("Shooter").addNumber("FlywheelRightClosedLoopError",
                 this.rightFlywheelMotor::getClosedLoopError);
-        Shuffleboard.getTab("Shooter").addNumber("FlywheelLeftClosedLoopError",
-                this.leftFlywheelMotor::getClosedLoopError);
 
         Shuffleboard.getTab("Shooter").add("Wall Shot", new SetFlywheelVelocityCommand(this, WALL_SHOT_VELOCITY));
         Shuffleboard.getTab("Shooter").add("Fender Shot", new SetFlywheelVelocityCommand(this, FENDER_SHOT_VELOCITY));
@@ -189,77 +189,72 @@ public class Flywheel extends SubsystemBase {
         // Shuffleboard.getTab("Shooter").add("StopFlywheelCommand", new
         // InstantCommand(this::stopFlywheel, this));
 
-        // Each robot feature that requires PID tuniing has its own Shuffleboard tab for
-        // tuning (i.e., "ShooterTuning")
-        // Add indicators and controls to this Shuffleboard tab to assist with
-        // interactively tuning the system.
+        if(TUNING) {
+            // Each robot feature that requires PID tuniing has its own Shuffleboard tab for
+            // tuning (i.e., "ShooterTuning")
+            // Add indicators and controls to this Shuffleboard tab to assist with
+            // interactively tuning the system.
 
-        this.velocitySetPointNT = Shuffleboard.getTab("ShooterTuning")
-                .add("VelocitySetpoint", 0.0)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 25000)) // specify widget properties here
-                .getEntry();
+            this.velocitySetPointNT = Shuffleboard.getTab("ShooterTuning")
+                    .add("VelocitySetpoint", 0.0)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 25000)) // specify widget properties here
+                    .getEntry();
+            this.velocitySetPointNT.addListener(event -> {
+                    this.setVelocity(event.getEntry().getValue().getDouble());
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-        this.motorPowerNT = Shuffleboard.getTab("ShooterTuning")
-                .add("Flywheel Power", 0.0)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-                .getEntry();
+            this.motorPowerNT = Shuffleboard.getTab("ShooterTuning")
+                    .add("Flywheel Power", 0.0)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                    .getEntry();
+            this.motorPowerNT.addListener(event -> {
+                    leftFlywheelMotor.set(TalonFXControlMode.PercentOutput, event.getEntry().getValue().getDouble());
+                    rightFlywheelMotor.set(TalonFXControlMode.PercentOutput, event.getEntry().getValue().getDouble());
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-        this.FConstantNT = Shuffleboard.getTab("ShooterTuning")
-                .add("Flywheel F", 0.0)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-                .getEntry();
+            this.FConstantNT = Shuffleboard.getTab("ShooterTuning")
+                    .add("Flywheel F", 0.0)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                    .getEntry();
+            this.FConstantNT.addListener(event -> {
+                        this.rightFlywheelMotor.config_kF(SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-        this.PConstantNT = Shuffleboard.getTab("ShooterTuning")
-                .add("Flywheel P", 0.0)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-                .getEntry();
+            this.PConstantNT = Shuffleboard.getTab("ShooterTuning")
+                    .add("Flywheel P", 0.0)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                    .getEntry();
+            this.PConstantNT.addListener(event -> {
+                        this.rightFlywheelMotor.config_kP(SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-        this.IConstantNT = Shuffleboard.getTab("ShooterTuning")
-                .add("Flywheel I", 0.0)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-                .getEntry();
+            this.IConstantNT = Shuffleboard.getTab("ShooterTuning")
+                    .add("Flywheel I", 0.0)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                    .getEntry();
+            this.IConstantNT.addListener(event -> {
+                        this.rightFlywheelMotor.config_kI(SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-        this.DConstantNT = Shuffleboard.getTab("ShooterTuning")
-                .add("Flywheel D", 0.0)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-                .getEntry();
-
+            this.DConstantNT = Shuffleboard.getTab("ShooterTuning")
+                    .add("Flywheel D", 0.0)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                    .getEntry();
+            this.DConstantNT.addListener(event -> {
+                        this.rightFlywheelMotor.config_kD(SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+        }
     }
 
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-
-        // the following code will only run when we are tuning the system (i.e., not
-        // under normal robot operation)
-        if (TUNING) {
-
-            // when tuning, we first set motor power and check the resulting velocity
-            // once we have determined our feedforward constant, comment the following lines
-            // and uncomment the ones to tune the PID
-            double motorPower = this.motorPowerNT.getDouble(0.0);
-            leftFlywheelMotor.set(TalonFXControlMode.PercentOutput, motorPower);
-            rightFlywheelMotor.set(TalonFXControlMode.PercentOutput, motorPower);
-
-            // uncomment these lines after dtermining the feedforward
-            // this.rightFlywheelMotor.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0),
-            // TIMEOUT_MS);
-            // this.rightFlywheelMotor.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0),
-            // TIMEOUT_MS);
-            // this.rightFlywheelMotor.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0),
-            // TIMEOUT_MS);
-            // this.rightFlywheelMotor.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0),
-            // TIMEOUT_MS);
-
-            // double targetVelocity = this.velocitySetPointNT.getDouble(0.0);
-            // this.setVelocity(targetVelocity);
-        }
 
     }
 
