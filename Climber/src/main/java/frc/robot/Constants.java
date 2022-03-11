@@ -49,7 +49,7 @@ public class Constants {
        
         //CAN ID
         public static final int PIGEON_ID = 18;
-        public static final int LEFT_ELEVATOR_MOTOR_CAN_ID = 18;
+        public static final int LEFT_ELEVATOR_MOTOR_CAN_ID = 22;
         public static final int RIGHT_ELEVATOR_MOTOR_CAN_ID = 19;
 
   }
