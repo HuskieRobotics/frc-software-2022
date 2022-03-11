@@ -28,7 +28,10 @@ public class RetractClimberFullCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return m_elevator.atSetpoint() && m_elevator.atSetpoint();
+        if(!m_elevator.isElevatorControlEnabled()){
+            return true;
+        }
+        return m_elevator.atSetpoint() && m_elevator.atPitch();
     }
 
     @Override

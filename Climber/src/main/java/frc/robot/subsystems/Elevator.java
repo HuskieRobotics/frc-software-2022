@@ -60,6 +60,7 @@ public class Elevator extends SubsystemBase {
     private WPI_TalonFX rightElevatorMotor;
     private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
     private double encoderPositionSetpoint;
+    private boolean isElevatorControlEnabled;
 
 
 public Elevator() {
@@ -67,6 +68,8 @@ public Elevator() {
     this.leftElevatorMotor = new WPI_TalonFX(LEFT_ELEVATOR_MOTOR_CAN_ID); 
     this.rightElevatorMotor = new WPI_TalonFX(RIGHT_ELEVATOR_MOTOR_CAN_ID); 
 
+
+    this.isElevatorControlEnabled = false;
     /* Factory Default all hardware to prevent unexpected behaviour */
     this.rightElevatorMotor.configFactoryDefault();
     this.leftElevatorMotor.configFactoryDefault();
@@ -241,6 +244,7 @@ public Elevator() {
     public void periodic() {
     // This method will be called once per scheduler run
     if (TUNING) {
+    this.isElevatorControlEnabled = true;
          // when tuning, we first set motor power and check the resulting velocity
          // once we have determined our feedforward constant, comment the following lines
          // and uncomment the ones to tune the PID
@@ -279,17 +283,20 @@ public Elevator() {
 
 
     public void setElevatorMotorPower(double power){
-        if((power > 0 && this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 5000 ) ||
-            (power < 0 && this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 5000)) {
-            this.disableElevator();
-        }
-        else {
-            this.leftElevatorMotor.set(ControlMode.PercentOutput, power);
-            this.rightElevatorMotor.set(ControlMode.PercentOutput, power);
+        if(isElevatorControlEnabled()){
+            if((power > 0 && this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 5000 ) ||
+                    (power < 0 && this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 5000)) {
+                this.disableElevator();
+            }
+            else {
+                this.leftElevatorMotor.set(ControlMode.PercentOutput, power);
+                this.rightElevatorMotor.set(ControlMode.PercentOutput, power);
+            }
         }
     }
 
     public void setElevatorMotorPosition(double desiredEncoderPosition) {
+        if(isElevatorControlEnabled()){
         this.rightElevatorMotor.set(ControlMode.MotionMagic, desiredEncoderPosition);
 
         // the feedforward term will be different depending if the elevator is going up or down
@@ -305,6 +312,7 @@ public Elevator() {
 
         this.encoderPositionSetpoint = desiredEncoderPosition;
     }
+    }
 
     public boolean atSetpoint(){
         return Math.abs(this.getElevatorEncoderHeight() - this.encoderPositionSetpoint) < ELEVATOR_POSITION_TOLERANCE;
@@ -319,6 +327,12 @@ public Elevator() {
         return Math.abs(m_pigeon.getPitch() - PITCH_SETPOINT) < PITCH_TOLERANCE;
     }
 
+
+    public void elevatorPause(boolean isStartPressed){
+        if(isStartPressed) {
+            this.disableElevator();
+        }
+    }
     /** 
 	 * Determines if SensorSum or SensorDiff should be used 
 	 * for combining left/right sensors into Robot Distance.  
@@ -385,8 +399,18 @@ public Elevator() {
 		/* Since the Distance is the sum of the two sides, divide by 2 so the total isn't double
 		   the real-world value */
 		primaryConfig.primaryPID.selectedFeedbackCoefficient = 0.5;
+
+        
 	 }
+     public void enableElevatorControl(){
+        this.isElevatorControlEnabled = true;
+    }
+
+    public void disableElevatorControl(){
+        this.isElevatorControlEnabled = false;
+    }
+
+    public boolean isElevatorControlEnabled(){
+        return this.isElevatorControlEnabled;
+    }
 }
-
-
-
