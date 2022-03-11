@@ -283,16 +283,17 @@ public Elevator() {
 
 
     public void setElevatorMotorPower(double power){
-    if(isElevatorControlEnabled()){
-        // if(this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 100 ||
-        //         this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 100 ) {
-        //     this.disableElevator();
-        // }
-        // else {
-            this.leftElevatorMotor.set(ControlMode.PercentOutput, power);
-            this.rightElevatorMotor.set(ControlMode.PercentOutput, power);
-        //}
-    }
+
+        if(isElevatorControlEnabled()){
+            if((power > 0 && this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 5000 ) ||
+                    (power < 0 && this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 5000)) {
+                this.disableElevator();
+            }
+            else {
+                this.leftElevatorMotor.set(ControlMode.PercentOutput, power);
+                this.rightElevatorMotor.set(ControlMode.PercentOutput, power);
+            }
+        }
     }
 
     public void setElevatorMotorPosition(double desiredEncoderPosition) {
