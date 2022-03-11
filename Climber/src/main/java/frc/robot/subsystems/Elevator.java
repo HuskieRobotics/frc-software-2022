@@ -79,7 +79,6 @@ public Elevator() {
 	TalonFXInvertType _rightInvert = TalonFXInvertType.Clockwise; //Same as invert = "true"
 
 	/** Config Objects for motor controllers */
-	TalonFXConfiguration _leftConfig = new TalonFXConfiguration();
 	TalonFXConfiguration _rightConfig = new TalonFXConfiguration();
 	
     /* Disable all motors */
@@ -90,9 +89,12 @@ public Elevator() {
     this.leftElevatorMotor.setNeutralMode(NeutralMode.Brake);
     this.rightElevatorMotor.setNeutralMode(NeutralMode.Brake);
 
+    this.leftElevatorMotor.follow(this.rightElevatorMotor);
+
     /* Configure output */
-    this.leftElevatorMotor.setInverted(TalonFXInvertType.Clockwise);
     this.rightElevatorMotor.setInverted(TalonFXInvertType.Clockwise);
+    this.leftElevatorMotor.setInverted(TalonFXInvertType.FollowMaster);
+    
     /*
         * Talon FX does not need sensor phase set for its integrated sensor
         * This is because it will always be correct if the selected feedback device is integrated sensor (default value)
@@ -108,16 +110,7 @@ public Elevator() {
     /** Distance Configs */
 
     /* Configure the left Talon's selected sensor as integrated sensor */
-    _leftConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Local Feedback Source
-
-    /* Configure the Remote (Left) Talon's selected sensor as a remote sensor for the right Talon */
-    _rightConfig.remoteFilter0.remoteSensorDeviceID = this.leftElevatorMotor.getDeviceID(); //Device ID of Remote Source
-    _rightConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.TalonFX_SelectedSensor; //Remote Source Type
-    
-    /* Now that the Left sensor can be used by the primary Talon,
-        * set up the Left (Aux) and Right (Primary) distance into a single
-        * Robot distance as the Primary's Selected Sensor 0. */
-    setRobotDistanceConfigs(_rightInvert, _rightConfig);
+    _rightConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Local Feedback Source
 
     /* FPID for Distance */
     _rightConfig.slot0.kF = GAINS_POSITION.kF;
@@ -128,7 +121,6 @@ public Elevator() {
     _rightConfig.slot0.closedLoopPeakOutput = GAINS_POSITION.kPeakOutput;
 
     /* Config the neutral deadband. */
-	_leftConfig.neutralDeadband = 0.001;
 	_rightConfig.neutralDeadband = 0.001;
 
     /**
@@ -151,23 +143,11 @@ public Elevator() {
 
 
     /* APPLY the config settings */
-    this.leftElevatorMotor.configAllSettings(_leftConfig);
     this.rightElevatorMotor.configAllSettings(_rightConfig);
 
+    //this.rightElevatorMotor.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
 
-    this.rightElevatorMotor.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
-
-    
-
-    /* Set status frame periods to ensure we don't have stale data */
-    this.rightElevatorMotor.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 20, kTimeoutMs);
-    this.rightElevatorMotor.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 20, kTimeoutMs);
-    this.leftElevatorMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5, kTimeoutMs);
-
-     
     /* Initialize */
-    this.rightElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10);
-    this.leftElevatorMotor.getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
     this.rightElevatorMotor.getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
 
 
@@ -244,7 +224,7 @@ public Elevator() {
     public void periodic() {
     // This method will be called once per scheduler run
     if (TUNING) {
-    this.isElevatorControlEnabled = true;
+        this.isElevatorControlEnabled = true;
     //      // when tuning, we first set motor power and check the resulting velocity
     //      // once we have determined our feedforward constant, comment the following lines
     //      // and uncomment the ones to tune the PID
@@ -298,31 +278,30 @@ public Elevator() {
 
     public void setElevatorMotorPosition(double desiredEncoderPosition) {
         if(isElevatorControlEnabled()){
-        this.rightElevatorMotor.set(ControlMode.MotionMagic, desiredEncoderPosition);
+            this.rightElevatorMotor.set(ControlMode.MotionMagic, desiredEncoderPosition);
 
-        // the feedforward term will be different depending if the elevator is going up or down
-        //		and if it under load or not; use the desiredEncoderPosition to determine the
-        //		corresponding feed forward term
-        if(desiredEncoderPosition > this.encoderPositionSetpoint) { // extending unloaded
-            if(this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 5000 ) {
-                this.disableElevator();
+            // the feedforward term will be different depending if the elevator is going up or down
+            //		and if it under load or not; use the desiredEncoderPosition to determine the
+            //		corresponding feed forward term
+            if(desiredEncoderPosition > this.getElevatorEncoderHeight()) { // extending unloaded
+                if(this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 5000 ) {
+                    this.disableElevator();
+                }
+                else {
+                    rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_EXTEND);
+                }
             }
-            else {
-                rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_EXTEND);
+            else { // retracting loaded
+                if(this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 5000) {
+                    this.disableElevator();
+                }
+                else {
+                    rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_RETRACT);
+                }
             }
+        
+            this.encoderPositionSetpoint = desiredEncoderPosition;
         }
-        else { // retracting loaded
-            if(this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 5000) {
-                this.disableElevator();
-            }
-            else {
-                rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_RETRACT);
-            }
-        }
-        this.leftElevatorMotor.follow(this.rightElevatorMotor);
-
-        this.encoderPositionSetpoint = desiredEncoderPosition;
-    }
     }
 
     public boolean atSetpoint(){
@@ -344,75 +323,7 @@ public Elevator() {
             this.disableElevator();
         }
     }
-    /** 
-	 * Determines if SensorSum or SensorDiff should be used 
-	 * for combining left/right sensors into Robot Distance.  
-	 * 
-	 * Assumes Aux Position is set as Remote Sensor 0.  
-	 * 
-	 * configAllSettings must still be called on the primary config
-	 * after this function modifies the config values. 
-	 * 
-	 * @param primaryInvertType Invert of the primary Talon
-	 * @param primaryConfig Configuration object to fill
-	 */
-	 void setRobotDistanceConfigs(TalonFXInvertType primaryInvertType, TalonFXConfiguration primaryConfig){
-		/**
-		 * Determine if we need a Sum or Difference.
-		 * 
-		 * The auxiliary Talon FX will always be positive
-		 * in the forward direction because it's a selected sensor
-		 * over the CAN bus.
-		 * 
-		 * The primary's native integrated sensor may not always be positive when forward because
-		 * sensor phase is only applied to *Selected Sensors*, not native
-		 * sensor sources.  And we need the native to be combined with the 
-		 * aux (other side's) distance into a single robot distance.
-		 */
 
-		/* THIS FUNCTION should not need to be modified. 
-		   This setup will work regardless of whether the primary
-		   is on the Right or Left side since it only deals with
-		   distance magnitude.  */
-
-		/* Check if we're inverted */
-		if (primaryInvertType == TalonFXInvertType.Clockwise){
-			/* 
-				If primary is inverted, that means the integrated sensor
-				will be negative in the forward direction.
-
-				If primary is inverted, the final sum/diff result will also be inverted.
-				This is how Talon FX corrects the sensor phase when inverting 
-				the motor direction.  This inversion applies to the *Selected Sensor*,
-				not the native value.
-
-				Will a sensor sum or difference give us a positive total magnitude?
-
-				Remember the primary is one side of your drivetrain distance and 
-				Auxiliary is the other side's distance.
-
-					Phase | Term 0   |   Term 1  | Result
-				Sum:  -((-)Primary + (+)Aux   )| NOT OK, will cancel each other out
-				Diff: -((-)Primary - (+)Aux   )| OK - This is what we want, magnitude will be correct and positive.
-				Diff: -((+)Aux    - (-)Primary)| NOT OK, magnitude will be correct but negative
-			*/
-
-			primaryConfig.diff0Term = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Local Integrated Sensor
-			primaryConfig.diff1Term = TalonFXFeedbackDevice.RemoteSensor0.toFeedbackDevice();   //Aux Selected Sensor
-			primaryConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.SensorDifference.toFeedbackDevice(); //Diff0 - Diff1
-		} else {
-			/* primary is not inverted, both sides are positive so we can sum them. */
-			primaryConfig.sum0Term = TalonFXFeedbackDevice.RemoteSensor0.toFeedbackDevice();    //Aux Selected Sensor
-			primaryConfig.sum1Term = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Local IntegratedSensor
-			primaryConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.SensorSum.toFeedbackDevice(); //Sum0 + Sum1
-		}
-
-		/* Since the Distance is the sum of the two sides, divide by 2 so the total isn't double
-		   the real-world value */
-		primaryConfig.primaryPID.selectedFeedbackCoefficient = 0.5;
-
-        
-	 }
      public void enableElevatorControl(){
         this.isElevatorControlEnabled = true;
     }
