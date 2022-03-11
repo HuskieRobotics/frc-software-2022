@@ -245,22 +245,22 @@ public Elevator() {
     // This method will be called once per scheduler run
     if (TUNING) {
     this.isElevatorControlEnabled = true;
-         // when tuning, we first set motor power and check the resulting velocity
-         // once we have determined our feedforward constant, comment the following lines
-         // and uncomment the ones to tune the PID
-        double motorPower = this.elevatorMotorPowerNT.getDouble(0.0); 
-        this.setElevatorMotorPower(motorPower);
+    //      // when tuning, we first set motor power and check the resulting velocity
+    //      // once we have determined our feedforward constant, comment the following lines
+    //      // and uncomment the ones to tune the PID
+        // double motorPower = this.elevatorMotorPowerNT.getDouble(0.0); 
+        // this.setElevatorMotorPower(motorPower);
         
 
-            // this.rightElevatorMotor.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0), kTimeoutMs);
-            // this.rightElevatorMotor.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0), kTimeoutMs);
-            // this.rightElevatorMotor.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0), kTimeoutMs);
-            // this.rightElevatorMotor.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0), kTimeoutMs);
-            // this.rightElevatorMotor.configMotionSCurveStrength((int) this.sCurveConstantNT.getDouble(0.0), kTimeoutMs);
-            // this.rightElevatorMotor.configMotionCruiseVelocity(this.velocityConstantNT.getDouble(0.0), kTimeoutMs);
-            // this.rightElevatorMotor.configMotionAcceleration(this.accelerationConstantNT.getDouble(0.0), kTimeoutMs);
-            // double desiredEncoderPosition = this.positionSetPointNT.getDouble(0.0);
-            // this.setElevatorMotorPosition(desiredEncoderPosition);
+            this.rightElevatorMotor.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0), kTimeoutMs);
+            this.rightElevatorMotor.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0), kTimeoutMs);
+            this.rightElevatorMotor.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0), kTimeoutMs);
+            this.rightElevatorMotor.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0), kTimeoutMs);
+            this.rightElevatorMotor.configMotionSCurveStrength((int) this.sCurveConstantNT.getDouble(0.0), kTimeoutMs);
+            this.rightElevatorMotor.configMotionCruiseVelocity(this.velocityConstantNT.getDouble(0.0), kTimeoutMs);
+            this.rightElevatorMotor.configMotionAcceleration(this.accelerationConstantNT.getDouble(0.0), kTimeoutMs);
+            double desiredEncoderPosition = this.positionSetPointNT.getDouble(0.0);
+            this.setElevatorMotorPosition(desiredEncoderPosition);
 
 
         }
@@ -304,10 +304,20 @@ public Elevator() {
         //		and if it under load or not; use the desiredEncoderPosition to determine the
         //		corresponding feed forward term
         if(desiredEncoderPosition > this.encoderPositionSetpoint) { // extending unloaded
-            this.rightElevatorMotor.set(TalonFXControlMode.MotionMagic, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_EXTEND);
+            if(this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 5000 ) {
+                this.disableElevator();
+            }
+            else {
+                rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_EXTEND);
+            }
         }
         else { // retracting loaded
-            this.rightElevatorMotor.set(TalonFXControlMode.MotionMagic, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_RETRACT);
+            if(this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 5000) {
+                this.disableElevator();
+            }
+            else {
+                rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_RETRACT);
+            }
         }
         this.leftElevatorMotor.follow(this.rightElevatorMotor);
 

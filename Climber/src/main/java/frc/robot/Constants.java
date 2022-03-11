@@ -27,7 +27,7 @@ public class Constants {
         //FIXME these encoder values need to be tuned
         public static final double MAX_ELEVATOR_HEIGHT = 283089;
         public static final double MIN_DETACH_ENCODER_HEIGHT = 0;
-        public static final double MIN_ELEVATOR_ENCODER_HEIGHT = 0;
+        public static final double MIN_ELEVATOR_ENCODER_HEIGHT = 95250+5000;//FIXME reset to 0
         public static final double MID_RUNG_HEIGHT = 277129;
         public static final double REACH_TO_NEXT_RUNG_HEIGHT = 0; // not sure if this is needed; use MAX_ELEVATOR_HEIGHT?
         public static final double PITCH_SETPOINT = 0;
@@ -43,8 +43,8 @@ public class Constants {
         public static final int kTimeoutMs = 30;
         public static final Gains GAINS_POSITION  = new Gains( 0 /* kP */, 0 /* kI */, 0 /* kD */, 0 /* kF */, 0 /* kIZone */, 1.00 /* max output */);
         //FIXME additional config
-        public static final double MAX_ELEVATOR_VELOCITY = 21305.0 / 2;  // theoretical maximum 21305
-        public static final double ELEVATOR_ACCELERATION = MAX_ELEVATOR_VELOCITY / 2;
+        public static final double MAX_ELEVATOR_VELOCITY = 20000 / 2;  // theoretical maximum 21305
+        public static final double ELEVATOR_ACCELERATION = MAX_ELEVATOR_VELOCITY / 10;
         public static final int SCURVE_STRENGTH = 0;
        
         //CAN ID
