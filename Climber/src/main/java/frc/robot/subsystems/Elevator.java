@@ -153,6 +153,7 @@ public Elevator() {
 
 
     
+        Shuffleboard.getTab("Elevator").addBoolean("At Setpoint", this :: atSetpoint);
         Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this :: getElevatorEncoderHeight);
         Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon :: getPitch);
         Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this :: getSetpoint);
