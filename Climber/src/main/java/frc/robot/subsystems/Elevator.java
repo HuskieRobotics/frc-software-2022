@@ -154,7 +154,7 @@ public Elevator() {
     
         Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this :: getElevatorEncoderHeight);
         Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon :: getPitch);
-        Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this.rightElevatorMotor :: getClosedLoopTarget);
+        Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this :: getSetpoint);
         Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error", this.rightElevatorMotor :: getClosedLoopError);
         Shuffleboard.getTab("Elevator").addNumber("Velocity", this.rightElevatorMotor :: getSelectedSensorVelocity);
         Shuffleboard.getTab("Elevator").add("Extend Climber to Mid", new ExtendClimberToMidRungCommand(this));
@@ -334,5 +334,9 @@ public Elevator() {
 
     public boolean isElevatorControlEnabled(){
         return this.isElevatorControlEnabled;
+    }
+
+    public double getSetpoint() {
+        return encoderPositionSetpoint;
     }
 }
