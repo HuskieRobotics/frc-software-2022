@@ -26,9 +26,8 @@ import frc.robot.commands.SetFlywheelVelocityCommand;
 
 import java.util.Map;
 
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
-import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
@@ -79,12 +78,7 @@ public class Flywheel extends SubsystemBase {
         rightFlywheelMotor.configFactoryDefault();
         leftFlywheelMotor.configFactoryDefault();
 
-        /** Invert Directions for Left and Right */
-        TalonFXInvertType _leftInvert = TalonFXInvertType.Clockwise; //Same as invert = "true"
-        TalonFXInvertType _rightInvert = TalonFXInvertType.CounterClockwise; //Same as invert = "false"
-
         /* Config sensor used for Primary PID [Velocity] */
-        TalonFXConfiguration _leftConfig = new TalonFXConfiguration();
         TalonFXConfiguration _rightConfig = new TalonFXConfiguration();
 
         /* Disable all motors */
@@ -95,9 +89,12 @@ public class Flywheel extends SubsystemBase {
         this.leftFlywheelMotor.setNeutralMode(NeutralMode.Coast);
         this.rightFlywheelMotor.setNeutralMode(NeutralMode.Coast);
 
+        this.leftFlywheelMotor.follow(this.rightFlywheelMotor);
+
         /* Configure output */
-        this.leftFlywheelMotor.setInverted(TalonFXInvertType.Clockwise);
         this.rightFlywheelMotor.setInverted(TalonFXInvertType.CounterClockwise);
+        this.leftFlywheelMotor.setInverted(InvertType.OpposeMaster);
+        
 
         /*
             * Talon FX does not need sensor phase set for its integrated sensor
@@ -106,7 +103,6 @@ public class Flywheel extends SubsystemBase {
             * 
             * https://phoenix-documentation.readthedocs.io/en/latest/ch14_MCSensor.html#sensor-phase
             */
-        // this.leftFlywheelMotor.setSensorPhase(true);
         // this.rightFlywheelMotor.setSensorPhase(true);
 
         
@@ -115,18 +111,9 @@ public class Flywheel extends SubsystemBase {
 		/** Distance Configs */
 
 		/* Configure the left Talon's selected sensor as integrated sensor */
-		_leftConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Local Feedback Source
+		_rightConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Local Feedback Source
         
-        /* Configure the Remote (Left) Talon's selected sensor as a remote sensor for the right Talon */
-        _rightConfig.remoteFilter0.remoteSensorDeviceID = this.leftFlywheelMotor.getDeviceID(); //Device ID of Remote Source
-        _rightConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.TalonFX_SelectedSensor; //Remote Source Type
-
-        /* Now that the Left sensor can be used by the master Talon,
-		 * set up the Left (Aux) and Right (Master) distance into a single
-		 * flyweel velocity as the Master's Selected Sensor 0. */
-		setVelocityConfigs(_rightInvert, _rightConfig);
-
-		/* FPID for velocity */
+        /* FPID for velocity */
         _rightConfig.slot0.kF = GAINS_VELOCITY.kF;
         _rightConfig.slot0.kP = GAINS_VELOCITY.kP;
         _rightConfig.slot0.kI = GAINS_VELOCITY.kI;
@@ -134,16 +121,7 @@ public class Flywheel extends SubsystemBase {
         _rightConfig.slot0.integralZone = GAINS_VELOCITY.kIzone;
         _rightConfig.slot0.closedLoopPeakOutput = GAINS_VELOCITY.kPeakOutput;
 
-        /* false means talon's local output is PID0 + PID1, and other side Talon is PID0 - PID1
-		 *   This is typical when the master is the right Talon FX and using Pigeon
-		 * 
-		 * true means talon's local output is PID0 - PID1, and other side Talon is PID0 + PID1
-		 *   This is typical when the master is the left Talon FX and using Pigeon
-		 */
-		_rightConfig.auxPIDPolarity = false;
-
         /* Config the neutral deadband. */
-		_leftConfig.neutralDeadband = 0.001;
 		_rightConfig.neutralDeadband = 0.001;
 
         /**
@@ -160,17 +138,13 @@ public class Flywheel extends SubsystemBase {
 		_rightConfig.slot3.closedLoopPeriod = closedLoopTimeMs;
 
         /* APPLY the config settings */
-        this.leftFlywheelMotor.configAllSettings(_leftConfig);
         this.rightFlywheelMotor.configAllSettings(_rightConfig);
 
-        /* Set status frame periods to ensure we don't have stale data */
-        this.rightFlywheelMotor.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 20, TIMEOUT_MS);
-        this.rightFlywheelMotor.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 20, TIMEOUT_MS);
-        this.leftFlywheelMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5, TIMEOUT_MS);
-
-        rightFlywheelMotor.selectProfileSlot(SLOT_INDEX, PID_LOOP_INDEX);
+        //rightFlywheelMotor.selectProfileSlot(SLOT_INDEX, PID_LOOP_INDEX);
 
         this.velocitySetPoint = 0.0;
+
+
         Shuffleboard.getTab("Shooter").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
         Shuffleboard.getTab("Shooter").addNumber("FlywheelVelocity", this::getVelocity);
         Shuffleboard.getTab("Shooter").addNumber("FlywheelRightEncoderReading",
@@ -274,9 +248,7 @@ public class Flywheel extends SubsystemBase {
     public void setVelocity(double velocitySetPoint) {
         this.velocitySetPoint = velocitySetPoint;
         
-        /* Configured for Velocity Closed Loop on Integrated Sensors' Sum */
-		rightFlywheelMotor.set(TalonFXControlMode.Velocity, velocitySetPoint);
-		leftFlywheelMotor.follow(rightFlywheelMotor);
+        rightFlywheelMotor.set(TalonFXControlMode.Velocity, velocitySetPoint);
     }
 
     public boolean isAtSetpoint() {
@@ -291,73 +263,4 @@ public class Flywheel extends SubsystemBase {
     public double getIdealLimelight() {
         return limelight.getIdealVelocity();
     }
-
-    /** 
-	 * Determines if SensorSum or SensorDiff should be used 
-	 * for combining left/right sensors into flywheel velocity.  
-	 * 
-	 * Assumes Aux Position is set as Remote Sensor 0.  
-	 * 
-	 * configAllSettings must still be called on the master config
-	 * after this function modifies the config values. 
-	 * 
-	 * @param masterInvertType Invert of the Master Talon
-	 * @param masterConfig Configuration object to fill
-	 */
-	 void setVelocityConfigs(TalonFXInvertType masterInvertType, TalonFXConfiguration masterConfig){
-		/**
-		 * Determine if we need a Sum or Difference.
-		 * 
-		 * The auxiliary Talon FX will always be positive
-		 * in the forward direction because it's a selected sensor
-		 * over the CAN bus.
-		 * 
-		 * The master's native integrated sensor may not always be positive when forward because
-		 * sensor phase is only applied to *Selected Sensors*, not native
-		 * sensor sources.  And we need the native to be combined with the 
-		 * aux (other side's) distance into a single robot distance.
-		 */
-
-		/* THIS FUNCTION should not need to be modified. 
-		   This setup will work regardless of whether the master
-		   is on the Right or Left side since it only deals with
-		   distance magnitude.  */
-
-		/* Check if we're inverted */
-		if (masterInvertType == TalonFXInvertType.Clockwise){
-			/* 
-				If master is inverted, that means the integrated sensor
-				will be negative in the forward direction.
-
-				If master is inverted, the final sum/diff result will also be inverted.
-				This is how Talon FX corrects the sensor phase when inverting 
-				the motor direction.  This inversion applies to the *Selected Sensor*,
-				not the native value.
-
-				Will a sensor sum or difference give us a positive total magnitude?
-
-				Remember the Master is one side of your drivetrain distance and 
-				Auxiliary is the other side's distance.
-
-					Phase | Term 0   |   Term 1  | Result
-				Sum:  -((-)Master + (+)Aux   )| NOT OK, will cancel each other out
-				Diff: -((-)Master - (+)Aux   )| OK - This is what we want, magnitude will be correct and positive.
-				Diff: -((+)Aux    - (-)Master)| NOT OK, magnitude will be correct but negative
-			*/
-
-			masterConfig.diff0Term = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Local Integrated Sensor
-			masterConfig.diff1Term = TalonFXFeedbackDevice.RemoteSensor0.toFeedbackDevice();   //Aux Selected Sensor
-			masterConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.SensorDifference.toFeedbackDevice(); //Diff0 - Diff1
-		} else {
-			/* Master is not inverted, both sides are positive so we can sum them. */
-			masterConfig.sum0Term = TalonFXFeedbackDevice.RemoteSensor0.toFeedbackDevice();    //Aux Selected Sensor
-			masterConfig.sum1Term = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Local IntegratedSensor
-			masterConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.SensorSum.toFeedbackDevice(); //Sum0 + Sum1
-		}
-
-		/* Since the velocity is the sum of the two sides, divide by 2 so the total isn't double
-		   the real-world value */
-		masterConfig.primaryPID.selectedFeedbackCoefficient = 0.5;
-	 }
-
 }
