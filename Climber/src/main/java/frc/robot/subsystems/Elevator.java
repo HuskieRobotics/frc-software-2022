@@ -279,8 +279,8 @@ public Elevator() {
 
 
     public void setElevatorMotorPower(double power){
-        if(this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 100 ||
-                this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 100 ) {
+        if((power > 0 && this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 5000 ) ||
+            (power < 0 && this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 5000)) {
             this.disableElevator();
         }
         else {
