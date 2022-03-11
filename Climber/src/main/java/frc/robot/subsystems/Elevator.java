@@ -32,6 +32,7 @@ import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
+import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.ElevatorConstants.*;
@@ -56,14 +57,6 @@ public class Elevator extends SubsystemBase {
     private NetworkTableEntry sCurveConstantNT;
     private NetworkTableEntry velocityConstantNT;
     private NetworkTableEntry accelerationConstantNT;
-    private double positionSetpoint;
-    private double FConstant;
-    private double PConstant;
-    private double IConstant;
-    private double DConstant;
-    private double sCurveConstant;
-    private double velocityConstant;
-    private double accelerationConstant;
     private WPI_TalonFX leftElevatorMotor;
     private WPI_TalonFX rightElevatorMotor;
     private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
@@ -170,60 +163,88 @@ public Elevator() {
         Shuffleboard.getTab("Elevator").add("Retract Climber Full", new RetractClimberFullCommand(this));
         Shuffleboard.getTab("Elevator").add("Retract Climber Minimum", new RetractClimberMinimumCommand(this));
 
-        this.elevatorMotorPowerNT = Shuffleboard.getTab("Elevator")
-            .add("Elevator Motors", 0.0)
-            .withWidget(BuiltInWidgets.kNumberSlider)
-            .withProperties(Map.of("min", -1, "max", 1)) //FIX_ME figure max motor power should be 1
-            .getEntry();
+        if (TUNING) {
+            this.isElevatorControlEnabled = true;
 
-            
-        this.positionSetPointNT = Shuffleboard.getTab("Elevator")
-            .add("Position Setpoint", 0.0)
-            .withWidget(BuiltInWidgets.kNumberSlider)
-            .withProperties(Map.of("min", 0, "max", MAX_ELEVATOR_HEIGHT))
-            .getEntry();
-
-        this.FConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Flywheel F", GAINS_POSITION.kF)
+            this.elevatorMotorPowerNT = Shuffleboard.getTab("Elevator")
+                .add("Elevator Motors", 0.0)
                 .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                .withProperties(Map.of("min", -1, "max", 1)) //FIX_ME figure max motor power should be 1
                 .getEntry();
 
-        this.PConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Flywheel P", GAINS_POSITION.kP)
+                
+            this.positionSetPointNT = Shuffleboard.getTab("Elevator")
+                .add("Position Setpoint", 0.0)
                 .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                .withProperties(Map.of("min", 0, "max", MAX_ELEVATOR_HEIGHT))
                 .getEntry();
+            this.positionSetPointNT.addListener(event -> {
+                    this.setElevatorMotorPosition(event.getEntry().getValue().getDouble());
+                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-        this.IConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Flywheel I", GAINS_POSITION.kI)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-                .getEntry();
+            this.FConstantNT = Shuffleboard.getTab("Elevator")
+                    .add("Flywheel F", GAINS_POSITION.kF)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                    .getEntry();
+            this.FConstantNT.addListener(event -> {
+                    this.rightElevatorMotor.config_kF(SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-        this.DConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Flywheel D", GAINS_POSITION.kD)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-                .getEntry();
-            
-        this.sCurveConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Scurve Strength", SCURVE_STRENGTH)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 8.0)) // specify widget properties here
-                .getEntry();
+            this.PConstantNT = Shuffleboard.getTab("Elevator")
+                    .add("Flywheel P", GAINS_POSITION.kP)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                    .getEntry();
+            this.PConstantNT.addListener(event -> {
+                        this.rightElevatorMotor.config_kP(SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-        this.velocityConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Max Velocity", MAX_ELEVATOR_VELOCITY)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
-                .getEntry();
+            this.IConstantNT = Shuffleboard.getTab("Elevator")
+                    .add("Flywheel I", GAINS_POSITION.kI)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                    .getEntry();
+            this.IConstantNT.addListener(event -> {
+                        this.rightElevatorMotor.config_kI(SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-        this.accelerationConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Max Acceleration", ELEVATOR_ACCELERATION)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
-                .getEntry();
+            this.DConstantNT = Shuffleboard.getTab("Elevator")
+                    .add("Flywheel D", GAINS_POSITION.kD)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                    .getEntry();
+            this.DConstantNT.addListener(event -> {
+                        this.rightElevatorMotor.config_kD(SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+                
+            this.sCurveConstantNT = Shuffleboard.getTab("Elevator")
+                    .add("Scurve Strength", SCURVE_STRENGTH)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 8.0)) // specify widget properties here
+                    .getEntry();
+            this.sCurveConstantNT.addListener(event -> {
+                        this.rightElevatorMotor.configMotionSCurveStrength((int)event.getEntry().getValue().getDouble(), kTimeoutMs);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+
+            this.velocityConstantNT = Shuffleboard.getTab("Elevator")
+                    .add("Max Velocity", MAX_ELEVATOR_VELOCITY)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
+                    .getEntry();
+            this.velocityConstantNT.addListener(event -> {
+                        this.rightElevatorMotor.configMotionCruiseVelocity(event.getEntry().getValue().getDouble(), kTimeoutMs);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+
+            this.accelerationConstantNT = Shuffleboard.getTab("Elevator")
+                    .add("Max Acceleration", ELEVATOR_ACCELERATION)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
+                    .getEntry();
+            this.accelerationConstantNT.addListener(event -> {
+                        this.rightElevatorMotor.configMotionAcceleration(event.getEntry().getValue().getDouble(), kTimeoutMs);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+        }
 
         this.encoderPositionSetpoint = 0.0;
     }
@@ -239,38 +260,6 @@ public Elevator() {
         // double motorPower = this.elevatorMotorPowerNT.getDouble(0.0); 
         // this.setElevatorMotorPower(motorPower);
         
-            if(this.FConstantNT.getDouble(0.0) != this.FConstant) {
-                this.FConstant = this.FConstantNT.getDouble(0.0);
-                this.rightElevatorMotor.config_kF(SLOT_INDEX, FConstant, kTimeoutMs);
-            }
-            if(this.PConstantNT.getDouble(0.0) != this.PConstant) {
-                this.PConstant = this.PConstantNT.getDouble(0.0);
-                this.rightElevatorMotor.config_kP(SLOT_INDEX, PConstant, kTimeoutMs);
-            }
-            if(this.IConstantNT.getDouble(0.0) != this.IConstant) {
-                this.IConstant = this.IConstantNT.getDouble(0.0);
-                this.rightElevatorMotor.config_kI(SLOT_INDEX, IConstant, kTimeoutMs);
-            }
-            if(this.DConstantNT.getDouble(0.0) != this.DConstant) {
-                this.DConstant = this.DConstantNT.getDouble(0.0);
-                this.rightElevatorMotor.config_kD(SLOT_INDEX, DConstant, kTimeoutMs);
-            }
-            if(this.sCurveConstantNT.getDouble(0.0) != this.sCurveConstant) {
-                this.sCurveConstant = this.sCurveConstantNT.getDouble(0.0);
-                this.rightElevatorMotor.configMotionSCurveStrength((int)sCurveConstant, kTimeoutMs);
-            }
-            if(this.velocityConstantNT.getDouble(0.0) != this.velocityConstant) {
-                this.velocityConstant = this.velocityConstantNT.getDouble(0.0);
-                this.rightElevatorMotor.configMotionCruiseVelocity(velocityConstant, kTimeoutMs);
-            }
-            if(this.accelerationConstantNT.getDouble(0.0) != this.accelerationConstant) {
-                this.accelerationConstant = this.accelerationConstantNT.getDouble(0.0);
-                this.rightElevatorMotor.configMotionAcceleration(accelerationConstant, kTimeoutMs);
-            }
-            if(this.positionSetPointNT.getDouble(0.0) != this.positionSetpoint) {
-                this.positionSetpoint = this.positionSetPointNT.getDouble(0.0);
-                this.setElevatorMotorPosition(positionSetpoint);
-            }
         }
     }
 
