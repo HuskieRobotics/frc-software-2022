@@ -159,6 +159,8 @@ public Elevator() {
         Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this :: getSetpoint);
         Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error", this.rightElevatorMotor :: getClosedLoopError);
         Shuffleboard.getTab("Elevator").addNumber("Velocity", this.rightElevatorMotor :: getSelectedSensorVelocity);
+        Shuffleboard.getTab("Elevator").addNumber("Left Motor Power", this.leftElevatorMotor :: getMotorOutputPercent);
+        Shuffleboard.getTab("Elevator").addNumber("Right Motor Power", this.rightElevatorMotor :: getMotorOutputPercent);
         Shuffleboard.getTab("Elevator").add("Extend Climber to Mid", new ExtendClimberToMidRungCommand(this));
         Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(this));
         Shuffleboard.getTab("Elevator").add("Retract Climber Full", new RetractClimberFullCommand(this));
