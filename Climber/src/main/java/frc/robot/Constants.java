@@ -27,7 +27,7 @@ public class Constants {
         //FIXME these encoder values need to be tuned
         public static final double MAX_ELEVATOR_HEIGHT = 283089;
         public static final double MIN_DETACH_ENCODER_HEIGHT = 0;
-        public static final double MIN_ELEVATOR_ENCODER_HEIGHT = 95250+5000;//FIXME reset to 0
+        public static final double MIN_ELEVATOR_ENCODER_HEIGHT = 0;
         public static final double MID_RUNG_HEIGHT = 277129;
         public static final double REACH_TO_NEXT_RUNG_HEIGHT = 0; // not sure if this is needed; use MAX_ELEVATOR_HEIGHT?
         public static final double PITCH_SETPOINT = 0;
