@@ -14,6 +14,8 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.HoodConstants.*;
+
+import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.command.InstantCommand;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -88,42 +90,59 @@ public class Hood extends SubsystemBase {
     m_pidController.setFF(KFF);
     m_pidController.setOutputRange(K_MIN_OUTPUT, K_MAX_OUTPUT);
     
-
-
+    if (TUNING) {
         this.motorPowerNT = Shuffleboard.getTab("HoodTuning")
                 .add("motor power", 0.0)
                 .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                .withProperties(Map.of("min", -1.0, "max", 1.0)) // specify widget properties here
                 .getEntry();
+        this.motorPowerNT.addListener(event -> {
+                    this.setHoodMotorPower(event.getEntry().getValue().getDouble());
+                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
                 
         this.FConstantHoodNT = Shuffleboard.getTab("HoodTuning")
                 .add("kF", 0.0)
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                 .getEntry();
+        this.FConstantHoodNT.addListener(event -> {
+                    this.m_pidController.setFF(event.getEntry().getValue().getDouble());
+                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
         this.PConstantHoodNT = Shuffleboard.getTab("HoodTuning")
                 .add("kP", 0.0)
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                 .getEntry();
+        this.PConstantHoodNT.addListener(event -> {
+                    this.m_pidController.setP(event.getEntry().getValue().getDouble());
+                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
         this.IConstantHoodNT = Shuffleboard.getTab("HoodTuning")
                 .add("kI", 0.0)
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                 .getEntry();
+        this.IConstantHoodNT.addListener(event -> {
+                    this.m_pidController.setI(event.getEntry().getValue().getDouble());
+                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
         this.DConstantHoodNT = Shuffleboard.getTab("HoodTuning")
                 .add("kD", 0.0)
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                 .getEntry();
+        this.DConstantHoodNT.addListener(event -> {
+                    this.m_pidController.setD(event.getEntry().getValue().getDouble());
+                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+
         this.setRotationsNT = Shuffleboard.getTab("HoodTuning")
                 .add("setRotations", 0.0)
                 .getEntry();
-
-
+        this.setRotationsNT.addListener(event -> {
+                    this.setHoodSetpoint(event.getEntry().getValue().getDouble());
+                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+    }
 
         Shuffleboard.getTab("Hood").addNumber("HoodEncoderReading", this::getHoodEncoderPosition);
         Shuffleboard.getTab("Hood").addNumber("HoodLimelightRotations", this::getHoodSetpointLimeLight);
@@ -137,26 +156,6 @@ public class Hood extends SubsystemBase {
 
     @Override
     public void periodic() {
-
-        if (TUNING) {
-
-            // when tuning, we first set motor power and check the resulting velocity
-            // once we have determined our feedforward constant, comment the following lines
-            double motorPower = this.motorPowerNT.getDouble(0.0);
-            this.setHoodMotorPower(motorPower);
-            
-            // uncomment these lines after determining feed forward
-            // m_pidController.setFF(FConstantHoodNT.getDouble(0.0));
-            // m_pidController.setP(PConstantHoodNT.getDouble(0.0));
-            // m_pidController.setI(IConstantHoodNT.getDouble(0.0));
-            // m_pidController.setD(DConstantHoodNT.getDouble(0.0));
-            
-            // double rotations = this.setRotationsNT.getDouble(0.0);
-            // this.setHoodSetpoint(rotations);
-        }
-       
-
-
         // This method will be called once per scheduler run
 
     }
