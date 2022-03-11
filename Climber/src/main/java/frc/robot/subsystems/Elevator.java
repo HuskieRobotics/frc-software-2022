@@ -56,6 +56,14 @@ public class Elevator extends SubsystemBase {
     private NetworkTableEntry sCurveConstantNT;
     private NetworkTableEntry velocityConstantNT;
     private NetworkTableEntry accelerationConstantNT;
+    private double positionSetpoint;
+    private double FConstant;
+    private double PConstant;
+    private double IConstant;
+    private double DConstant;
+    private double sCurveConstant;
+    private double velocityConstant;
+    private double accelerationConstant;
     private WPI_TalonFX leftElevatorMotor;
     private WPI_TalonFX rightElevatorMotor;
     private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
@@ -231,18 +239,38 @@ public Elevator() {
         // double motorPower = this.elevatorMotorPowerNT.getDouble(0.0); 
         // this.setElevatorMotorPower(motorPower);
         
-
-            this.rightElevatorMotor.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0), kTimeoutMs);
-            this.rightElevatorMotor.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0), kTimeoutMs);
-            this.rightElevatorMotor.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0), kTimeoutMs);
-            this.rightElevatorMotor.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0), kTimeoutMs);
-            this.rightElevatorMotor.configMotionSCurveStrength((int) this.sCurveConstantNT.getDouble(0.0), kTimeoutMs);
-            this.rightElevatorMotor.configMotionCruiseVelocity(this.velocityConstantNT.getDouble(0.0), kTimeoutMs);
-            this.rightElevatorMotor.configMotionAcceleration(this.accelerationConstantNT.getDouble(0.0), kTimeoutMs);
-            double desiredEncoderPosition = this.positionSetPointNT.getDouble(0.0);
-            this.setElevatorMotorPosition(desiredEncoderPosition);
-
-
+            if(this.FConstantNT.getDouble(0.0) != this.FConstant) {
+                this.FConstant = this.FConstantNT.getDouble(0.0);
+                this.rightElevatorMotor.config_kF(SLOT_INDEX, FConstant, kTimeoutMs);
+            }
+            if(this.PConstantNT.getDouble(0.0) != this.PConstant) {
+                this.PConstant = this.PConstantNT.getDouble(0.0);
+                this.rightElevatorMotor.config_kP(SLOT_INDEX, PConstant, kTimeoutMs);
+            }
+            if(this.IConstantNT.getDouble(0.0) != this.IConstant) {
+                this.IConstant = this.IConstantNT.getDouble(0.0);
+                this.rightElevatorMotor.config_kI(SLOT_INDEX, IConstant, kTimeoutMs);
+            }
+            if(this.DConstantNT.getDouble(0.0) != this.DConstant) {
+                this.DConstant = this.DConstantNT.getDouble(0.0);
+                this.rightElevatorMotor.config_kD(SLOT_INDEX, DConstant, kTimeoutMs);
+            }
+            if(this.sCurveConstantNT.getDouble(0.0) != this.sCurveConstant) {
+                this.sCurveConstant = this.sCurveConstantNT.getDouble(0.0);
+                this.rightElevatorMotor.configMotionSCurveStrength((int)sCurveConstant, kTimeoutMs);
+            }
+            if(this.velocityConstantNT.getDouble(0.0) != this.velocityConstant) {
+                this.velocityConstant = this.velocityConstantNT.getDouble(0.0);
+                this.rightElevatorMotor.configMotionCruiseVelocity(velocityConstant, kTimeoutMs);
+            }
+            if(this.accelerationConstantNT.getDouble(0.0) != this.accelerationConstant) {
+                this.accelerationConstant = this.accelerationConstantNT.getDouble(0.0);
+                this.rightElevatorMotor.configMotionAcceleration(accelerationConstant, kTimeoutMs);
+            }
+            if(this.positionSetPointNT.getDouble(0.0) != this.positionSetpoint) {
+                this.positionSetpoint = this.positionSetPointNT.getDouble(0.0);
+                this.setElevatorMotorPosition(positionSetpoint);
+            }
         }
     }
 
