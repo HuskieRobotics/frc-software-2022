@@ -298,8 +298,7 @@ public Elevator() {
 
     public void setElevatorMotorPosition(double desiredEncoderPosition) {
         if(isElevatorControlEnabled()){
-            this.rightElevatorMotor.set(ControlMode.MotionMagic, desiredEncoderPosition);
-
+            
             // the feedforward term will be different depending if the elevator is going up or down
             //		and if it under load or not; use the desiredEncoderPosition to determine the
             //		corresponding feed forward term
@@ -308,7 +307,7 @@ public Elevator() {
                     this.disableElevator();
                 }
                 else {
-                    rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_EXTEND);
+                    rightElevatorMotor.set(TalonFXControlMode.MotionMagic, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_EXTEND);
                 }
             }
             else { // retracting loaded
@@ -316,7 +315,7 @@ public Elevator() {
                     this.disableElevator();
                 }
                 else {
-                    rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_RETRACT);
+                    rightElevatorMotor.set(TalonFXControlMode.MotionMagic, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_RETRACT);
                 }
             }
         
