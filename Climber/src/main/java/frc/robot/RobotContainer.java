@@ -48,9 +48,11 @@ public class RobotContainer {
   * The container for the robot.  Contains subsystems, OI devices, and commands.
   */
   private RobotContainer() {
+    m_elevator.register();
+    m_secondMechanism.register();
     
     this.buttonConsole = new Joystick(3);
-    this.consoleButtons = new JoystickButton[11];
+    this.consoleButtons = new JoystickButton[13];
     for(int i = 0; i < consoleButtons.length; i++) {
       consoleButtons[i] = new JoystickButton(buttonConsole, i);
     }
@@ -109,33 +111,33 @@ public class RobotContainer {
         consoleButtons[9].whenPressed(  
           new ExtendClimberToMidRungCommand(m_elevator));
         
-        //FIXME change the following few commands to xbox buttons after merged to main
-        //toggle secondary arm override
-        consoleButtons[0].toggleWhenPressed(
-          new ConditionalCommand(
-            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut()), 
-            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
-            m_secondMechanism :: isIn));
+        // //FIXME change the following few commands to xbox buttons after merged to main
+        // //toggle secondary arm override
+        // consoleButtons[0].toggleWhenPressed(
+        //   new ConditionalCommand(
+        //     new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut()), 
+        //     new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
+        //     m_secondMechanism :: isIn));
 
-        //elevator up override
-        consoleButtons[0].whileHeld(new InstantCommand(() -> m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER)));
+        // //elevator up override
+        // consoleButtons[0].whileHeld(new InstantCommand(() -> m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER)));
 
-        //elevator down override
-        consoleButtons[0].whileHeld(new InstantCommand(() -> m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER * -1)));
+        // //elevator down override
+        // consoleButtons[0].whileHeld(new InstantCommand(() -> m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER * -1)));
 
-        //resetElevator 
-        consoleButtons[0].whenPressed(new RetractClimberFullCommand(m_elevator));
+        // //resetElevator 
+        // consoleButtons[0].whenPressed(new RetractClimberFullCommand(m_elevator));
 
-        //climber emergency pause
+        // //climber emergency pause
 
-        //FIXME this should be changed to start buttons and pass in the back button
-        consoleButtons[0].whenPressed(new InstantCommand(() -> m_elevator.elevatorPause(consoleButtons[0].get())));
+        // //FIXME this should be changed to start buttons and pass in the back button
+        // consoleButtons[0].whenPressed(new InstantCommand(() -> m_elevator.elevatorPause(consoleButtons[0].get())));
 
-        consoleButtons[0].toggleWhenPressed(
-          new ConditionalCommand(
-            new InstantCommand(() -> m_elevator.disableElevatorControl()),
-            new InstantCommand(() -> m_elevator.enableElevatorControl()),
-            m_elevator :: isElevatorControlEnabled));
+        // consoleButtons[0].toggleWhenPressed(
+        //   new ConditionalCommand(
+        //     new InstantCommand(() -> m_elevator.disableElevatorControl()),
+        //     new InstantCommand(() -> m_elevator.enableElevatorControl()),
+        //     m_elevator :: isElevatorControlEnabled));
 
   }
 }

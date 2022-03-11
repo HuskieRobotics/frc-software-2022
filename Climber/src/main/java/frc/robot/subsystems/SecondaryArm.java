@@ -31,7 +31,7 @@ public class SecondaryArm extends SubsystemBase {
     public SecondaryArm() {
         this.isIn = false;
 
-        secondaryMechanism = new Solenoid(SecondMechanismConstants.PNEUMATIC_HUB_CAN_ID, PneumaticsModuleType.REVPH, SecondMechanismConstants.PNEUMATIC_HUB_CAN_ID);
+        secondaryMechanism = new Solenoid(SecondMechanismConstants.PNEUMATIC_HUB_CAN_ID, PneumaticsModuleType.REVPH, SecondMechanismConstants.PNEUMATIC_CHANNEL);
          addChild("Secondary Mechanism", this.secondaryMechanism);
  
 

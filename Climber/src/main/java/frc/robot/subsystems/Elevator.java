@@ -75,7 +75,7 @@ public Elevator() {
     this.leftElevatorMotor.configFactoryDefault();
 
 	/** Invert Directions for Left and Right */
-	//TalonFXInvertType _leftInvert = TalonFXInvertType.CounterClockwise; //Same as invert = "false"
+	//TalonFXInvertType _leftInvert = TalonFXInvertType.Clockwise; //Same as invert = "false"
 	TalonFXInvertType _rightInvert = TalonFXInvertType.Clockwise; //Same as invert = "true"
 
 	/** Config Objects for motor controllers */
@@ -91,7 +91,7 @@ public Elevator() {
     this.rightElevatorMotor.setNeutralMode(NeutralMode.Brake);
 
     /* Configure output */
-    this.leftElevatorMotor.setInverted(TalonFXInvertType.CounterClockwise);
+    this.leftElevatorMotor.setInverted(TalonFXInvertType.Clockwise);
     this.rightElevatorMotor.setInverted(TalonFXInvertType.Clockwise);
     /*
         * Talon FX does not need sensor phase set for its integrated sensor
@@ -185,7 +185,7 @@ public Elevator() {
         this.elevatorMotorPowerNT = Shuffleboard.getTab("Elevator")
             .add("Elevator Motors", 0.0)
             .withWidget(BuiltInWidgets.kNumberSlider)
-            .withProperties(Map.of("min", 0, "max", 1)) //FIX_ME figure max motor power should be 1
+            .withProperties(Map.of("min", -1, "max", 1)) //FIX_ME figure max motor power should be 1
             .getEntry();
 
             
@@ -284,14 +284,14 @@ public Elevator() {
 
     public void setElevatorMotorPower(double power){
     if(isElevatorControlEnabled()){
-        if(this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 100 ||
-                this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 100 ) {
-            this.disableElevator();
-        }
-        else {
+        // if(this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 100 ||
+        //         this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 100 ) {
+        //     this.disableElevator();
+        // }
+        // else {
             this.leftElevatorMotor.set(ControlMode.PercentOutput, power);
             this.rightElevatorMotor.set(ControlMode.PercentOutput, power);
-        }
+        //}
     }
     }
 

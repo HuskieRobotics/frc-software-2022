@@ -25,16 +25,16 @@ public class Constants {
     public static class ElevatorConstants{
 
         //FIXME these encoder values need to be tuned
-        public static final double MAX_ELEVATOR_HEIGHT = 100000;
+        public static final double MAX_ELEVATOR_HEIGHT = 283089;
         public static final double MIN_DETACH_ENCODER_HEIGHT = 0;
         public static final double MIN_ELEVATOR_ENCODER_HEIGHT = 0;
-        public static final double MID_RUNG_HEIGHT = 0;
+        public static final double MID_RUNG_HEIGHT = 277129;
         public static final double REACH_TO_NEXT_RUNG_HEIGHT = 0; // not sure if this is needed; use MAX_ELEVATOR_HEIGHT?
         public static final double PITCH_SETPOINT = 0;
         public static final double PITCH_TOLERANCE =  0;
         public static final int ELEVATOR_POSITION_TOLERANCE = 0;
-        public static final double ARBITRARY_FEED_FORWARD_EXTEND = 0;
-        public static final double ARBITRARY_FEED_FORWARD_RETRACT = 0;
+        public static final double ARBITRARY_FEED_FORWARD_EXTEND = .02;
+        public static final double ARBITRARY_FEED_FORWARD_RETRACT = -0.07;
         public static final double DEFAULT_MOTOR_POWER = 0;
 
         //FIXME Talon Config, these values from flywheel
@@ -55,6 +55,7 @@ public class Constants {
   }
     public class SecondMechanismConstants { 
         public static final int PNEUMATIC_HUB_CAN_ID = 20;
+        public static final int PNEUMATIC_CHANNEL = 0;
   }
 }
 
