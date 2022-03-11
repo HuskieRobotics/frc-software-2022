@@ -71,5 +71,14 @@ public class Constants {
 
    }
 
+
+    public static final class StorageConstants{
+        public static final double OUTTAKE_POWER = -.4;//FIX_ME
+        public static final int SHOOTER_SENSOR = 1;
+        public static final int COLLECTOR_SENSOR = 0;
+        public static final int STORAGE_MOTOR_ID = 4;
+        public static final double STORAGE_DEFAULT_SPEED = 0.4; //FIX_ME change this to desired speed
+    }
+
 }
 
