@@ -146,7 +146,7 @@ public class Flywheel extends SubsystemBase {
 
         Shuffleboard.getTab("Shooter").add("Wall Shot", new SetFlywheelVelocityCommand(this, WALL_SHOT_VELOCITY));
         Shuffleboard.getTab("Shooter").add("Fender Shot", new SetFlywheelVelocityCommand(this, FENDER_SHOT_VELOCITY));
-        Shuffleboard.getTab("Shooter").add("Stop Flywheel", new InstantCommand(this :: stopFlywheel));
+        Shuffleboard.getTab("Shooter").add("Stop Flywheel", new SetFlywheelVelocityCommand(this, 0));
 
         // Shuffleboard.getTab("Shooter").add("SpinFlywheelForFenderCommand",
         // new SpinFlywheelCommand(this, FENDER_VELOCITY));
@@ -159,14 +159,14 @@ public class Flywheel extends SubsystemBase {
             // Add indicators and controls to this Shuffleboard tab to assist with
             // interactively tuning the system.
 
-            Shuffleboard.getTab("Shooter")
-                    .add("VelocitySetpoint", 0.0)
-                    .withWidget(BuiltInWidgets.kNumberSlider)
-                    .withProperties(Map.of("min", 0, "max", 25000)) // specify widget properties here
-                    .getEntry()
-                    .addListener(event -> {
-                    this.setVelocity(event.getEntry().getValue().getDouble());
-                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+            // Shuffleboard.getTab("Shooter")
+            //         .add("VelocitySetpoint", 0.0)
+            //         .withWidget(BuiltInWidgets.kNumberSlider)
+            //         .withProperties(Map.of("min", 0, "max", 25000)) // specify widget properties here
+            //         .getEntry()
+            //         .addListener(event -> {
+            //         this.setVelocity(event.getEntry().getValue().getDouble());
+            //         }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
             Shuffleboard.getTab("Shooter")
                     .add("Flywheel Power", 0.0)
@@ -190,7 +190,7 @@ public class Flywheel extends SubsystemBase {
             Shuffleboard.getTab("Shooter")
                     .add("Flywheel P", GAINS_VELOCITY.kP)
                     .withWidget(BuiltInWidgets.kNumberSlider)
-                    .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                    .withProperties(Map.of("min", 0, "max", 2.0)) // specify widget properties here
                     .getEntry()
                     .addListener(event -> {
                         this.rightFlywheelMotor.config_kP(SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
