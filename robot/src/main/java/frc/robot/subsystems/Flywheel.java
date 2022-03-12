@@ -156,12 +156,12 @@ public class Flywheel extends SubsystemBase {
         // InstantCommand(this::stopFlywheel, this));
 
         if(TUNING) {
-            // Each robot feature that requires PID tuniing has its own Shuffleboard tab for
-            // tuning (i.e., "ShooterTuning")
+            // Each robot feature that requires PID tuning has its own Shuffleboard tab for
+            // tuning (i.e., "Shooter")
             // Add indicators and controls to this Shuffleboard tab to assist with
             // interactively tuning the system.
 
-            Shuffleboard.getTab("ShooterTuning")
+            Shuffleboard.getTab("Shooter")
                     .add("VelocitySetpoint", 0.0)
                     .withWidget(BuiltInWidgets.kNumberSlider)
                     .withProperties(Map.of("min", 0, "max", 25000)) // specify widget properties here
@@ -170,7 +170,7 @@ public class Flywheel extends SubsystemBase {
                     this.setVelocity(event.getEntry().getValue().getDouble());
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-            Shuffleboard.getTab("ShooterTuning")
+            Shuffleboard.getTab("Shooter")
                     .add("Flywheel Power", 0.0)
                     .withWidget(BuiltInWidgets.kNumberSlider)
                     .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
@@ -180,7 +180,7 @@ public class Flywheel extends SubsystemBase {
                     rightFlywheelMotor.set(TalonFXControlMode.PercentOutput, event.getEntry().getValue().getDouble());
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-            Shuffleboard.getTab("ShooterTuning")
+            Shuffleboard.getTab("Shooter")
                     .add("Flywheel F", 0.0)
                     .withWidget(BuiltInWidgets.kNumberSlider)
                     .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
@@ -189,7 +189,7 @@ public class Flywheel extends SubsystemBase {
                         this.rightFlywheelMotor.config_kF(SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-            Shuffleboard.getTab("ShooterTuning")
+            Shuffleboard.getTab("Shooter")
                     .add("Flywheel P", 0.0)
                     .withWidget(BuiltInWidgets.kNumberSlider)
                     .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
@@ -198,7 +198,7 @@ public class Flywheel extends SubsystemBase {
                         this.rightFlywheelMotor.config_kP(SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-            Shuffleboard.getTab("ShooterTuning")
+            Shuffleboard.getTab("Shooter")
                     .add("Flywheel I", 0.0)
                     .withWidget(BuiltInWidgets.kNumberSlider)
                     .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
@@ -207,7 +207,7 @@ public class Flywheel extends SubsystemBase {
                         this.rightFlywheelMotor.config_kI(SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-            Shuffleboard.getTab("ShooterTuning")
+            Shuffleboard.getTab("Shooter")
                     .add("Flywheel D", 0.0)
                     .withWidget(BuiltInWidgets.kNumberSlider)
                     .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
@@ -240,6 +240,7 @@ public class Flywheel extends SubsystemBase {
     public void setVelocity(double velocitySetPoint) {
         this.velocitySetPoint = velocitySetPoint;
         
+        this.leftFlywheelMotor.follow(this.rightFlywheelMotor);
         rightFlywheelMotor.set(TalonFXControlMode.Velocity, velocitySetPoint);
     }
 
