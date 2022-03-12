@@ -1,22 +1,24 @@
-    package frc.robot.commands;
+package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.LimelightMath;
 import frc.robot.subsystems.Flywheel;
 
-public class SetFlywheelVelocityCommand extends CommandBase{
+public class LimelightSetVelocity extends CommandBase {
     private Flywheel flywheel;
     private double velocity;
+    private LimelightMath limelightMath;
 
-    public SetFlywheelVelocityCommand(Flywheel flywheel, double velocity){
-        this.flywheel = flywheel;
-        this.velocity = velocity;
-        addRequirements(this.flywheel);
+    public LimelightSetVelocity(Flywheel fw, LimelightMath lm) {
+        flywheel = fw;
+        limelightMath = lm;
+        addRequirements(flywheel);
     }
 
-    // Called when the command is initially scheduled.
     @Override
     public void initialize() {
+        velocity = limelightMath.getIdealVelocity();
     }
 
     // Called every time the scheduler runs while the command is scheduled.
