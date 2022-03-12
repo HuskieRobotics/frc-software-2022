@@ -318,7 +318,7 @@ public class RobotContainer {
     return new SequentialCommandGroup(
       new InstantCommand(() -> m_collector.enableCollector()),
       //new SortStorageCommand(m_storage),
-      new FollowPath(PathPlanner.loadPath("Red3(1)",
+      new FollowPath(PathPlanner.loadPath("Blue1(1)",
           AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
           thetaController, m_drivetrainSubsystem)
       // new WaitCommand(5)
