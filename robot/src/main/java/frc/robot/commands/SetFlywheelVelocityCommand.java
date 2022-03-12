@@ -3,7 +3,6 @@
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.LimelightMath;
 import frc.robot.subsystems.Flywheel;
-import static frc.robot.Constants.FlywheelConstants.*;
 
 public class SetFlywheelVelocityCommand extends CommandBase{
     private Flywheel flywheel;
