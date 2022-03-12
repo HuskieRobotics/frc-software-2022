@@ -179,7 +179,7 @@ public class Flywheel extends SubsystemBase {
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
             Shuffleboard.getTab("Shooter")
-                    .add("Flywheel F", 0.0)
+                    .add("Flywheel F", GAINS_VELOCITY.kF)
                     .withWidget(BuiltInWidgets.kNumberSlider)
                     .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                     .getEntry()
@@ -188,7 +188,7 @@ public class Flywheel extends SubsystemBase {
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
             Shuffleboard.getTab("Shooter")
-                    .add("Flywheel P", 0.0)
+                    .add("Flywheel P", GAINS_VELOCITY.kP)
                     .withWidget(BuiltInWidgets.kNumberSlider)
                     .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                     .getEntry()
@@ -197,7 +197,7 @@ public class Flywheel extends SubsystemBase {
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
             Shuffleboard.getTab("Shooter")
-                    .add("Flywheel I", 0.0)
+                    .add("Flywheel I", GAINS_VELOCITY.kI)
                     .withWidget(BuiltInWidgets.kNumberSlider)
                     .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                     .getEntry()
@@ -206,7 +206,7 @@ public class Flywheel extends SubsystemBase {
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
             Shuffleboard.getTab("Shooter")
-                    .add("Flywheel D", 0.0)
+                    .add("Flywheel D", GAINS_VELOCITY.kD)
                     .withWidget(BuiltInWidgets.kNumberSlider)
                     .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                     .getEntry()
