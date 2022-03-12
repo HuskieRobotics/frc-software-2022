@@ -307,7 +307,8 @@ public Elevator() {
                     this.disableElevator();
                 }
                 else {
-                    rightElevatorMotor.set(TalonFXControlMode.MotionMagic, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_EXTEND);
+                    this.leftElevatorMotor.follow(this.rightElevatorMotor);
+                    rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_EXTEND);
                 }
             }
             else { // retracting loaded
@@ -315,7 +316,8 @@ public Elevator() {
                     this.disableElevator();
                 }
                 else {
-                    rightElevatorMotor.set(TalonFXControlMode.MotionMagic, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_RETRACT);
+                    this.leftElevatorMotor.follow(this.rightElevatorMotor);
+                    rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_RETRACT);
                 }
             }
         

@@ -32,7 +32,7 @@ public class Constants {
         public static final double REACH_TO_NEXT_RUNG_HEIGHT = 0; // not sure if this is needed; use MAX_ELEVATOR_HEIGHT?
         public static final double PITCH_SETPOINT = 0;
         public static final double PITCH_TOLERANCE =  0;
-        public static final int ELEVATOR_POSITION_TOLERANCE = 0;
+        public static final int ELEVATOR_POSITION_TOLERANCE = 500;
         public static final double ARBITRARY_FEED_FORWARD_EXTEND = .02;
         public static final double ARBITRARY_FEED_FORWARD_RETRACT = -0.07;
         public static final double DEFAULT_MOTOR_POWER = 0;
@@ -41,10 +41,10 @@ public class Constants {
         public static final int kSlotIdx = 0;
         public static final int kPIDLoopIdx = 0;
         public static final int kTimeoutMs = 30;
-        public static final Gains GAINS_POSITION  = new Gains( 0 /* kP */, 0 /* kI */, 0 /* kD */, 0 /* kF */, 0 /* kIZone */, 1.00 /* max output */);
+        public static final Gains GAINS_POSITION  = new Gains( 0.4 /* kP */, 0 /* kI */, 0 /* kD */, 0 /* kF */, 0 /* kIZone */, 1.00 /* max output */);
         //FIXME additional config
-        public static final double MAX_ELEVATOR_VELOCITY = 20000 / 2;  // theoretical maximum 21305
-        public static final double ELEVATOR_ACCELERATION = MAX_ELEVATOR_VELOCITY / 10;
+        public static final double MAX_ELEVATOR_VELOCITY = 20000;  // theoretical maximum 21305
+        public static final double ELEVATOR_ACCELERATION = MAX_ELEVATOR_VELOCITY * 10;
         public static final int SCURVE_STRENGTH = 0;
        
         //CAN ID

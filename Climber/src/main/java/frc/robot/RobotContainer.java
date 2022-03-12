@@ -38,7 +38,7 @@ public class RobotContainer {
   
   private static RobotContainer m_robotContainer = new RobotContainer();
 // The robot's subsystems
-    public final SecondaryArm m_secondMechanism = new SecondaryArm();
+    public final SecondaryArm m_secondMechanism = null; // = new SecondaryArm();
     public final Elevator m_elevator = new Elevator();
 // Joysticks
   private final JoystickButton[] consoleButtons;
@@ -49,7 +49,7 @@ public class RobotContainer {
   */
   private RobotContainer() {
     m_elevator.register();
-    m_secondMechanism.register();
+    //m_secondMechanism.register();
     
     this.buttonConsole = new Joystick(3);
     this.consoleButtons = new JoystickButton[13];
@@ -58,7 +58,7 @@ public class RobotContainer {
     }
 
     // Smartdashboard Subsystems
-    SmartDashboard.putData(m_secondMechanism);
+    //SmartDashboard.putData(m_secondMechanism);
     SmartDashboard.putData(m_elevator);
     configureButtonBindings();
 
@@ -77,39 +77,39 @@ public class RobotContainer {
   private void configureButtonBindings() {
        
         
-        // configure climb to fourth rung climb sequence 
-        consoleButtons[2].whenPressed(
-            new SequentialCommandGroup(
-              new RetractClimberFullCommand(m_elevator),
-              new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
-              new ReachToNextRungCommand(m_elevator),
-              new ParallelCommandGroup(
-                new RetractClimberFullCommand(m_elevator),
-                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut())
-              ),
-              new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
-              new ReachToNextRungCommand(m_elevator),
-              new RetractClimberMinimumCommand(m_elevator)
-            )
-        );
+        // // configure climb to fourth rung climb sequence 
+        // consoleButtons[2].whenPressed(
+        //     new SequentialCommandGroup(
+        //       new RetractClimberFullCommand(m_elevator),
+        //       new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
+        //       new ReachToNextRungCommand(m_elevator),
+        //       new ParallelCommandGroup(
+        //         new RetractClimberFullCommand(m_elevator),
+        //         new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut())
+        //       ),
+        //       new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
+        //       new ReachToNextRungCommand(m_elevator),
+        //       new RetractClimberMinimumCommand(m_elevator)
+        //     )
+        // );
 
-        //configure climb to third rung climb sequence 
-        consoleButtons[11].whenPressed(
-            new SequentialCommandGroup(
-              new RetractClimberFullCommand(m_elevator),
-              new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut()),
-              new ReachToNextRungCommand(m_elevator),
-              new ParallelCommandGroup(
-                new RetractClimberMinimumCommand(m_elevator),
-                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()))));
+        // //configure climb to third rung climb sequence 
+        // consoleButtons[11].whenPressed(
+        //     new SequentialCommandGroup(
+        //       new RetractClimberFullCommand(m_elevator),
+        //       new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut()),
+        //       new ReachToNextRungCommand(m_elevator),
+        //       new ParallelCommandGroup(
+        //         new RetractClimberMinimumCommand(m_elevator),
+        //         new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()))));
 
-        //configure climb to 2 rung climb sequence 
-        consoleButtons[10].whenPressed(
-          new RetractClimberMinimumCommand(m_elevator));
+        // //configure climb to 2 rung climb sequence 
+        // consoleButtons[10].whenPressed(
+        //   new RetractClimberMinimumCommand(m_elevator));
 
-        //configure raise elevator before starting climb
-        consoleButtons[9].whenPressed(  
-          new ExtendClimberToMidRungCommand(m_elevator));
+        // //configure raise elevator before starting climb
+        // consoleButtons[9].whenPressed(  
+        //   new ExtendClimberToMidRungCommand(m_elevator));
         
         // //FIXME change the following few commands to xbox buttons after merged to main
         // //toggle secondary arm override
