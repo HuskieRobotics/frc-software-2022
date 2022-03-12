@@ -143,6 +143,8 @@ public class Flywheel extends SubsystemBase {
                 this.leftFlywheelMotor::getSelectedSensorVelocity);
         Shuffleboard.getTab("Shooter").addNumber("FlywheelRightClosedLoopError",
                 this.rightFlywheelMotor::getClosedLoopError);
+        Shuffleboard.getTab("Shooter").addNumber("Left Power", this.leftFlywheelMotor :: getMotorOutputPercent);
+        Shuffleboard.getTab("Shooter").addNumber("Right Power", this.rightFlywheelMotor :: getMotorOutputPercent);
 
         Shuffleboard.getTab("Shooter").add("Wall Shot", new SetFlywheelVelocityCommand(this, WALL_SHOT_VELOCITY));
         Shuffleboard.getTab("Shooter").add("Fender Shot", new SetFlywheelVelocityCommand(this, FENDER_SHOT_VELOCITY));
@@ -159,14 +161,14 @@ public class Flywheel extends SubsystemBase {
             // Add indicators and controls to this Shuffleboard tab to assist with
             // interactively tuning the system.
 
-            // Shuffleboard.getTab("Shooter")
-            //         .add("VelocitySetpoint", 0.0)
-            //         .withWidget(BuiltInWidgets.kNumberSlider)
-            //         .withProperties(Map.of("min", 0, "max", 25000)) // specify widget properties here
-            //         .getEntry()
-            //         .addListener(event -> {
-            //         this.setVelocity(event.getEntry().getValue().getDouble());
-            //         }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+            Shuffleboard.getTab("Shooter")
+                    .add("VelocitySetpoint", 0.0)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 25000)) // specify widget properties here
+                    .getEntry()
+                    .addListener(event -> {
+                    this.setVelocity(event.getEntry().getValue().getDouble());
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
             Shuffleboard.getTab("Shooter")
                     .add("Flywheel Power", 0.0)
