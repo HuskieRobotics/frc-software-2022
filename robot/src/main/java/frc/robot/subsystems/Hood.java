@@ -220,7 +220,7 @@ public class Hood extends SubsystemBase {
     //     return a * HOOD_DEGREES_TO_HOOD_ENCODER; //will this return rotations?
     // }
 
-    private void setHoodMotorPower(double pwr) {
+    public void setHoodMotorPower(double pwr) {
         this.hoodMotor.set(ControlMode.PercentOutput, pwr);
     }
 
