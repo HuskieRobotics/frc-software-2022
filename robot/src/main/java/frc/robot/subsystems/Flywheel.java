@@ -17,7 +17,6 @@ import edu.wpi.first.networktables.EntryListenerFlags;
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.FlywheelConstants.*;
 
-import edu.wpi.first.wpilibj.command.InstantCommand;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -25,7 +24,6 @@ import frc.robot.commands.SetFlywheelVelocityCommand;
 
 import java.util.Map;
 
-import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;

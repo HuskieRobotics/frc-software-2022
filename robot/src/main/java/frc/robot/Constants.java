@@ -47,6 +47,7 @@ public class Constants {
        public static final double KFF =0;
         public static final double K_MAX_OUTPUT=1;
         public static final double K_MIN_OUTPUT=-1;
+        public static final int TIMEOUT_MS = 30;
         
         public static final int PID_SLOT = 0;
         public static final double ARBITRARY_FEED_FORWARD_UP_IN_PERCENT = 0.4;   // FIX_ME find arbitrary feed foward for hood
