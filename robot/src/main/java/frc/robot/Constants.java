@@ -32,7 +32,7 @@ public class Constants {
         
 
 
-    public final static Gains GAINS_VELOCITY  = new Gains(0 /* kP */,  0 /* kI */,   0  /* kD */,  .0438   /* kF */,     0  /* kIzone */,  1.00 /* kPeakOutput */);
+    public final static Gains GAINS_VELOCITY  = new Gains(0.5 /* kP */,  0 /* kI */,   0  /* kD */,  .0438   /* kF */,     0  /* kIzone */,  1.00 /* kPeakOutput */);
         public final static int MAX_FLYWHEEL_VELOCITY = 17500;
         public static final int WALL_SHOT_VELOCITY = 11000; // FIX_ME tune this
         public static final int FENDER_SHOT_VELOCITY = 9000; // FIX_ME tune this
