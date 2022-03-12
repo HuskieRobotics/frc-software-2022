@@ -29,7 +29,7 @@ public class LimelightMath extends SubsystemBase{
         h2 = LimelightConstants.HUB_H + 12;
         h1 = h2 + LimelightConstants.H2_H1_OFFSET_IN;
         this.shooterAngleNT= Shuffleboard.getTab("LimeTuning")
-            .add("shooterAng", 0.0)
+            .add("shooterAngle", 0.0)
             .getEntry();
         this.limelightDistanceInNT= Shuffleboard.getTab("LimeTuning")
             .add("DistanceOutput", 0.0)
