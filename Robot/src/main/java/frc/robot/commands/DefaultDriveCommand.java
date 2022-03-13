@@ -13,9 +13,9 @@ public class DefaultDriveCommand extends CommandBase {
     private final DoubleSupplier m_rotationSupplier;
 
     public DefaultDriveCommand(DrivetrainSubsystem drivetrainSubsystem,
-                               DoubleSupplier translationXSupplier,
-                               DoubleSupplier translationYSupplier,
-                               DoubleSupplier rotationSupplier) {
+            DoubleSupplier translationXSupplier,
+            DoubleSupplier translationYSupplier,
+            DoubleSupplier rotationSupplier) {
         this.m_drivetrainSubsystem = drivetrainSubsystem;
         this.m_translationXSupplier = translationXSupplier;
         this.m_translationYSupplier = translationYSupplier;
@@ -28,16 +28,19 @@ public class DefaultDriveCommand extends CommandBase {
     public void initialize() {
 
     }
+
     @Override
     public void execute() {
-        // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of field-oriented movement
+        // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of
+        // field-oriented movement
 
-            m_drivetrainSubsystem.drive(
-                        m_translationXSupplier.getAsDouble(),
-                        m_translationYSupplier.getAsDouble(),
-                        m_rotationSupplier.getAsDouble()
-        );
-        //m_drivetrainSubsystem.drive(new ChassisSpeeds(m_translationXSupplier.getAsDouble(), m_translationYSupplier.getAsDouble(), m_rotationSupplier.getAsDouble()));
+        m_drivetrainSubsystem.drive(
+                m_translationXSupplier.getAsDouble(),
+                m_translationYSupplier.getAsDouble(),
+                m_rotationSupplier.getAsDouble());
+        // m_drivetrainSubsystem.drive(new
+        // ChassisSpeeds(m_translationXSupplier.getAsDouble(),
+        // m_translationYSupplier.getAsDouble(), m_rotationSupplier.getAsDouble()));
     }
 
     @Override

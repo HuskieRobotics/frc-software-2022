@@ -1,4 +1,5 @@
 package frc.robot.commands;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.Elevator;
@@ -6,8 +7,7 @@ import frc.robot.subsystems.Elevator;
 public class RetractClimberFullCommand extends CommandBase {
     private final Elevator m_elevator;
 
-
-    public RetractClimberFullCommand(Elevator subsystem){ 
+    public RetractClimberFullCommand(Elevator subsystem) {
         m_elevator = subsystem;
         addRequirements(m_elevator);
     }
@@ -29,7 +29,7 @@ public class RetractClimberFullCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        if(!m_elevator.isElevatorControlEnabled()){
+        if (!m_elevator.isElevatorControlEnabled()) {
             return true;
         }
         return m_elevator.atSetpoint();
@@ -39,5 +39,5 @@ public class RetractClimberFullCommand extends CommandBase {
     public boolean runsWhenDisabled() {
         return false;
     }
-    
+
 }
