@@ -10,8 +10,9 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -68,6 +69,10 @@ public class RobotContainer {
   private final LimelightMath m_limelight = new LimelightMath();
   private final SecondaryArm m_secondMechanism = null; // = new SecondaryArm();
   private final Elevator m_elevator = new Elevator();
+
+  private Command autoLeaveTarmac;
+  private Command autoBlue1;
+  private Command autoRed1;
 
   // Joysticks
 
@@ -126,11 +131,7 @@ public class RobotContainer {
 
     // Configure autonomous sendable chooser
 
-    ShuffleboardTab tab = Shuffleboard.getTab("Auto");
-    m_chooser.addOption("Leave Tarmac", autoLeaveTarmac);
-    m_chooser.addOption("Blue 1", autoBlue1);
-    m_chooser.addOption("Red 1", autoBlue2);
-    tab.add("Auto Mode", m_chooser);
+    configureAutoCommands();
   }
 
   public static RobotContainer getInstance() {
@@ -287,17 +288,47 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    return m_chooser.getSelected();             
+  }
 
-    return m_chooser.getSelected();    
-
+  private void configureAutoCommands() {
     ProfiledPIDController thetaController = new ProfiledPIDController(
         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-    // The selected command will be run in autonomous
-    return new FollowPath(PathPlanner.loadPath("curveTest",
-        AutoConstants.kMaxSpeedMetersPerSecond,
-        AutoConstants.kMaxAccelerationMetersPerSecondSquared), thetaController, m_drivetrainSubsystem);
+    autoLeaveTarmac = new FollowPath(PathPlanner.loadPath("forward",
+        AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+        thetaController, m_drivetrainSubsystem);
+
+    autoBlue1 = new SequentialCommandGroup(
+      new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+      //new SortStorageCommand(m_storage),
+      new FollowPath(PathPlanner.loadPath("Blue1(1)",
+          AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+          thetaController, m_drivetrainSubsystem));
+      // new WaitCommand(5)
+      // new FollowPath(PathPlanner.loadPath("Blue1(2)",
+      //     AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+      //     thetaController, m_drivetrainSubsystem)
+      //add shoot from fender command
+
+    autoRed1 = new SequentialCommandGroup(
+      new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+      //new SortStorageCommand(m_storage),
+      new FollowPath(PathPlanner.loadPath("Red1(1)",
+          AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+          thetaController, m_drivetrainSubsystem));
+      // new WaitCommand(5)
+      // new FollowPath(PathPlanner.loadPath("Red1(2)",
+      //     AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+      //     thetaController, m_drivetrainSubsystem)
+      //add shoot from fender command
+
+    ShuffleboardTab tab = Shuffleboard.getTab("Auto");
+    m_chooser.addOption("Leave Tarmac", autoLeaveTarmac);
+    m_chooser.addOption("Blue 1", autoBlue1);
+    m_chooser.addOption("Red 1", autoRed1);
+    tab.add("Auto Mode", m_chooser);
   }
 
   private static double deadband(double value, double deadband) {
