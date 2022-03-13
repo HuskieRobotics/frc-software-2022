@@ -312,7 +312,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
          * Create either a whenPressed or toggleWhenPressed method in robotContainer
          * Use below method to test
          */
-        public void setCenterGrav(int x, int y) {
+        public void setCenterGrav(double x, double y) {
                 Translation2d centerGravity = new Translation2d(x, y);
                 SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds, centerGravity);
                 m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
@@ -323,6 +323,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 states[2].angle.getRadians());
                 m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[3].angle.getRadians());
+        }
+
+        public void resetCenterGrav() {
+                setCenterGrav(0.0, 0.0);
         }
 
 }

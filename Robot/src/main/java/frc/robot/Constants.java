@@ -56,6 +56,9 @@ public final class Constants {
      */
     public static final double WHEELBASE_METERS = 0.5969;// 23.5 inches
 
+    public static final double ROBOT_WIDTH_WITH_BUMPERS = 0.89;
+    public static final double ROBOT_LENGTH_WITH_BUMPERS = 0.91;
+
     public static final int PIGEON_ID = 18;
   }
 

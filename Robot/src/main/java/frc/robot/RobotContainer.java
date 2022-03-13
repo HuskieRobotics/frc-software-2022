@@ -182,7 +182,11 @@ public class RobotContainer {
             m_drivetrainSubsystem::getFieldRelative));
 
     joystickButtons1[4]
-        .whenHeld(new InstantCommand(() -> m_drivetrainSubsystem.setCenterGrav(0, 0), m_drivetrainSubsystem));
+        .whenHeld(new InstantCommand(() -> m_drivetrainSubsystem.setCenterGrav(
+            DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2, DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2),
+            m_drivetrainSubsystem));
+    joystickButtons1[4]
+        .whenReleased(new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav(), m_drivetrainSubsystem));
 
     // Reset Gyro
     xboxButtons[BUTTON_Y].whenPressed(
