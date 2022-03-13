@@ -32,6 +32,7 @@ import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
+import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.ElevatorConstants.*;
@@ -79,7 +80,6 @@ public Elevator() {
 	TalonFXInvertType _rightInvert = TalonFXInvertType.Clockwise; //Same as invert = "true"
 
 	/** Config Objects for motor controllers */
-	TalonFXConfiguration _leftConfig = new TalonFXConfiguration();
 	TalonFXConfiguration _rightConfig = new TalonFXConfiguration();
 	
     /* Disable all motors */
@@ -90,9 +90,12 @@ public Elevator() {
     this.leftElevatorMotor.setNeutralMode(NeutralMode.Brake);
     this.rightElevatorMotor.setNeutralMode(NeutralMode.Brake);
 
+    this.leftElevatorMotor.follow(this.rightElevatorMotor);
+
     /* Configure output */
-    this.leftElevatorMotor.setInverted(TalonFXInvertType.Clockwise);
     this.rightElevatorMotor.setInverted(TalonFXInvertType.Clockwise);
+    this.leftElevatorMotor.setInverted(TalonFXInvertType.FollowMaster);
+    
     /*
         * Talon FX does not need sensor phase set for its integrated sensor
         * This is because it will always be correct if the selected feedback device is integrated sensor (default value)
@@ -108,16 +111,7 @@ public Elevator() {
     /** Distance Configs */
 
     /* Configure the left Talon's selected sensor as integrated sensor */
-    _leftConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Local Feedback Source
-
-    /* Configure the Remote (Left) Talon's selected sensor as a remote sensor for the right Talon */
-    _rightConfig.remoteFilter0.remoteSensorDeviceID = this.leftElevatorMotor.getDeviceID(); //Device ID of Remote Source
-    _rightConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.TalonFX_SelectedSensor; //Remote Source Type
-    
-    /* Now that the Left sensor can be used by the primary Talon,
-        * set up the Left (Aux) and Right (Primary) distance into a single
-        * Robot distance as the Primary's Selected Sensor 0. */
-    setRobotDistanceConfigs(_rightInvert, _rightConfig);
+    _rightConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Local Feedback Source
 
     /* FPID for Distance */
     _rightConfig.slot0.kF = GAINS_POSITION.kF;
@@ -128,7 +122,6 @@ public Elevator() {
     _rightConfig.slot0.closedLoopPeakOutput = GAINS_POSITION.kPeakOutput;
 
     /* Config the neutral deadband. */
-	_leftConfig.neutralDeadband = 0.001;
 	_rightConfig.neutralDeadband = 0.001;
 
     /**
@@ -151,91 +144,110 @@ public Elevator() {
 
 
     /* APPLY the config settings */
-    this.leftElevatorMotor.configAllSettings(_leftConfig);
     this.rightElevatorMotor.configAllSettings(_rightConfig);
 
+    //this.rightElevatorMotor.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
 
-    this.rightElevatorMotor.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
-
-    
-
-    /* Set status frame periods to ensure we don't have stale data */
-    this.rightElevatorMotor.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 20, kTimeoutMs);
-    this.rightElevatorMotor.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 20, kTimeoutMs);
-    this.leftElevatorMotor.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5, kTimeoutMs);
-
-     
     /* Initialize */
-    this.rightElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10);
-    this.leftElevatorMotor.getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
     this.rightElevatorMotor.getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
 
 
     
+        Shuffleboard.getTab("Elevator").addBoolean("At Setpoint", this :: atSetpoint);
         Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this :: getElevatorEncoderHeight);
         Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon :: getPitch);
-        Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this.rightElevatorMotor :: getClosedLoopTarget);
+        Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this :: getSetpoint);
         Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error", this.rightElevatorMotor :: getClosedLoopError);
         Shuffleboard.getTab("Elevator").addNumber("Velocity", this.rightElevatorMotor :: getSelectedSensorVelocity);
+        Shuffleboard.getTab("Elevator").addNumber("Left Motor Power", this.leftElevatorMotor :: getMotorOutputPercent);
+        Shuffleboard.getTab("Elevator").addNumber("Right Motor Power", this.rightElevatorMotor :: getMotorOutputPercent);
         Shuffleboard.getTab("Elevator").add("Extend Climber to Mid", new ExtendClimberToMidRungCommand(this));
         Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(this));
         Shuffleboard.getTab("Elevator").add("Retract Climber Full", new RetractClimberFullCommand(this));
         Shuffleboard.getTab("Elevator").add("Retract Climber Minimum", new RetractClimberMinimumCommand(this));
 
-        this.elevatorMotorPowerNT = Shuffleboard.getTab("Elevator")
-            .add("Elevator Motors", 0.0)
-            .withWidget(BuiltInWidgets.kNumberSlider)
-            .withProperties(Map.of("min", -1, "max", 1)) //FIX_ME figure max motor power should be 1
-            .getEntry();
+        if (TUNING) {
+            this.isElevatorControlEnabled = true;
 
-            
-        this.positionSetPointNT = Shuffleboard.getTab("Elevator")
-            .add("Position Setpoint", 0.0)
-            .withWidget(BuiltInWidgets.kNumberSlider)
-            .withProperties(Map.of("min", 0, "max", MAX_ELEVATOR_HEIGHT))
-            .getEntry();
-
-        this.FConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Flywheel F", GAINS_POSITION.kF)
+            this.elevatorMotorPowerNT = Shuffleboard.getTab("Elevator")
+                .add("Elevator Motors", 0.0)
                 .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                .withProperties(Map.of("min", -1, "max", 1)) //FIX_ME figure max motor power should be 1
                 .getEntry();
 
-        this.PConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Flywheel P", GAINS_POSITION.kP)
+                
+            this.positionSetPointNT = Shuffleboard.getTab("Elevator")
+                .add("Position Setpoint", 0.0)
                 .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                .withProperties(Map.of("min", 0, "max", MAX_ELEVATOR_HEIGHT))
                 .getEntry();
+            this.positionSetPointNT.addListener(event -> {
+                    this.setElevatorMotorPosition(event.getEntry().getValue().getDouble());
+                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-        this.IConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Flywheel I", GAINS_POSITION.kI)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-                .getEntry();
+            this.FConstantNT = Shuffleboard.getTab("Elevator")
+                    .add("Flywheel F", GAINS_POSITION.kF)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                    .getEntry();
+            this.FConstantNT.addListener(event -> {
+                    this.rightElevatorMotor.config_kF(SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-        this.DConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Flywheel D", GAINS_POSITION.kD)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-                .getEntry();
-            
-        this.sCurveConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Scurve Strength", SCURVE_STRENGTH)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 8.0)) // specify widget properties here
-                .getEntry();
+            this.PConstantNT = Shuffleboard.getTab("Elevator")
+                    .add("Flywheel P", GAINS_POSITION.kP)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                    .getEntry();
+            this.PConstantNT.addListener(event -> {
+                        this.rightElevatorMotor.config_kP(SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-        this.velocityConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Max Velocity", MAX_ELEVATOR_VELOCITY)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
-                .getEntry();
+            this.IConstantNT = Shuffleboard.getTab("Elevator")
+                    .add("Flywheel I", GAINS_POSITION.kI)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                    .getEntry();
+            this.IConstantNT.addListener(event -> {
+                        this.rightElevatorMotor.config_kI(SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-        this.accelerationConstantNT = Shuffleboard.getTab("Elevator")
-                .add("Max Acceleration", ELEVATOR_ACCELERATION)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
-                .getEntry();
+            this.DConstantNT = Shuffleboard.getTab("Elevator")
+                    .add("Flywheel D", GAINS_POSITION.kD)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                    .getEntry();
+            this.DConstantNT.addListener(event -> {
+                        this.rightElevatorMotor.config_kD(SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+                
+            this.sCurveConstantNT = Shuffleboard.getTab("Elevator")
+                    .add("Scurve Strength", SCURVE_STRENGTH)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 8.0)) // specify widget properties here
+                    .getEntry();
+            this.sCurveConstantNT.addListener(event -> {
+                        this.rightElevatorMotor.configMotionSCurveStrength((int)event.getEntry().getValue().getDouble(), kTimeoutMs);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+
+            this.velocityConstantNT = Shuffleboard.getTab("Elevator")
+                    .add("Max Velocity", MAX_ELEVATOR_VELOCITY)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
+                    .getEntry();
+            this.velocityConstantNT.addListener(event -> {
+                        this.rightElevatorMotor.configMotionCruiseVelocity(event.getEntry().getValue().getDouble(), kTimeoutMs);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+
+            this.accelerationConstantNT = Shuffleboard.getTab("Elevator")
+                    .add("Max Acceleration", ELEVATOR_ACCELERATION)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
+                    .getEntry();
+            this.accelerationConstantNT.addListener(event -> {
+                        this.rightElevatorMotor.configMotionAcceleration(event.getEntry().getValue().getDouble(), kTimeoutMs);
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+        }
 
         this.encoderPositionSetpoint = 0.0;
     }
@@ -244,25 +256,13 @@ public Elevator() {
     public void periodic() {
     // This method will be called once per scheduler run
     if (TUNING) {
-    this.isElevatorControlEnabled = true;
+        this.isElevatorControlEnabled = true;
     //      // when tuning, we first set motor power and check the resulting velocity
     //      // once we have determined our feedforward constant, comment the following lines
     //      // and uncomment the ones to tune the PID
         // double motorPower = this.elevatorMotorPowerNT.getDouble(0.0); 
         // this.setElevatorMotorPower(motorPower);
         
-
-            this.rightElevatorMotor.config_kF(SLOT_INDEX, this.FConstantNT.getDouble(0.0), kTimeoutMs);
-            this.rightElevatorMotor.config_kP(SLOT_INDEX, this.PConstantNT.getDouble(0.0), kTimeoutMs);
-            this.rightElevatorMotor.config_kI(SLOT_INDEX, this.IConstantNT.getDouble(0.0), kTimeoutMs);
-            this.rightElevatorMotor.config_kD(SLOT_INDEX, this.DConstantNT.getDouble(0.0), kTimeoutMs);
-            this.rightElevatorMotor.configMotionSCurveStrength((int) this.sCurveConstantNT.getDouble(0.0), kTimeoutMs);
-            this.rightElevatorMotor.configMotionCruiseVelocity(this.velocityConstantNT.getDouble(0.0), kTimeoutMs);
-            this.rightElevatorMotor.configMotionAcceleration(this.accelerationConstantNT.getDouble(0.0), kTimeoutMs);
-            double desiredEncoderPosition = this.positionSetPointNT.getDouble(0.0);
-            this.setElevatorMotorPosition(desiredEncoderPosition);
-
-
         }
     }
 
@@ -298,31 +298,31 @@ public Elevator() {
 
     public void setElevatorMotorPosition(double desiredEncoderPosition) {
         if(isElevatorControlEnabled()){
-        this.rightElevatorMotor.set(ControlMode.MotionMagic, desiredEncoderPosition);
-
-        // the feedforward term will be different depending if the elevator is going up or down
-        //		and if it under load or not; use the desiredEncoderPosition to determine the
-        //		corresponding feed forward term
-        if(desiredEncoderPosition > this.encoderPositionSetpoint) { // extending unloaded
-            if(this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 5000 ) {
-                this.disableElevator();
+            
+            // the feedforward term will be different depending if the elevator is going up or down
+            //		and if it under load or not; use the desiredEncoderPosition to determine the
+            //		corresponding feed forward term
+            if(desiredEncoderPosition > this.getElevatorEncoderHeight()) { // extending unloaded
+                if(this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 5000 ) {
+                    this.disableElevator();
+                }
+                else {
+                    this.leftElevatorMotor.follow(this.rightElevatorMotor);
+                    rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_EXTEND);
+                }
             }
-            else {
-                rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_EXTEND);
+            else { // retracting loaded
+                if(this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 5000) {
+                    this.disableElevator();
+                }
+                else {
+                    this.leftElevatorMotor.follow(this.rightElevatorMotor);
+                    rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_RETRACT);
+                }
             }
+        
+            this.encoderPositionSetpoint = desiredEncoderPosition;
         }
-        else { // retracting loaded
-            if(this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 5000) {
-                this.disableElevator();
-            }
-            else {
-                rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition, DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_RETRACT);
-            }
-        }
-        this.leftElevatorMotor.follow(this.rightElevatorMotor);
-
-        this.encoderPositionSetpoint = desiredEncoderPosition;
-    }
     }
 
     public boolean atSetpoint(){
@@ -344,75 +344,7 @@ public Elevator() {
             this.disableElevator();
         }
     }
-    /** 
-	 * Determines if SensorSum or SensorDiff should be used 
-	 * for combining left/right sensors into Robot Distance.  
-	 * 
-	 * Assumes Aux Position is set as Remote Sensor 0.  
-	 * 
-	 * configAllSettings must still be called on the primary config
-	 * after this function modifies the config values. 
-	 * 
-	 * @param primaryInvertType Invert of the primary Talon
-	 * @param primaryConfig Configuration object to fill
-	 */
-	 void setRobotDistanceConfigs(TalonFXInvertType primaryInvertType, TalonFXConfiguration primaryConfig){
-		/**
-		 * Determine if we need a Sum or Difference.
-		 * 
-		 * The auxiliary Talon FX will always be positive
-		 * in the forward direction because it's a selected sensor
-		 * over the CAN bus.
-		 * 
-		 * The primary's native integrated sensor may not always be positive when forward because
-		 * sensor phase is only applied to *Selected Sensors*, not native
-		 * sensor sources.  And we need the native to be combined with the 
-		 * aux (other side's) distance into a single robot distance.
-		 */
 
-		/* THIS FUNCTION should not need to be modified. 
-		   This setup will work regardless of whether the primary
-		   is on the Right or Left side since it only deals with
-		   distance magnitude.  */
-
-		/* Check if we're inverted */
-		if (primaryInvertType == TalonFXInvertType.Clockwise){
-			/* 
-				If primary is inverted, that means the integrated sensor
-				will be negative in the forward direction.
-
-				If primary is inverted, the final sum/diff result will also be inverted.
-				This is how Talon FX corrects the sensor phase when inverting 
-				the motor direction.  This inversion applies to the *Selected Sensor*,
-				not the native value.
-
-				Will a sensor sum or difference give us a positive total magnitude?
-
-				Remember the primary is one side of your drivetrain distance and 
-				Auxiliary is the other side's distance.
-
-					Phase | Term 0   |   Term 1  | Result
-				Sum:  -((-)Primary + (+)Aux   )| NOT OK, will cancel each other out
-				Diff: -((-)Primary - (+)Aux   )| OK - This is what we want, magnitude will be correct and positive.
-				Diff: -((+)Aux    - (-)Primary)| NOT OK, magnitude will be correct but negative
-			*/
-
-			primaryConfig.diff0Term = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Local Integrated Sensor
-			primaryConfig.diff1Term = TalonFXFeedbackDevice.RemoteSensor0.toFeedbackDevice();   //Aux Selected Sensor
-			primaryConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.SensorDifference.toFeedbackDevice(); //Diff0 - Diff1
-		} else {
-			/* primary is not inverted, both sides are positive so we can sum them. */
-			primaryConfig.sum0Term = TalonFXFeedbackDevice.RemoteSensor0.toFeedbackDevice();    //Aux Selected Sensor
-			primaryConfig.sum1Term = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Local IntegratedSensor
-			primaryConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.SensorSum.toFeedbackDevice(); //Sum0 + Sum1
-		}
-
-		/* Since the Distance is the sum of the two sides, divide by 2 so the total isn't double
-		   the real-world value */
-		primaryConfig.primaryPID.selectedFeedbackCoefficient = 0.5;
-
-        
-	 }
      public void enableElevatorControl(){
         this.isElevatorControlEnabled = true;
     }
@@ -423,5 +355,9 @@ public Elevator() {
 
     public boolean isElevatorControlEnabled(){
         return this.isElevatorControlEnabled;
+    }
+
+    public double getSetpoint() {
+        return encoderPositionSetpoint;
     }
 }
