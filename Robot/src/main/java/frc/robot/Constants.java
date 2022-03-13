@@ -60,6 +60,10 @@ public final class Constants {
     public static final double ROBOT_LENGTH_WITH_BUMPERS = 0.91;
 
     public static final int PIGEON_ID = 18;
+
+    /* Limelight */
+    public static final double LIMELIGHT_P = 0.2; // FIXME: adjust when tuning
+    public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = 2; // degrees; FIXME: adjust when testing
   }
 
   public static final class CollectorConstants {

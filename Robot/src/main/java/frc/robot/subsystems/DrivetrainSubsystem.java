@@ -20,6 +20,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -180,6 +181,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts,
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
+                tab.addBoolean("Is Aimed", () -> isAimed());
                 tab.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
                 tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
                 tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
@@ -322,5 +324,28 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public void resetCenterGrav() {
                 setCenterGrav(0.0, 0.0);
         }
+
+        public double getLimelightX(){
+                return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+           }
+
+        public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
+                if (rotationSupplier > 0) {     // clockwise
+                        setCenterGrav(-DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2,
+                                DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2);
+                }
+                else {  // counterclockwise
+                        setCenterGrav(DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2,
+                                DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2);
+                }
+
+                drive(translationXSupplier, translationYSupplier, rotationSupplier);
+
+        }
+
+        public boolean isAimed() {
+                return Math.abs(0.0 - getLimelightX()) - LIMELIGHT_ALIGNMENT_TOLERANCE <= 0;
+        }
+           
 
 }
