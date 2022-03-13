@@ -296,13 +296,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         public void setXStance() {
                 // FL
-                m_frontLeftModule.set(0, (Math.PI - Math.atan(22.5 / 23.5)));
+                m_frontLeftModule.set(0, (Math.PI/2 - Math.atan(22.5 / 23.5)));
                 // FR
-                m_frontRightModule.set(0, (Math.PI + Math.atan(22.5 / 23.5)));
+                m_frontRightModule.set(0, (Math.PI/2 + Math.atan(22.5 / 23.5)));
                 // BL
-                m_backLeftModule.set(0, (Math.atan(22.5 / 23.5)));
+                m_backLeftModule.set(0, (Math.PI/2 + Math.atan(22.5 / 23.5)));
                 // BR
-                m_backRightModule.set(0, (2 * Math.PI - Math.atan(22.5 / 23.5)));
+                m_backRightModule.set(0, (3.0/2.0 * Math.PI - Math.atan(22.5 / 23.5)));
         }
 
         /*
