@@ -21,12 +21,14 @@ public class Storage extends SubsystemBase {
     private WPI_TalonSRX storage4;
     private DigitalInput collectorSensor0;
     private DigitalInput shooterSensor1;
+    private boolean isStorageEnabled;
 
     
     /**
     *
     */
     public Storage() {
+        this.isStorageEnabled = false;
         storage4 = new WPI_TalonSRX(StorageConstants.STORAGE_MOTOR_ID);
 
         collectorSensor0 = new DigitalInput(StorageConstants.COLLECTOR_SENSOR);
@@ -74,10 +76,17 @@ public class Storage extends SubsystemBase {
     }
 
     public void enableStorage() {
+        this.isStorageEnabled = true;
         this.storage4.set(ControlMode.PercentOutput, StorageConstants.STORAGE_DEFAULT_SPEED);
+        
+
+    }
+    public boolean isStorageEnabled() { 
+        return isStorageEnabled;
     }
 
     public void disableStorage() {
+        this.isStorageEnabled = false;
         this.storage4.set(ControlMode.PercentOutput, 0);
     }
 

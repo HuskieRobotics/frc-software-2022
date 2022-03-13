@@ -4,6 +4,10 @@ import static frc.robot.Constants.JoystickConstants.BUTTON_B;
 import static frc.robot.Constants.JoystickConstants.BUTTON_X;
 import static frc.robot.Constants.JoystickConstants.BUTTON_Y;
 
+import java.rmi.server.Operation;
+
+import javax.naming.PartialResultException;
+
 import com.pathplanner.lib.PathPlanner;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -19,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import static frc.robot.Constants.*;
@@ -192,16 +197,20 @@ public class RobotContainer {
   }
 
   private void configureIntakeButtons() {
-    // Change Colletor state
-
-    operatorButtons[11].toggleWhenPressed( // FIXME: update software feature sheet if this is correct
+    //toggle collector
+    xboxButtons[JoystickConstants.LEFT_JOYSTICK_BUTTON].toggleWhenPressed( 
         new ConditionalCommand(
             new InstantCommand(() -> m_collector.disableCollector(), m_collector),
             new InstantCommand(() -> m_collector.enableCollector(), m_collector),
             m_collector::isEnabled));
-
+    //toggle storage
+    xboxButtons[JoystickConstants.RIGHT_JOYSTICK_BUTTON].toggleWhenPressed( 
+        new ConditionalCommand(
+            new InstantCommand(() -> m_storage.disableStorage(), m_storage),
+            new InstantCommand(() -> m_storage.enableStorage(), m_storage),
+            m_storage :: isStorageEnabled));
     // intake
-    joystickButtons1[1].toggleWhenPressed(
+    joystickButtons1[1].toggleWhenPressed( 
         new ConditionalCommand(
             new ParallelCommandGroup(
                 new InstantCommand(() -> m_collector.disableCollector(), m_collector),
@@ -216,11 +225,16 @@ public class RobotContainer {
     xboxButtons[BUTTON_X].whenHeld(
         new ParallelCommandGroup(
             new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.OUTTAKE_POWER), m_collector),
-            new InstantCommand(() -> m_storage.setStoragePower(StorageConstants.OUTTAKE_POWER), m_storage)));
+            new InstantCommand(() -> m_storage.setStoragePower(StorageConstants.OUTTAKE_POWER), m_storage),
+            new InstantCommand(() -> m_flywheel.unjamFlywheel(), m_flywheel)
+            ));
     xboxButtons[BUTTON_X].whenReleased(
         new ParallelCommandGroup(
             new InstantCommand(() -> m_collector.setCollectorPower(0), m_collector),
-            new InstantCommand(() -> m_storage.setStoragePower(0), m_storage)));
+            new InstantCommand(() -> m_storage.setStoragePower(0), m_storage),
+            new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel)
+            ));
+
 
     // unjam collector
     xboxButtons[BUTTON_B].whenHeld(
@@ -267,8 +281,7 @@ public class RobotContainer {
     operatorButtons[2].whenPressed(
         new ExtendClimberToMidRungCommand(m_elevator));
 
-    // FIXME change the following few commands to xbox buttons after merged to
-    // toggle secondary arm override
+    // FIXME toggle secondary arm override
     // operatorButtons[0].toggleWhenPressed(
     // new ConditionalCommand(
     // new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(),
@@ -277,35 +290,51 @@ public class RobotContainer {
     // m_secondMechanism),
     // m_secondMechanism::isIn));
 
-    // elevator up override
-    // FIXME: how to map to d-pad?
-    // operatorButtons[0]
-    // .whileHeld(new InstantCommand(() ->
-    // m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER),
-    // m_elevator));
+    //FIXME reset climber
 
-    // elevator down override
-    // FIXME: how to map to d-pad?
-    // operatorButtons[0]
-    // .whileHeld(new InstantCommand(() ->
-    // m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER *
-    // -1), m_elevator));
 
-    // resetElevator
-    // FIXME: how to map to d-pad?
-    // operatorButtons[0].whenPressed(new RetractClimberFullCommand(m_elevator));
 
-    // climber emergency pause
 
-    // FIXME this should be changed to start buttons and pass in the back button
-    // operatorButtons[0].whenPressed(new InstantCommand(() ->
-    // m_elevator.elevatorPause(operatorButtons[0].get(), m_elevator)));
+    //extend climber
+    xboxButtons[JoystickConstants.BUTTON_RB].whenPressed(
+      new InstantCommand(() -> m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER)));
 
+
+    xboxButtons[JoystickConstants.BUTTON_RB].whenReleased(
+      new InstantCommand(() -> m_elevator.setElevatorMotorPower(0)));
+
+    //retract climber
+    xboxButtons[JoystickConstants.BUTTON_LB].whenPressed(
+      new InstantCommand(() -> m_elevator.setElevatorMotorPower(-1 * ElevatorConstants.DEFAULT_MOTOR_POWER)));
+
+    xboxButtons[JoystickConstants.BUTTON_LB].whenPressed(
+      new InstantCommand(() -> m_elevator.setElevatorMotorPower(0)));
+
+
+    xboxButtons[JoystickConstants.BUTTON_START].whenPressed(new InstantCommand(() ->
+    m_elevator.elevatorPause(xboxButtons[JoystickConstants.BUTTON_BACK].get()), m_elevator));
+
+
+    //FIXME toggle camera
     operatorButtons[12].toggleWhenPressed(
         new ConditionalCommand(
             new InstantCommand(() -> m_elevator.disableElevatorControl(), m_elevator),
             new InstantCommand(() -> m_elevator.enableElevatorControl(), m_elevator),
             m_elevator::isElevatorControlEnabled));
+
+    //FIXME preset fender
+    // operatorButtons[JoystickConstants.FENDER].whileHeld(
+    //   ParallelCommandGroup(
+    //     new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.FENDER_SHOT_VELOCITY)),
+    //     SequentialCommandGroup(
+    //       ParallelCommandGroup(
+    //         new InstantCommand(() -> m_hood.setHoodSetpoint(HoodConstants.FENDER_ANGLE_POSITION))
+    //         new InstantCommand(() -> m_drivetrainSubsystem.setXStance())
+    //           //FIXME turn base
+    //           //FIXMEtoggle xstance
+            
+    //       ),
+    //     new InstantCommand(() -> m_storage.setStoragePower(StorageConstants.STORAGE_DEFAULT_SPEED)))));
 
   }
 
