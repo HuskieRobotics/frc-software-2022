@@ -63,7 +63,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
                         Math.hypot(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0);
 
-        private final Translation2d centerGravity = new Translation2d();        // default to (0,0)
+        private Translation2d centerGravity = new Translation2d();        // default to (0,0)
         private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
                         // Front left
                         new Translation2d(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0),
