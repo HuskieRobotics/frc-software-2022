@@ -1,13 +1,13 @@
-package frc.commands;
+package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.Elevator;
 
-public class ReachToNextRungCommand extends CommandBase {
+public class RetractClimberFullCommand extends CommandBase {
     private final Elevator m_elevator;
 
 
-    public ReachToNextRungCommand(Elevator subsystem){ 
+    public RetractClimberFullCommand(Elevator subsystem){ 
         m_elevator = subsystem;
         addRequirements(m_elevator);
     }
@@ -18,11 +18,12 @@ public class ReachToNextRungCommand extends CommandBase {
 
     @Override
     public void execute() {
-        m_elevator.setElevatorMotorPosition(ElevatorConstants.REACH_TO_NEXT_RUNG_HEIGHT);
+        m_elevator.setElevatorMotorPosition(ElevatorConstants.MIN_ELEVATOR_ENCODER_HEIGHT);
     }
 
     @Override
     public void end(boolean interrupted) {
+        m_elevator.disableElevator();
 
     }
 
@@ -31,7 +32,7 @@ public class ReachToNextRungCommand extends CommandBase {
         if(!m_elevator.isElevatorControlEnabled()){
             return true;
         }
-        return m_elevator.atSetpoint() && m_elevator.atPitch();
+        return m_elevator.atSetpoint();
     }
 
     @Override
