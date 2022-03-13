@@ -334,9 +334,6 @@ public class RobotContainer {
         // new SortStorageCommand(m_storage),
         new FollowPath(PathPlanner.loadPath("Blue1(1)",
             AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-            thetaController, m_drivetrainSubsystem),
-        new FollowPath(PathPlanner.loadPath("Blue1(2)",
-            AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared),
             thetaController, m_drivetrainSubsystem));
     // add shoot from fender command
 
