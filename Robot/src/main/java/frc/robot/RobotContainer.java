@@ -12,11 +12,6 @@
 
 package frc.robot;
 
-import frc.commands.ExtendClimberToMidRungCommand;
-import frc.commands.ReachToNextRungCommand;
-import frc.commands.RetractClimberFullCommand;
-import frc.commands.RetractClimberMinimumCommand;
-import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.SecondaryArm;
 import edu.wpi.first.wpilibj.Joystick;
@@ -34,16 +29,6 @@ import frc.robot.commands.*;
 import frc.robot.Constants.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.XboxController;
-
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj.GenericHID;
 
 import com.pathplanner.lib.PathPlanner;
@@ -137,12 +122,7 @@ public class RobotContainer {
 
       
     
-    this.buttonConsole = new Joystick(3);
-    this.consoleButtons = new JoystickButton[13];
-    for(int i = 0; i < consoleButtons.length; i++) {
-      consoleButtons[i] = new JoystickButton(buttonConsole, i);
-    }
-
+    
     // Smartdashboard Subsystems
 
 
@@ -300,7 +280,18 @@ public class RobotContainer {
         // //resetElevator 
         // consoleButtons[0].whenPressed(new RetractClimberFullCommand(m_elevator));
   
+// //climber emergency pause
 
+        // //FIXME this should be changed to start buttons and pass in the back button
+        // consoleButtons[0].whenPressed(new InstantCommand(() -> m_elevator.elevatorPause(consoleButtons[0].get())));
+
+        // consoleButtons[0].toggleWhenPressed(
+        //   new ConditionalCommand(
+        //     new InstantCommand(() -> m_elevator.disableElevatorControl()),
+        //     new InstantCommand(() -> m_elevator.enableElevatorControl()),
+        //     m_elevator :: isElevatorControlEnabled));
+
+  
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -322,17 +313,28 @@ public class RobotContainer {
         AutoConstants.kMaxAccelerationMetersPerSecondSquared), thetaController, m_drivetrainSubsystem);
   }
 
-        // //climber emergency pause
+        
 
-        // //FIXME this should be changed to start buttons and pass in the back button
-        // consoleButtons[0].whenPressed(new InstantCommand(() -> m_elevator.elevatorPause(consoleButtons[0].get())));
+  private static double deadband(double value, double deadband) {
+    if (Math.abs(value) > deadband) {
+      if (value > 0.0) {
+        return (value - deadband) / (1.0 - deadband);
+      } else {
+        return (value + deadband) / (1.0 - deadband);
+      }
+    } else {
+      return 0.0;
+    }
+  }
 
-        // consoleButtons[0].toggleWhenPressed(
-        //   new ConditionalCommand(
-        //     new InstantCommand(() -> m_elevator.disableElevatorControl()),
-        //     new InstantCommand(() -> m_elevator.enableElevatorControl()),
-        //     m_elevator :: isElevatorControlEnabled));
+  private static double modifyAxis(double value) {
+    // Deadband
+    value = deadband(value, 0.1);
 
+    // Square the axis
+    value = Math.copySign(value * value, value);
+
+    return value;
   }
 
   

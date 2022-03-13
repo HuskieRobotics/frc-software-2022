@@ -28,9 +28,6 @@ import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
-import com.ctre.phoenix.motorcontrol.StatusFrame;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
 import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -74,10 +71,6 @@ public Elevator() {
     /* Factory Default all hardware to prevent unexpected behaviour */
     this.rightElevatorMotor.configFactoryDefault();
     this.leftElevatorMotor.configFactoryDefault();
-
-	/** Invert Directions for Left and Right */
-	//TalonFXInvertType _leftInvert = TalonFXInvertType.Clockwise; //Same as invert = "false"
-	TalonFXInvertType _rightInvert = TalonFXInvertType.Clockwise; //Same as invert = "true"
 
 	/** Config Objects for motor controllers */
 	TalonFXConfiguration _rightConfig = new TalonFXConfiguration();
@@ -191,7 +184,7 @@ public Elevator() {
                     .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                     .getEntry();
             this.FConstantNT.addListener(event -> {
-                    this.rightElevatorMotor.config_kF(SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                    this.rightElevatorMotor.config_kF(kSlotIdx, event.getEntry().getValue().getDouble(), kTimeoutMs);
                 }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
             this.PConstantNT = Shuffleboard.getTab("Elevator")
@@ -200,7 +193,7 @@ public Elevator() {
                     .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                     .getEntry();
             this.PConstantNT.addListener(event -> {
-                        this.rightElevatorMotor.config_kP(SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                        this.rightElevatorMotor.config_kP(kSlotIdx, event.getEntry().getValue().getDouble(), kTimeoutMs);
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
             this.IConstantNT = Shuffleboard.getTab("Elevator")
@@ -209,7 +202,7 @@ public Elevator() {
                     .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                     .getEntry();
             this.IConstantNT.addListener(event -> {
-                        this.rightElevatorMotor.config_kI(SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                        this.rightElevatorMotor.config_kI(kSlotIdx, event.getEntry().getValue().getDouble(), kTimeoutMs);
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
             this.DConstantNT = Shuffleboard.getTab("Elevator")
@@ -218,7 +211,7 @@ public Elevator() {
                     .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
                     .getEntry();
             this.DConstantNT.addListener(event -> {
-                        this.rightElevatorMotor.config_kD(SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                        this.rightElevatorMotor.config_kD(kSlotIdx, event.getEntry().getValue().getDouble(), kTimeoutMs);
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
                 
             this.sCurveConstantNT = Shuffleboard.getTab("Elevator")
