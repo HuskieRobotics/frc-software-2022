@@ -13,8 +13,10 @@ import static frc.robot.Constants.*;
  *
  */
 public class FollowPath extends PPSwerveControllerCommand {
-    public FollowPath(PathPlannerTrajectory trajectory, ProfiledPIDController thetaController, DrivetrainSubsystem subsystem) {
-        super(trajectory, subsystem::getPose, subsystem.getKinematics(), new PIDController(AutoConstants.kPXController, 0, 0),
+    public FollowPath(PathPlannerTrajectory trajectory, ProfiledPIDController thetaController,
+            DrivetrainSubsystem subsystem) {
+        super(trajectory, subsystem::getPose, subsystem.getKinematics(),
+                new PIDController(AutoConstants.kPXController, 0, 0),
                 new PIDController(AutoConstants.kPYController, 0, 0), thetaController,
                 subsystem::setSwerveModuleStates, subsystem);
         addRequirements(subsystem);

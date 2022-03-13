@@ -8,7 +8,6 @@
 // update. Deleting the comments indicating the section will prevent
 // it from being updated in the future.
 
-
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
@@ -25,7 +24,8 @@ public final class Main {
   /**
    * Main initialization function. Do not perform any initialization here.
    *
-   * <p>If you change your main robot class, change the parameter type.
+   * <p>
+   * If you change your main robot class, change the parameter type.
    */
   public static void main(String... args) {
     RobotBase.startRobot(Robot::new);
