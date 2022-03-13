@@ -63,6 +63,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
                         Math.hypot(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0);
 
+        private final Translation2d centerGravity = new Translation2d();        // default to (0,0)
         private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
                         // Front left
                         new Translation2d(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0),
@@ -233,7 +234,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                         translationYSupplier,
                                         rotationSupplier);
                 }
-                SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
+                SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds, centerGravity);
                 m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[0].angle.getRadians());
                 m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
@@ -315,16 +316,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
          * Use below method to test
          */
         public void setCenterGrav(double x, double y) {
-                Translation2d centerGravity = new Translation2d(x, y);
-                SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds, centerGravity);
-                m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[0].angle.getRadians());
-                m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[1].angle.getRadians());
-                m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[2].angle.getRadians());
-                m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[3].angle.getRadians());
+                this.centerGravity = new Translation2d(x, y);
         }
 
         public void resetCenterGrav() {
