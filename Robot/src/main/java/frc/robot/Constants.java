@@ -15,33 +15,33 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 public final class Constants {
 
-  public static final boolean TUNING = true;
+  public static final boolean TUNING = false;
   public static final boolean COMMAND_LOGGING = true;
 
   /* DRIVETRAIN CONSTANTS */
 
   public static final class DrivetrainConstants {
 
-    public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 16;
-    public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 15;
-    public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 17;
-    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(149.589843);
-    // 329.58984375
-    public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 10;
-    public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 9;
-    public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 11;
-    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(172.96875);
-    // 352.96875
-    public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 13;
-    public static final int BACK_LEFT_MODULE_STEER_MOTOR = 12;
-    public static final int BACK_LEFT_MODULE_STEER_ENCODER = 14;
-    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(103.27148);
-    // 283.271484375
-    public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 7;
-    public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 6;
-    public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 8;
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(117.333984);
-    // 297.333984375
+    public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 7;//16;
+    public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 6; //15;
+    public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 8;//17;
+    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(118.0371);
+    // 149.589843
+    public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 13;//10;
+    public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 12;//9;
+    public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 14;//11;
+    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(103.2715);
+    // 172.96875
+    public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 10;//13;
+    public static final int BACK_LEFT_MODULE_STEER_MOTOR = 9;//12;
+    public static final int BACK_LEFT_MODULE_STEER_ENCODER =11;// 14;
+    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(172.7051);
+    // 103.27148
+    public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 16;//7;
+    public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 15;//6;
+    public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 17;//8;
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(149.5020);
+    // 117.333984
 
     /**
      * The left-to-right distance between the drivetrain wheels
@@ -56,14 +56,21 @@ public final class Constants {
      */
     public static final double WHEELBASE_METERS = 0.5969;// 23.5 inches
 
+    public static final double ROBOT_WIDTH_WITH_BUMPERS = 0.89;
+    public static final double ROBOT_LENGTH_WITH_BUMPERS = 0.91;
+
     public static final int PIGEON_ID = 18;
+
+    /* Limelight */
+    public static final double LIMELIGHT_P = 0.2; // FIXME: adjust when tuning
+    public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = 2; // degrees; FIXME: adjust when testing
   }
 
   public static final class CollectorConstants {
     public static final double OUTTAKE_POWER = -0.7;// FIX_ME
     public static final int COLLECTOR_MOTOR_ID = 5;
     public static final int PEUNAMATICS_HUB_CAN_ID = 20;
-    public static final int COLLECTOR_SOLENOID_CHANNEL = 1;
+    public static final int COLLECTOR_SOLENOID_CHANNEL = 0;
     public static final double COLLECTOR_DEFUALT_SPEED = 0.7; // FIX_ME change this to desired speed
 
   }
@@ -75,10 +82,10 @@ public final class Constants {
     public static final double kvVoltSecondsPerMeter = 2.3014;
     public static final double kaVoltSecondsSquaredPerMeter = 0.12872;
 
-    public static final double kMaxSpeedMetersPerSecond = 3;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
-    public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
-    public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
+    public static final double kMaxSpeedMetersPerSecond = 1;//3;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 1;//3;
+    public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI/3;
+    public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI/3;
 
     public static final double kPXController = 2.2956; // from sysId tool
     public static final double kPYController = 2.2956; // from sysId tool
@@ -93,7 +100,7 @@ public final class Constants {
     public static final int SLOT_INDEX = 0;
     public static final int PID_LOOP_INDEX = 0;
     public static final int TIMEOUT_MS = 30;
-    public static final int VELOCITY_TOLERANCE = 500; // FIXME tune this should be how off our velocity can be
+    public static final int VELOCITY_TOLERANCE = 500; 
     public static final int LEFT_FLYWHEELMOTOR_CANID = 1;
     public static final int RIGHT_FLYWHEELMOTOR_CANID = 2;
     public final static Gains GAINS_VELOCITY = new Gains(0.5 /* kP */, 0 /* kI */, 0 /* kD */, .0438 /* kF */,
@@ -179,7 +186,7 @@ public final class Constants {
 
   public class SecondMechanismConstants {
     public static final int PNEUMATIC_HUB_CAN_ID = 20;
-    public static final int PNEUMATIC_CHANNEL = 0;
+    public static final int PNEUMATIC_CHANNEL = 1;
   }
 
   public static final class JoystickConstants { // FIXME: make consistent with software feature sheet and use in RobotContainer

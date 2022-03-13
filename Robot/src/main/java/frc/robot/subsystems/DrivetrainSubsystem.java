@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 //import com.ctre.phoenix.sensors.PigeonIMU;
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
@@ -19,6 +20,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -62,6 +64,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
                         Math.hypot(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0);
 
+        private Translation2d centerGravity = new Translation2d();        // default to (0,0)
         private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
                         // Front left
                         new Translation2d(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0),
@@ -178,6 +181,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts,
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
+                tab.addBoolean("Is Aimed", () -> isAimed());
                 tab.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
                 tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
                 tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
@@ -212,8 +216,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 return m_odometry.getPoseMeters();
         }
 
-        public void resetOdometry(Pose2d pose) {
-                m_odometry.resetPosition(pose, Rotation2d.fromDegrees(m_pigeon.getYaw()));
+        public void resetOdometry(PathPlannerState state) {
+                m_odometry.resetPosition(new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation),
+                 Rotation2d.fromDegrees(m_pigeon.getYaw()));
         }
 
         // Implement change in center of gravity here
@@ -231,7 +236,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                         translationYSupplier,
                                         rotationSupplier);
                 }
-                SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
+                SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds, centerGravity);
                 m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[0].angle.getRadians());
                 m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
@@ -296,13 +301,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         public void setXStance() {
                 // FL
-                m_frontLeftModule.set(0, (Math.PI - Math.atan(22.5 / 23.5)));
+                m_frontLeftModule.set(0, (Math.PI/2 - Math.atan(22.5 / 23.5)));
                 // FR
-                m_frontRightModule.set(0, (Math.PI + Math.atan(22.5 / 23.5)));
+                m_frontRightModule.set(0, (Math.PI/2 + Math.atan(22.5 / 23.5)));
                 // BL
-                m_backLeftModule.set(0, (Math.atan(22.5 / 23.5)));
+                m_backLeftModule.set(0, (Math.PI/2 + Math.atan(22.5 / 23.5)));
                 // BR
-                m_backRightModule.set(0, (2 * Math.PI - Math.atan(22.5 / 23.5)));
+                m_backRightModule.set(0, (3.0/2.0 * Math.PI - Math.atan(22.5 / 23.5)));
         }
 
         /*
@@ -312,17 +317,35 @@ public class DrivetrainSubsystem extends SubsystemBase {
          * Create either a whenPressed or toggleWhenPressed method in robotContainer
          * Use below method to test
          */
-        public void setCenterGrav(int x, int y) {
-                Translation2d centerGravity = new Translation2d(x, y);
-                SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds, centerGravity);
-                m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[0].angle.getRadians());
-                m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[1].angle.getRadians());
-                m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[2].angle.getRadians());
-                m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
-                                states[3].angle.getRadians());
+        public void setCenterGrav(double x, double y) {
+                this.centerGravity = new Translation2d(x, y);
         }
+
+        public void resetCenterGrav() {
+                setCenterGrav(0.0, 0.0);
+        }
+
+        public double getLimelightX(){
+                return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+           }
+
+        public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
+                if (rotationSupplier > 0) {     // clockwise
+                        setCenterGrav(-DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2,
+                                DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2);
+                }
+                else {  // counterclockwise
+                        setCenterGrav(DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2,
+                                DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2);
+                }
+
+                drive(translationXSupplier, translationYSupplier, rotationSupplier);
+
+        }
+
+        public boolean isAimed() {
+                return Math.abs(0.0 - getLimelightX()) - LIMELIGHT_ALIGNMENT_TOLERANCE <= 0;
+        }
+           
 
 }

@@ -95,7 +95,7 @@ public class RobotContainer {
     this.joystickButtons0 = new JoystickButton[13];
     this.joystickButtons1 = new JoystickButton[13];
     this.operatorButtons = new JoystickButton[13];
-    this.xboxButtons = new JoystickButton[10];
+    this.xboxButtons = new JoystickButton[11];
     for (int i = 1; i < joystickButtons0.length; i++) {
       joystickButtons0[i] = new JoystickButton(joystick0, i);
       joystickButtons1[i] = new JoystickButton(joystick1, i);
@@ -103,7 +103,7 @@ public class RobotContainer {
     }
 
     for (int i = 1; i < xboxButtons.length; i++) {
-      xboxButtons[i - 1] = new JoystickButton(xboxController, i);
+      xboxButtons[i] = new JoystickButton(xboxController, i);
     }
 
     m_drivetrainSubsystem.register();
@@ -125,9 +125,7 @@ public class RobotContainer {
         m_drivetrainSubsystem,
         () -> -modifyAxis(joystick0.getY()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
         () -> -modifyAxis(joystick0.getX()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-        // FIXME: remove the -1 after calibrating swerve with the new robot "front" and
-        // chaning CAN IDs to match new orientation
-        () -> -modifyAxis(joystick1.getX()) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * -1));
+        () -> -modifyAxis(joystick1.getX()) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
 
     // Smartdashboard Subsystems
 
@@ -189,7 +187,11 @@ public class RobotContainer {
             m_drivetrainSubsystem::getFieldRelative));
 
     joystickButtons1[4]
-        .whenHeld(new InstantCommand(() -> m_drivetrainSubsystem.setCenterGrav(0, 0), m_drivetrainSubsystem));
+        .whenPressed(new InstantCommand(() -> m_drivetrainSubsystem.setCenterGrav(
+            DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2, DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2),
+            m_drivetrainSubsystem));
+    joystickButtons1[4]
+        .whenReleased(new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav(), m_drivetrainSubsystem));
 
     // Reset Gyro
     xboxButtons[BUTTON_Y].whenPressed(
@@ -362,10 +364,6 @@ public class RobotContainer {
         new FollowPath(PathPlanner.loadPath("Blue1(1)",
             AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
             thetaController, m_drivetrainSubsystem));
-    // new WaitCommand(5)
-    // new FollowPath(PathPlanner.loadPath("Blue1(2)",
-    // AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-    // thetaController, m_drivetrainSubsystem)
     // add shoot from fender command
 
     autoRed1 = new SequentialCommandGroup(
