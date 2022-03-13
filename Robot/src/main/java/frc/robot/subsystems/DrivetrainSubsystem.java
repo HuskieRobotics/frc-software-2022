@@ -287,13 +287,13 @@ public SwerveDriveKinematics getKinematics() {
 
   public void setXStance(){
           //FL
-          m_frontLeftModule.set(0, Math.PI*5/4);
+          m_frontLeftModule.set(0, (Math.PI - Math.atan(22.5/23.5)));
           //FR
-          m_frontRightModule.set(0, Math.PI*-5/4);
+          m_frontRightModule.set(0, (Math.PI + Math.atan(22.5/23.5)));
           //BL
-          m_backLeftModule.set(0, Math.PI*3/4);
+          m_backLeftModule.set(0, (Math.atan(22.5/23.5)));
           //BR
-          m_backRightModule.set(0, Math.PI*-3/4);
+          m_backRightModule.set(0, (2*Math.PI - Math.atan(22.5/23.5)));
   }
  /*
  Make center of gravity into a instance command and have the instance command change based on the method
