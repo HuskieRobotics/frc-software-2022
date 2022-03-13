@@ -1,30 +1,41 @@
 package frc.robot;
 
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.SecondaryArm;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants.CollectorConstants;
-import frc.robot.Constants.StorageConstants;
-import static frc.robot.Constants.JoystickConstants.*;
-import frc.robot.commands.*;
-import frc.robot.Constants.*;
-import frc.robot.subsystems.*;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.GenericHID;
+import static frc.robot.Constants.JoystickConstants.BUTTON_B;
+import static frc.robot.Constants.JoystickConstants.BUTTON_X;
+import static frc.robot.Constants.JoystickConstants.BUTTON_Y;
 
 import com.pathplanner.lib.PathPlanner;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import frc.robot.subsystems.DrivetrainSubsystem;
-
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.CollectorConstants;
+import frc.robot.Constants.StorageConstants;
+import frc.robot.commands.DefaultDriveCommand;
+import frc.robot.commands.ExtendClimberToMidRungCommand;
+import frc.robot.commands.FollowPath;
+import frc.robot.commands.ReachToNextRungCommand;
+import frc.robot.commands.RetractClimberFullCommand;
+import frc.robot.commands.RetractClimberMinimumCommand;
+import frc.robot.commands.SortStorageCommand;
+import frc.robot.subsystems.Collector;
+import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Flywheel;
+import frc.robot.subsystems.Hood;
+import frc.robot.subsystems.LimelightMath;
+import frc.robot.subsystems.SecondaryArm;
+import frc.robot.subsystems.Storage;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -81,6 +92,7 @@ public class RobotContainer {
     for (int i = 1; i < xboxButtons.length; i++) {
       xboxButtons[i - 1] = new JoystickButton(xboxController, i);
     }
+
     m_drivetrainSubsystem.register();
     m_storage.register();
     m_collector.register();
@@ -100,6 +112,7 @@ public class RobotContainer {
         m_drivetrainSubsystem,
         () -> -modifyAxis(joystick0.getY()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
         () -> -modifyAxis(joystick0.getX()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+        // FIXME: remove the -1 after calibrating swerve with the new robot "front" and chaning CAN IDs to match new orientation
         () -> -modifyAxis(joystick1.getX()) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * -1));
 
     // Smartdashboard Subsystems
@@ -110,9 +123,9 @@ public class RobotContainer {
     configureButtonBindings();
 
     // Configure default commands
-    
+
     // Configure autonomous sendable chooser
-    
+
     SmartDashboard.putData("Auto Mode", m_chooser);
   }
 
@@ -129,132 +142,140 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+    configureDrivetrainButtons();
+    configureIntakeButtons();
+    configureShooterButtons();
+    configureClimberButtons();
+  }
 
-    // // configure climb to fourth rung climb sequence
-    // consoleButtons[2].whenPressed(
-    // new SequentialCommandGroup(
-    // new RetractClimberFullCommand(m_elevator),
-    // new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
-    // new ReachToNextRungCommand(m_elevator),
-    // new ParallelCommandGroup(
-    // new RetractClimberFullCommand(m_elevator),
-    // new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut())
-    // ),
-    // new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
-    // new ReachToNextRungCommand(m_elevator),
-    // new RetractClimberMinimumCommand(m_elevator)
-    // )
-    // );
+  private void configureDrivetrainButtons() {
+    joystickButtons1[3].whileHeld(new InstantCommand(() -> m_drivetrainSubsystem.setXStance(), m_drivetrainSubsystem));
 
-    // //configure climb to third rung climb sequence
-    // consoleButtons[11].whenPressed(
-    // new SequentialCommandGroup(
-    // new RetractClimberFullCommand(m_elevator),
-    // new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut()),
-    // new ReachToNextRungCommand(m_elevator),
-    // new ParallelCommandGroup(
-    // new RetractClimberMinimumCommand(m_elevator),
-    // new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()))));
-
-    // //configure climb to 2 rung climb sequence
-    // consoleButtons[10].whenPressed(
-    // new RetractClimberMinimumCommand(m_elevator));
-
-    // //configure raise elevator before starting climb
-    // consoleButtons[9].whenPressed(
-    // new ExtendClimberToMidRungCommand(m_elevator));
-
-    // //FIXME change the following few commands to xbox buttons after merged to
-    // main
-    // //toggle secondary arm override
-    // consoleButtons[0].toggleWhenPressed(
-    // new ConditionalCommand(
-    // new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut()),
-    // new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
-    // m_secondMechanism :: isIn));
-    joystickButtons1[3].whileHeld(new InstantCommand(() -> m_drivetrainSubsystem.setXStance()));
     joystickButtons0[3].toggleWhenPressed(
         new ConditionalCommand(
-            new InstantCommand(() -> m_drivetrainSubsystem.disableFieldRelative()),
-            new InstantCommand(() -> m_drivetrainSubsystem.enableFieldRelative()),
+            new InstantCommand(() -> m_drivetrainSubsystem.disableFieldRelative(), m_drivetrainSubsystem),
+            new InstantCommand(() -> m_drivetrainSubsystem.enableFieldRelative(), m_drivetrainSubsystem),
             m_drivetrainSubsystem::getFieldRelative));
 
-    // change to use whenHeld(m_drivetrainSubsystem::setCenterGrav(0,0));
-    // create command?
     joystickButtons1[4]
         .whenHeld(new InstantCommand(() -> m_drivetrainSubsystem.setCenterGrav(0, 0), m_drivetrainSubsystem));
 
-    // END AUTOGENERATED CODE, SOURCE=ROBOTBUILDER ID=BUTTONS
+    // Reset Gyro
+    xboxButtons[BUTTON_Y].whenPressed(
+        new InstantCommand(() -> m_drivetrainSubsystem.zeroGyroscope(), m_drivetrainSubsystem));
+  }
 
+  private void configureIntakeButtons() {
     // Change Colletor state
 
-    operatorButtons[11].toggleWhenPressed(
+    operatorButtons[11].toggleWhenPressed( // FIXME: update software feature sheet if this is correct
         new ConditionalCommand(
-            new InstantCommand(() -> m_collector.disableCollector()),
-            new InstantCommand(() -> m_collector.enableCollector()),
+            new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+            new InstantCommand(() -> m_collector.enableCollector(), m_collector),
             m_collector::isEnabled));
 
     // intake
     joystickButtons1[1].toggleWhenPressed(
         new ConditionalCommand(
             new ParallelCommandGroup(
-                new InstantCommand(() -> m_collector.disableCollector()),
-                new InstantCommand(() -> m_storage.disableStorage())),
+                new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+                new InstantCommand(() -> m_storage.disableStorage(), m_storage)),
             new SequentialCommandGroup(
-                new InstantCommand(() -> m_collector.enableCollector()),
+                new InstantCommand(() -> m_collector.enableCollector(), m_collector),
                 new SortStorageCommand(m_storage),
-                new InstantCommand(() -> m_collector.disableCollector())),
+                new InstantCommand(() -> m_collector.disableCollector(), m_collector)),
             m_collector::isEnabled));
 
     // unjam all
     xboxButtons[BUTTON_X].whenHeld(
         new ParallelCommandGroup(
-            new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.OUTTAKE_POWER)),
-            new InstantCommand(() -> m_storage.setStoragePower(StorageConstants.OUTTAKE_POWER))));
+            new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.OUTTAKE_POWER), m_collector),
+            new InstantCommand(() -> m_storage.setStoragePower(StorageConstants.OUTTAKE_POWER), m_storage)));
     xboxButtons[BUTTON_X].whenReleased(
         new ParallelCommandGroup(
-            new InstantCommand(() -> m_collector.setCollectorPower(0)),
-            new InstantCommand(() -> m_storage.setStoragePower(0))));
+            new InstantCommand(() -> m_collector.setCollectorPower(0), m_collector),
+            new InstantCommand(() -> m_storage.setStoragePower(0), m_storage)));
 
     // unjam collector
     xboxButtons[BUTTON_B].whenHeld(
-        new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.OUTTAKE_POWER)));
+        new InstantCommand(() -> m_collector.setCollectorPower(CollectorConstants.OUTTAKE_POWER), m_collector));
 
     xboxButtons[BUTTON_B].whenReleased(
-        new InstantCommand(() -> m_collector.setCollectorPower(0)));
-
-    // Reset statemachine Button A
-
-    // Reset Gyro
-    xboxButtons[BUTTON_Y].whenPressed(
-        new InstantCommand(() -> m_drivetrainSubsystem.zeroGyroscope()));
+        new InstantCommand(() -> m_collector.setCollectorPower(0), m_collector));
   }
 
-  // BEGIN AUTOGENERATED CODE, SOURCE=ROBOTBUILDER ID=FUNCTIONS
+  private void configureShooterButtons() {
 
-  // //elevator up override
-  // consoleButtons[0].whileHeld(new InstantCommand(() ->
-  // m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER)));
+  }
 
-  // //elevator down override
-  // consoleButtons[0].whileHeld(new InstantCommand(() ->
-  // m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER *
-  // -1)));
+  private void configureClimberButtons() {
 
-  // //resetElevator
-  // consoleButtons[0].whenPressed(new RetractClimberFullCommand(m_elevator));
+    // configure climb to fourth rung climb sequence
+    operatorButtons[8].whenPressed(
+        new SequentialCommandGroup(
+            new RetractClimberFullCommand(m_elevator),
+            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
+            new ReachToNextRungCommand(m_elevator),
+            new ParallelCommandGroup(
+                new RetractClimberFullCommand(m_elevator),
+                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut())),
+            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
+            new ReachToNextRungCommand(m_elevator),
+            new RetractClimberMinimumCommand(m_elevator)));
 
-  // //climber emergency pause
+    // configure climb to third rung climb sequence
+    operatorButtons[7].whenPressed(
+        new SequentialCommandGroup(
+            new RetractClimberFullCommand(m_elevator),
+            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut()),
+            new ReachToNextRungCommand(m_elevator),
+            new ParallelCommandGroup(
+                new RetractClimberMinimumCommand(m_elevator),
+                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()))));
 
-  // //FIXME this should be changed to start buttons and pass in the back button
-  // consoleButtons[0].whenPressed(new InstantCommand(() ->
-  // m_elevator.elevatorPause(consoleButtons[0].get())));
+    // configure climb to 2 rung climb sequence
+    operatorButtons[1].whenPressed(
+        new RetractClimberMinimumCommand(m_elevator));
 
-  // consoleButtons[0].toggleWhenPressed(
-  // new ConditionalCommand(
-  // new InstantCommand(() -> m_elevator.disableElevatorControl()),
-  // new InstantCommand(() -> m_elevator.enableElevatorControl()),
-  // m_elevator :: isElevatorControlEnabled));
+    // configure raise elevator before starting climb
+    operatorButtons[2].whenPressed(
+        new ExtendClimberToMidRungCommand(m_elevator));
+
+    // FIXME change the following few commands to xbox buttons after merged to
+    // toggle secondary arm override
+    // operatorButtons[0].toggleWhenPressed(
+    //     new ConditionalCommand(
+    //         new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
+    //         new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism),
+    //         m_secondMechanism::isIn));
+
+    // elevator up override
+    // FIXME: how to map to d-pad?
+    // operatorButtons[0]
+    //     .whileHeld(new InstantCommand(() -> m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER), m_elevator));
+
+    // elevator down override
+    // FIXME: how to map to d-pad?
+    // operatorButtons[0]
+    //     .whileHeld(new InstantCommand(() -> m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER *
+    //         -1), m_elevator));
+
+    // resetElevator
+    // FIXME: how to map to d-pad?
+    // operatorButtons[0].whenPressed(new RetractClimberFullCommand(m_elevator));
+
+    // climber emergency pause
+
+    // FIXME this should be changed to start buttons and pass in the back button
+    // operatorButtons[0].whenPressed(new InstantCommand(() -> m_elevator.elevatorPause(operatorButtons[0].get(), m_elevator)));
+
+    operatorButtons[12].toggleWhenPressed(
+        new ConditionalCommand(
+            new InstantCommand(() -> m_elevator.disableElevatorControl(), m_elevator),
+            new InstantCommand(() -> m_elevator.enableElevatorControl(), m_elevator),
+            m_elevator::isElevatorControlEnabled));
+
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

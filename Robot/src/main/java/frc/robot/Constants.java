@@ -92,20 +92,20 @@ public final class Constants {
     public static final int SLOT_INDEX = 0;
     public static final int PID_LOOP_INDEX = 0;
     public static final int TIMEOUT_MS = 30;
-    public static final int VELOCITY_TOLERANCE = 500; // FIX_ME tune this should be how off our velocity can be
+    public static final int VELOCITY_TOLERANCE = 500; // FIXME tune this should be how off our velocity can be
     public static final int LEFT_FLYWHEELMOTOR_CANID = 1;
     public static final int RIGHT_FLYWHEELMOTOR_CANID = 2;
     public final static Gains GAINS_VELOCITY = new Gains(0.5 /* kP */, 0 /* kI */, 0 /* kD */, .0438 /* kF */,
         0 /* kIzone */, 1.00 /* kPeakOutput */);
     public final static int MAX_FLYWHEEL_VELOCITY = 17500;
-    public static final int WALL_SHOT_VELOCITY = 8000; // FIX_ME tune this
-    public static final int FENDER_SHOT_VELOCITY = 9000; // FIX_ME tune this
+    public static final int WALL_SHOT_VELOCITY = 8000; // FIXME tune this
+    public static final int FENDER_SHOT_VELOCITY = 9000; // FIXME tune this
 
   }
 
   public static class HoodConstants {
     public static final int HOOD_MOTOR_ID = 3;
-    public static final double KP = 0; // FIX_ME find hood pid p value
+    public static final double KP = 0; // FIXME find hood pid p value
     public static final double KI = 0;
     public static final double KD = 0;
     public static final double KIz = 0;
@@ -115,11 +115,11 @@ public final class Constants {
     public static final int TIMEOUT_MS = 30;
 
     public static final int PID_SLOT = 0;
-    public static final double ARBITRARY_FEED_FORWARD_UP_IN_PERCENT = 0.4; // FIX_ME find arbitrary feed foward for hood
-    public static final double ARBITRARY_FEED_FORWARD_DOWN_IN_PERCENT = -0.2;
+    public static final double ARBITRARY_FEED_FORWARD_UP_IN_PERCENT = 0.4; // FIXME find arbitrary feed foward for hood
+    public static final double ARBITRARY_FEED_FORWARD_DOWN_IN_PERCENT = -0.2; // FIXME find arbitrary feed foward for hood
 
-    public static final double FENDER_ANGLE_POSITION = .2; // FIX_ME udpate once the value is known
-    public static final double WALL_ANGLE_POSITION = 1.0147; // FIX_ME udpate once the value is known
+    public static final double FENDER_ANGLE_POSITION = .2; // FIXME udpate once the value is known
+    public static final double WALL_ANGLE_POSITION = 1.0147; // FIXME udpate once the value is known
     public static final double HOOD_DEGREES_TO_HOOD_ENCODER = 0; // encodervalue/degrees ratio
     public static final double POSITION_TOLERANCE = .1;
 
@@ -148,26 +148,23 @@ public final class Constants {
 
   public static class ElevatorConstants {
 
-    // FIXME these encoder values need to be tuned
     public static final double MAX_ELEVATOR_HEIGHT = 283089;
     public static final double MIN_DETACH_ENCODER_HEIGHT = 0;
     public static final double MIN_ELEVATOR_ENCODER_HEIGHT = 0;
     public static final double MID_RUNG_HEIGHT = 277129;
-    public static final double REACH_TO_NEXT_RUNG_HEIGHT = 0; // not sure if this is needed; use MAX_ELEVATOR_HEIGHT?
-    public static final double PITCH_SETPOINT = 0;
-    public static final double PITCH_TOLERANCE = 0;
+    public static final double REACH_TO_NEXT_RUNG_HEIGHT = 0; //    // FIXME: not sure if this is needed; use MAX_ELEVATOR_HEIGHT?
+    public static final double PITCH_SETPOINT = 0;    // FIXME
+    public static final double PITCH_TOLERANCE = 0;   // FIXME
     public static final int ELEVATOR_POSITION_TOLERANCE = 500;
     public static final double ARBITRARY_FEED_FORWARD_EXTEND = .02;
     public static final double ARBITRARY_FEED_FORWARD_RETRACT = -0.07;
     public static final double DEFAULT_MOTOR_POWER = 0;
 
-    // FIXME Talon Config, these values from flywheel
     public static final int kSlotIdx = 0;
     public static final int kPIDLoopIdx = 0;
     public static final int kTimeoutMs = 30;
     public static final Gains GAINS_POSITION = new Gains(0.4 /* kP */, 0 /* kI */, 0 /* kD */, 0 /* kF */,
         0 /* kIZone */, 1.00 /* max output */);
-    // FIXME additional config
     public static final double MAX_ELEVATOR_VELOCITY = 20000; // theoretical maximum 21305
     public static final double ELEVATOR_ACCELERATION = MAX_ELEVATOR_VELOCITY * 10;
     public static final int SCURVE_STRENGTH = 0;
@@ -184,7 +181,7 @@ public final class Constants {
     public static final int PNEUMATIC_CHANNEL = 0;
   }
 
-  public static final class JoystickConstants {
+  public static final class JoystickConstants { // FIXME: make consistent with software feature sheet and use in RobotContainer
     public static final int CLIMBER_UP = 2;
     public static final int CLIMB_2 = 1;
     public static final int CLIMB_3 = 7;
