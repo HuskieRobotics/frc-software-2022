@@ -16,6 +16,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public final class Constants {
 
   public static final boolean TUNING = false;
+  public static final boolean COMMAND_LOGGING = true;
 
   /* DRIVETRAIN CONSTANTS */
 

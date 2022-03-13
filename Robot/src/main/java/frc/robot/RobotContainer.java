@@ -10,15 +10,18 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import static frc.robot.Constants.*;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.CollectorConstants;
 import frc.robot.Constants.StorageConstants;
@@ -117,7 +120,8 @@ public class RobotContainer {
         m_drivetrainSubsystem,
         () -> -modifyAxis(joystick0.getY()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
         () -> -modifyAxis(joystick0.getX()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-        // FIXME: remove the -1 after calibrating swerve with the new robot "front" and chaning CAN IDs to match new orientation
+        // FIXME: remove the -1 after calibrating swerve with the new robot "front" and
+        // chaning CAN IDs to match new orientation
         () -> -modifyAxis(joystick1.getX()) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * -1));
 
     // Smartdashboard Subsystems
@@ -132,6 +136,23 @@ public class RobotContainer {
     // Configure autonomous sendable chooser
 
     configureAutoCommands();
+
+    if (COMMAND_LOGGING) {
+      CommandScheduler.getInstance().onCommandInitialize(
+          command -> Shuffleboard.addEventMarker("Command initialized",
+              command.getClass().getName().substring(command.getClass().getName().lastIndexOf('.') + 1),
+              EventImportance.kNormal));
+
+      CommandScheduler.getInstance().onCommandInterrupt(
+          command -> Shuffleboard.addEventMarker("Command interrupted",
+              command.getClass().getName().substring(command.getClass().getName().lastIndexOf('.') + 1),
+              EventImportance.kNormal));
+
+      CommandScheduler.getInstance().onCommandFinish(
+          command -> Shuffleboard.addEventMarker("Command finished",
+              command.getClass().getName().substring(command.getClass().getName().lastIndexOf('.') + 1),
+              EventImportance.kNormal));
+    }
   }
 
   public static RobotContainer getInstance() {
@@ -249,21 +270,26 @@ public class RobotContainer {
     // FIXME change the following few commands to xbox buttons after merged to
     // toggle secondary arm override
     // operatorButtons[0].toggleWhenPressed(
-    //     new ConditionalCommand(
-    //         new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
-    //         new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism),
-    //         m_secondMechanism::isIn));
+    // new ConditionalCommand(
+    // new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(),
+    // m_secondMechanism),
+    // new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(),
+    // m_secondMechanism),
+    // m_secondMechanism::isIn));
 
     // elevator up override
     // FIXME: how to map to d-pad?
     // operatorButtons[0]
-    //     .whileHeld(new InstantCommand(() -> m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER), m_elevator));
+    // .whileHeld(new InstantCommand(() ->
+    // m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER),
+    // m_elevator));
 
     // elevator down override
     // FIXME: how to map to d-pad?
     // operatorButtons[0]
-    //     .whileHeld(new InstantCommand(() -> m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER *
-    //         -1), m_elevator));
+    // .whileHeld(new InstantCommand(() ->
+    // m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER *
+    // -1), m_elevator));
 
     // resetElevator
     // FIXME: how to map to d-pad?
@@ -272,7 +298,8 @@ public class RobotContainer {
     // climber emergency pause
 
     // FIXME this should be changed to start buttons and pass in the back button
-    // operatorButtons[0].whenPressed(new InstantCommand(() -> m_elevator.elevatorPause(operatorButtons[0].get(), m_elevator)));
+    // operatorButtons[0].whenPressed(new InstantCommand(() ->
+    // m_elevator.elevatorPause(operatorButtons[0].get(), m_elevator)));
 
     operatorButtons[12].toggleWhenPressed(
         new ConditionalCommand(
@@ -288,7 +315,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return m_chooser.getSelected();             
+    return m_chooser.getSelected();
   }
 
   private void configureAutoCommands() {
@@ -297,32 +324,32 @@ public class RobotContainer {
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     autoLeaveTarmac = new FollowPath(PathPlanner.loadPath("forward",
-        AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
+        AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
         thetaController, m_drivetrainSubsystem);
 
     autoBlue1 = new SequentialCommandGroup(
-      new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-      //new SortStorageCommand(m_storage),
-      new FollowPath(PathPlanner.loadPath("Blue1(1)",
-          AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
-          thetaController, m_drivetrainSubsystem));
-      // new WaitCommand(5)
-      // new FollowPath(PathPlanner.loadPath("Blue1(2)",
-      //     AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
-      //     thetaController, m_drivetrainSubsystem)
-      //add shoot from fender command
+        new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+        // new SortStorageCommand(m_storage),
+        new FollowPath(PathPlanner.loadPath("Blue1(1)",
+            AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
+            thetaController, m_drivetrainSubsystem));
+    // new WaitCommand(5)
+    // new FollowPath(PathPlanner.loadPath("Blue1(2)",
+    // AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared),
+    // thetaController, m_drivetrainSubsystem)
+    // add shoot from fender command
 
     autoRed1 = new SequentialCommandGroup(
-      new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-      //new SortStorageCommand(m_storage),
-      new FollowPath(PathPlanner.loadPath("Red1(1)",
-          AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
-          thetaController, m_drivetrainSubsystem));
-      // new WaitCommand(5)
-      // new FollowPath(PathPlanner.loadPath("Red1(2)",
-      //     AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared), 
-      //     thetaController, m_drivetrainSubsystem)
-      //add shoot from fender command
+        new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+        // new SortStorageCommand(m_storage),
+        new FollowPath(PathPlanner.loadPath("Red1(1)",
+            AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
+            thetaController, m_drivetrainSubsystem));
+    // new WaitCommand(5)
+    // new FollowPath(PathPlanner.loadPath("Red1(2)",
+    // AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared),
+    // thetaController, m_drivetrainSubsystem)
+    // add shoot from fender command
 
     ShuffleboardTab tab = Shuffleboard.getTab("Auto");
     m_chooser.addOption("Leave Tarmac", autoLeaveTarmac);
