@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 //import com.ctre.phoenix.sensors.PigeonIMU;
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
@@ -212,8 +213,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 return m_odometry.getPoseMeters();
         }
 
-        public void resetOdometry(Pose2d pose) {
-                m_odometry.resetPosition(pose, Rotation2d.fromDegrees(m_pigeon.getYaw()));
+        public void resetOdometry(PathPlannerState state) {
+                m_odometry.resetPosition(new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation),
+                 Rotation2d.fromDegrees(m_pigeon.getYaw()));
         }
 
         // Implement change in center of gravity here

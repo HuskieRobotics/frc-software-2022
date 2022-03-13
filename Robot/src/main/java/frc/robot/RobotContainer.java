@@ -90,7 +90,7 @@ public class RobotContainer {
     this.joystickButtons0 = new JoystickButton[13];
     this.joystickButtons1 = new JoystickButton[13];
     this.operatorButtons = new JoystickButton[13];
-    this.xboxButtons = new JoystickButton[10];
+    this.xboxButtons = new JoystickButton[11];
     for (int i = 1; i < joystickButtons0.length; i++) {
       joystickButtons0[i] = new JoystickButton(joystick0, i);
       joystickButtons1[i] = new JoystickButton(joystick1, i);
@@ -98,7 +98,7 @@ public class RobotContainer {
     }
 
     for (int i = 1; i < xboxButtons.length; i++) {
-      xboxButtons[i - 1] = new JoystickButton(xboxController, i);
+      xboxButtons[i] = new JoystickButton(xboxController, i);
     }
 
     m_drivetrainSubsystem.register();
@@ -330,11 +330,10 @@ public class RobotContainer {
         // new SortStorageCommand(m_storage),
         new FollowPath(PathPlanner.loadPath("Blue1(1)",
             AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
+            thetaController, m_drivetrainSubsystem),
+        new FollowPath(PathPlanner.loadPath("Blue1(2)",
+            AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared),
             thetaController, m_drivetrainSubsystem));
-    // new WaitCommand(5)
-    // new FollowPath(PathPlanner.loadPath("Blue1(2)",
-    // AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-    // thetaController, m_drivetrainSubsystem)
     // add shoot from fender command
 
     autoRed1 = new SequentialCommandGroup(
