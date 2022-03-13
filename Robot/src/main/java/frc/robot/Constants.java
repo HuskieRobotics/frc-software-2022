@@ -62,7 +62,8 @@ public final class Constants {
     public static final int PIGEON_ID = 18;
 
     /* Limelight */
-    public static final double LIMELIGHT_P = 0.2;
+    public static final double LIMELIGHT_P = 0.2; // FIXME: adjust when tuning
+    public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = 2; // degrees; FIXME: adjust when testing
   }
 
   public static final class CollectorConstants {
