@@ -27,14 +27,14 @@ public class Constants {
         public static final int PID_LOOP_INDEX = 0;
         public static final int TIMEOUT_MS = 30;
         public static final int VELOCITY_TOLERANCE = 500; //FIX_ME tune this should be how off our velocity can be 
-        public static final int LEFT_FLYWHEELMOTOR_CANID = 2;
-        public static final int RIGHT_FLYWHEELMOTOR_CANID = 1;
+        public static final int LEFT_FLYWHEELMOTOR_CANID = 1;
+        public static final int RIGHT_FLYWHEELMOTOR_CANID = 2;
         
 
 
-    public final static Gains GAINS_VELOCITY  = new Gains( .74, /* kP */  0, /* kI */   0,  /* kD */  .05265,   /* kF */     0,  /* kIzone */  1.00 /* kPeakOutput */);
-
-        public static final int WALL_SHOT_VELOCITY = 11000; // FIX_ME tune this
+    public final static Gains GAINS_VELOCITY  = new Gains(0.5 /* kP */,  0 /* kI */,   0  /* kD */,  .0438   /* kF */,     0  /* kIzone */,  1.00 /* kPeakOutput */);
+        public final static int MAX_FLYWHEEL_VELOCITY = 17500;
+        public static final int WALL_SHOT_VELOCITY = 8000; // FIX_ME tune this
         public static final int FENDER_SHOT_VELOCITY = 9000; // FIX_ME tune this
 
    }
@@ -45,15 +45,18 @@ public class Constants {
        public static final double KD =0;
        public static final double KIz =0;
        public static final double KFF =0;
-        public static final double K_MAX_OUTPUT=0.2;
-        public static final double K_MIN_OUTPUT=-0.2;
-
-        public static final int PID_SLOT = 0;
-        public static final double ARBITRARY_FEED_FORWARD_IN_PERCENT = 0.0;   // FIX_ME find arbitrary feed foward for hood
+        public static final double K_MAX_OUTPUT=1;
+        public static final double K_MIN_OUTPUT=-1;
+        public static final int TIMEOUT_MS = 30;
         
-        public static final int FENDER_ANGLE_POSITION = 0;   // FIX_ME udpate once the value is known
-        public static final int WALL_ANGLE_POSITION = 0;    // FIX_ME udpate once the value is known
+        public static final int PID_SLOT = 0;
+        public static final double ARBITRARY_FEED_FORWARD_UP_IN_PERCENT = 0.4;   // FIX_ME find arbitrary feed foward for hood
+        public static final double ARBITRARY_FEED_FORWARD_DOWN_IN_PERCENT = -0.2;
+        
+        public static final double FENDER_ANGLE_POSITION = .2;   // FIX_ME udpate once the value is known
+        public static final double WALL_ANGLE_POSITION = 1.0147;    // FIX_ME udpate once the value is known
         public static final double HOOD_DEGREES_TO_HOOD_ENCODER=0; // encodervalue/degrees ratio
+        public static final double POSITION_TOLERANCE = .1;
 
    }
 
@@ -70,6 +73,15 @@ public class Constants {
        
 
    }
+
+
+    public static final class StorageConstants{
+        public static final double OUTTAKE_POWER = -.8;
+        public static final int SHOOTER_SENSOR = 1;
+        public static final int COLLECTOR_SENSOR = 0;
+        public static final int STORAGE_MOTOR_ID = 4;
+        public static final double STORAGE_DEFAULT_SPEED = 0.8; 
+    }
 
 }
 
