@@ -126,7 +126,11 @@ public class RobotContainer {
 
     // Configure autonomous sendable chooser
 
-    SmartDashboard.putData("Auto Mode", m_chooser);
+    ShuffleboardTab tab = Shuffleboard.getTab("Auto");
+    m_chooser.addOption("Leave Tarmac", autoLeaveTarmac);
+    m_chooser.addOption("Blue 1", autoBlue1);
+    m_chooser.addOption("Red 1", autoBlue2);
+    tab.add("Auto Mode", m_chooser);
   }
 
   public static RobotContainer getInstance() {
@@ -283,6 +287,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+
+    return m_chooser.getSelected();    
 
     ProfiledPIDController thetaController = new ProfiledPIDController(
         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
