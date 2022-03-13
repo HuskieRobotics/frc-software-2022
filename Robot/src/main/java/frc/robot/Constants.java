@@ -57,6 +57,9 @@ public final class Constants {
     public static final double WHEELBASE_METERS = 0.5969;// 23.5 inches
 
     public static final int PIGEON_ID = 18;
+
+    /* Limelight */
+    public static final double LIMELIGHT_P = 0.2;
   }
 
   public static final class CollectorConstants {
