@@ -23,6 +23,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
  * wherever the constants are needed, to reduce verbosity.
  */
 
+
 public final class Constants {
   
   public static final boolean TUNING = false; 
@@ -156,6 +157,42 @@ public final class Constants {
       public static final int STORAGE_MOTOR_ID = 4;
       public static final double STORAGE_DEFAULT_SPEED = 0.8; 
   }
+
+  public static class ElevatorConstants{
+
+    //FIXME these encoder values need to be tuned
+    public static final double MAX_ELEVATOR_HEIGHT = 283089;
+    public static final double MIN_DETACH_ENCODER_HEIGHT = 0;
+    public static final double MIN_ELEVATOR_ENCODER_HEIGHT = 0;
+    public static final double MID_RUNG_HEIGHT = 277129;
+    public static final double REACH_TO_NEXT_RUNG_HEIGHT = 0; // not sure if this is needed; use MAX_ELEVATOR_HEIGHT?
+    public static final double PITCH_SETPOINT = 0;
+    public static final double PITCH_TOLERANCE =  0;
+    public static final int ELEVATOR_POSITION_TOLERANCE = 500;
+    public static final double ARBITRARY_FEED_FORWARD_EXTEND = .02;
+    public static final double ARBITRARY_FEED_FORWARD_RETRACT = -0.07;
+    public static final double DEFAULT_MOTOR_POWER = 0;
+
+    //FIXME Talon Config, these values from flywheel
+    public static final int kSlotIdx = 0;
+    public static final int kPIDLoopIdx = 0;
+    public static final int kTimeoutMs = 30;
+    public static final Gains GAINS_POSITION  = new Gains( 0.4 /* kP */, 0 /* kI */, 0 /* kD */, 0 /* kF */, 0 /* kIZone */, 1.00 /* max output */);
+    //FIXME additional config
+    public static final double MAX_ELEVATOR_VELOCITY = 20000;  // theoretical maximum 21305
+    public static final double ELEVATOR_ACCELERATION = MAX_ELEVATOR_VELOCITY * 10;
+    public static final int SCURVE_STRENGTH = 0;
+   
+    //CAN ID
+    public static final int PIGEON_ID = 18;
+    public static final int LEFT_ELEVATOR_MOTOR_CAN_ID = 22;
+    public static final int RIGHT_ELEVATOR_MOTOR_CAN_ID = 19;
+
+}
+public class SecondMechanismConstants { 
+    public static final int PNEUMATIC_HUB_CAN_ID = 20;
+    public static final int PNEUMATIC_CHANNEL = 0;
+}
 
     public static final class JoystickConstants {
       public static final int CLIMBER_UP = 2;
