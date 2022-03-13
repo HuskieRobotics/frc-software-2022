@@ -76,14 +76,7 @@ public final class Constants {
       public static final double COLLECTOR_DEFUALT_SPEED = 0.7; //FIX_ME change this to desired speed
 
   }
-  public static final class StorageConstants{
-      public static final double OUTTAKE_POWER = -.4;//FIX_ME
-      public static final int SHOOTER_SENSOR = 1;
-      public static final int COLLECTOR_SENSOR = 0;
-      public static final int STORAGE_MOTOR_ID = 4;
-      public static final double STORAGE_DEFAULT_SPEED = 0.4; //FIX_ME change this to desired speed
-  }
-
+  
     public static final class AutoConstants {
 
       // from sysId tool
@@ -105,6 +98,65 @@ public final class Constants {
           new TrapezoidProfile.Constraints(
               kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
+
+    public static class FlywheelConstants {
+      public static final int SLOT_INDEX = 0;
+      public static final int PID_LOOP_INDEX = 0;
+      public static final int TIMEOUT_MS = 30;
+      public static final int VELOCITY_TOLERANCE = 500; //FIX_ME tune this should be how off our velocity can be 
+      public static final int LEFT_FLYWHEELMOTOR_CANID = 1;
+      public static final int RIGHT_FLYWHEELMOTOR_CANID = 2;
+      public final static Gains GAINS_VELOCITY  = new Gains(0.5 /* kP */,  0 /* kI */,   0  /* kD */,  .0438   /* kF */,     0  /* kIzone */,  1.00 /* kPeakOutput */);
+      public final static int MAX_FLYWHEEL_VELOCITY = 17500;
+      public static final int WALL_SHOT_VELOCITY = 8000; // FIX_ME tune this
+      public static final int FENDER_SHOT_VELOCITY = 9000; // FIX_ME tune this
+
+ }
+ public static class HoodConstants{
+     public static final int HOOD_MOTOR_ID = 3;
+     public static final double KP = 0; //FIX_ME find hood pid p value 
+     public static final double KI =0;
+     public static final double KD =0;
+     public static final double KIz =0;
+     public static final double KFF =0;
+      public static final double K_MAX_OUTPUT=1;
+      public static final double K_MIN_OUTPUT=-1;
+      public static final int TIMEOUT_MS = 30;
+      
+      public static final int PID_SLOT = 0;
+      public static final double ARBITRARY_FEED_FORWARD_UP_IN_PERCENT = 0.4;   // FIX_ME find arbitrary feed foward for hood
+      public static final double ARBITRARY_FEED_FORWARD_DOWN_IN_PERCENT = -0.2;
+      
+      public static final double FENDER_ANGLE_POSITION = .2;   // FIX_ME udpate once the value is known
+      public static final double WALL_ANGLE_POSITION = 1.0147;    // FIX_ME udpate once the value is known
+      public static final double HOOD_DEGREES_TO_HOOD_ENCODER=0; // encodervalue/degrees ratio
+      public static final double POSITION_TOLERANCE = .1;
+
+ }
+
+ public static class LimelightConstants {
+     public static final double HUB_H = 104;
+     public static final double ROBOT_H = 21.25;
+     public static final double GRAV_CONST_FT = -32.17519788;
+     public static final double Flywheel_Radius_IN = 2;
+     public static final double Velocity_Multiplier = 2;
+     public static final double Ticks_Per_One_Rotation = 2048;
+     public static final int LIMELIGHT_ANGLE_OFFSET=-2;
+     public static final int D2_D1_OFFSET_IN = 24;
+     public static final int H2_H1_OFFSET_IN = -24;
+     
+
+ }
+
+
+  public static final class StorageConstants{
+      public static final double OUTTAKE_POWER = -.8;
+      public static final int SHOOTER_SENSOR = 1;
+      public static final int COLLECTOR_SENSOR = 0;
+      public static final int STORAGE_MOTOR_ID = 4;
+      public static final double STORAGE_DEFAULT_SPEED = 0.8; 
+  }
+
     public static final class JoystickConstants {
       public static final int CLIMBER_UP = 2;
       public static final int CLIMB_2 = 1;
