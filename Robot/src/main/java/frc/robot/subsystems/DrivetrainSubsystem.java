@@ -24,6 +24,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.*;
@@ -192,6 +193,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
                 tab.addBoolean("isXstance", this :: isXstance);
+                tab.add("Enable XStance", new InstantCommand(() -> this.enableXstance()));
+                tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
+
+
 
         }
 
