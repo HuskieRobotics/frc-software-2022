@@ -106,8 +106,11 @@ public final class Constants {
     public final static Gains GAINS_VELOCITY = new Gains(0.5 /* kP */, 0 /* kI */, 0 /* kD */, .0438 /* kF */,
         0 /* kIzone */, 1.00 /* kPeakOutput */);
     public final static int MAX_FLYWHEEL_VELOCITY = 17500;
-    public static final int WALL_SHOT_VELOCITY = 8000; // FIXME tune this
-    public static final int FENDER_SHOT_VELOCITY = 9000; // FIXME tune this
+    public static final int WALL_SHOT_VELOCITY = 7682; // FIXME tune this
+    public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
+    public static final int LAUNCH_PAD_VELOCITY = 8547; // FIXME tune this
+    public static final int SHOOT_SLOW_VELOCITY = 4000; // FIXME tune this
+
 
   }
 
@@ -126,8 +129,8 @@ public final class Constants {
     public static final double ARBITRARY_FEED_FORWARD_UP_IN_PERCENT = 0.4; // FIXME find arbitrary feed foward for hood
     public static final double ARBITRARY_FEED_FORWARD_DOWN_IN_PERCENT = -0.2; // FIXME find arbitrary feed foward for hood
 
-    public static final double FENDER_ANGLE_POSITION = .2; // FIXME udpate once the value is known
-    public static final double WALL_ANGLE_POSITION = 1.0147; // FIXME udpate once the value is known
+    public static final double LOW_ANGLE = .2; // FIXME udpate once the value is known
+    public static final double HIGH_ANGLE = 1.0147; // FIXME udpate once the value is known
     public static final double HOOD_DEGREES_TO_HOOD_ENCODER = 0; // encodervalue/degrees ratio
     public static final double POSITION_TOLERANCE = .1;
 

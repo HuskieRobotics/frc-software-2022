@@ -88,6 +88,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         private final SwerveModule m_backLeftModule;
         private final SwerveModule m_backRightModule;
         private boolean isFieldRelative;
+        private boolean isXstance;
         // private Translation2d m_robotCenter;
         private NetworkTableEntry fieldRelativeNT;
 
@@ -101,6 +102,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public DrivetrainSubsystem() {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
                 this.isFieldRelative = false;
+                this.isXstance = false;
                 // this.m_robotCenter = new Translation2d(0,0);
 
                 m_pigeon.setYaw(0.0);
@@ -189,6 +191,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.fieldRelativeNT = Shuffleboard.getTab("Drivetrain")
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
+                tab.addBoolean("isXstance", this :: isXstance);
 
         }
 
@@ -223,6 +226,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         // Implement change in center of gravity here
         public void drive(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
+        if (isXstance) {
+                this.setXStance();
+        }
+        else{
                 if (isFieldRelative) {
                         m_chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                                         translationXSupplier,
@@ -245,7 +252,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 states[2].angle.getRadians());
                 m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[3].angle.getRadians());
-        }
+        }}
 
         @Override
         public void periodic() {
@@ -346,6 +353,18 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public boolean isAimed() {
                 return Math.abs(0.0 - getLimelightX()) - LIMELIGHT_ALIGNMENT_TOLERANCE <= 0;
         }
+
+        public void enableXstance() {
+                this.isXstance = true;
+        }
+        public void disableXstance() {
+                this.isXstance = false;
+        }
+
+        public boolean isXstance() {
+                return isXstance;
+        }
+
            
 
 }

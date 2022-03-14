@@ -1,8 +1,7 @@
 package frc.robot;
 
-import static frc.robot.Constants.JoystickConstants.BUTTON_B;
-import static frc.robot.Constants.JoystickConstants.BUTTON_X;
-import static frc.robot.Constants.JoystickConstants.BUTTON_Y;
+import static frc.robot.Constants.JoystickConstants.*;
+
 
 import java.rmi.server.Operation;
 
@@ -31,11 +30,15 @@ import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.CollectorConstants;
 import frc.robot.Constants.StorageConstants;
 import frc.robot.commands.DefaultDriveCommand;
+import frc.robot.commands.EnableStorageCommand;
 import frc.robot.commands.ExtendClimberToMidRungCommand;
 import frc.robot.commands.FollowPath;
+import frc.robot.commands.LimelightAlignToTargetCommand;
 import frc.robot.commands.ReachToNextRungCommand;
 import frc.robot.commands.RetractClimberFullCommand;
 import frc.robot.commands.RetractClimberMinimumCommand;
+import frc.robot.commands.SetFlywheelVelocityCommand;
+import frc.robot.commands.SetHoodPositionCommand;
 import frc.robot.commands.SortStorageCommand;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -247,7 +250,61 @@ public class RobotContainer {
   }
 
   private void configureShooterButtons() {
+    //preset fender, don't need to turn base
+    operatorButtons[JoystickConstants.FENDER].whileHeld(
+      new SequentialCommandGroup(
+        new ParallelCommandGroup(
+          new SetHoodPositionCommand(m_hood, HoodConstants.LOW_ANGLE),
+          new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.FENDER_SHOT_VELOCITY),
+          new InstantCommand(()-> m_drivetrainSubsystem.enableXstance())),
+        new EnableStorageCommand(m_storage)));
 
+      operatorButtons[JoystickConstants.FENDER].whenReleased(
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_flywheel.stopFlywheel()),
+          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance())));
+
+    //preset field wall
+    operatorButtons[JoystickConstants.FIELD_WALL].whileHeld(
+      new SequentialCommandGroup(
+        new ParallelCommandGroup(
+          new SetHoodPositionCommand(m_hood, HoodConstants.HIGH_ANGLE),
+          new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
+          new InstantCommand(()-> m_drivetrainSubsystem.enableXstance())),
+        new EnableStorageCommand(m_storage)));
+
+      operatorButtons[JoystickConstants.FIELD_WALL].whenReleased(
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_flywheel.stopFlywheel()),
+          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance())));
+
+    //preset fender
+    operatorButtons[JoystickConstants.LAUNCHPAD].whileHeld(
+      new SequentialCommandGroup(
+        new ParallelCommandGroup(
+          new SetHoodPositionCommand(m_hood, HoodConstants.HIGH_ANGLE),
+          new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.LAUNCH_PAD_VELOCITY),
+          new SequentialCommandGroup (
+            new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+            new InstantCommand(()-> m_drivetrainSubsystem.enableXstance()))),
+        new EnableStorageCommand(m_storage)));
+
+      operatorButtons[JoystickConstants.FENDER].whenReleased(
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_flywheel.stopFlywheel()),
+          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance())));
+
+    //shoot slow
+    operatorButtons[JoystickConstants.SHOOT_SLOW].whenPressed(
+      new ParallelCommandGroup(
+        new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.SHOOT_SLOW_VELOCITY),
+        new SortStorageCommand(m_storage)
+    ));
+    operatorButtons[JoystickConstants.SHOOT_SLOW].whenReleased(
+        new InstantCommand(() -> m_flywheel.stopFlywheel()));
+
+   
+      
   }
 
   private void configureClimberButtons() {
@@ -282,18 +339,12 @@ public class RobotContainer {
     // configure raise elevator before starting climb
     operatorButtons[2].whenPressed(
         new ExtendClimberToMidRungCommand(m_elevator));
+    
+    //reset climber
 
-    // FIXME toggle secondary arm override
-    // operatorButtons[0].toggleWhenPressed(
-    // new ConditionalCommand(
-    // new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(),
-    // m_secondMechanism),
-    // new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(),
-    // m_secondMechanism),
-    // m_secondMechanism::isIn));
-
-    //FIXME reset climber
-
+    xboxButtons[BUTTON_A].whenPressed(
+      new RetractClimberFullCommand(m_elevator)
+    );
 
 
 
@@ -309,7 +360,7 @@ public class RobotContainer {
     xboxButtons[JoystickConstants.BUTTON_LB].whenPressed(
       new InstantCommand(() -> m_elevator.setElevatorMotorPower(-1 * ElevatorConstants.DEFAULT_MOTOR_POWER)));
 
-    xboxButtons[JoystickConstants.BUTTON_LB].whenPressed(
+    xboxButtons[JoystickConstants.BUTTON_LB].whenReleased(
       new InstantCommand(() -> m_elevator.setElevatorMotorPower(0)));
 
 
@@ -324,20 +375,7 @@ public class RobotContainer {
             new InstantCommand(() -> m_elevator.enableElevatorControl(), m_elevator),
             m_elevator::isElevatorControlEnabled));
 
-    //FIXME preset fender
-    // operatorButtons[JoystickConstants.FENDER].whileHeld(
-    //   ParallelCommandGroup(
-    //     new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.FENDER_SHOT_VELOCITY)),
-    //     SequentialCommandGroup(
-    //       ParallelCommandGroup(
-    //         new InstantCommand(() -> m_hood.setHoodSetpoint(HoodConstants.FENDER_ANGLE_POSITION))
-    //         new InstantCommand(() -> m_drivetrainSubsystem.setXStance())
-    //           //FIXME turn base
-    //           //FIXMEtoggle xstance
-            
-    //       ),
-    //     new InstantCommand(() -> m_storage.setStoragePower(StorageConstants.STORAGE_DEFAULT_SPEED)))));
-
+  
   }
 
   /**
