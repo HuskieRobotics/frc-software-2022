@@ -280,7 +280,9 @@ public class RobotContainer {
         new ParallelCommandGroup(
           new SetHoodPositionCommand(m_hood, HoodConstants.HIGH_ANGLE),
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
-          new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem)),
+          new SequentialCommandGroup (
+            new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+            new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
         new EnableStorageCommand(m_storage)));
 
       operatorButtons[JoystickConstants.FIELD_WALL].whenReleased(
