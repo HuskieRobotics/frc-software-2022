@@ -262,9 +262,11 @@ public class RobotContainer {
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.FENDER_SHOT_VELOCITY),
           new InstantCommand(()-> m_drivetrainSubsystem.enableXstance())),
         new EnableStorageCommand(m_storage)));
+
       operatorButtons[JoystickConstants.FENDER].whenReleased(
         new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel()),
+          new SortStorageCommand(m_storage),
           new InstantCommand(() -> m_drivetrainSubsystem.disableXstance())));
 
     //preset field wall
@@ -275,12 +277,14 @@ public class RobotContainer {
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
           new InstantCommand(()-> m_drivetrainSubsystem.enableXstance())),
         new EnableStorageCommand(m_storage)));
+
       operatorButtons[JoystickConstants.FIELD_WALL].whenReleased(
         new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel()),
+          new SortStorageCommand(m_storage),
           new InstantCommand(() -> m_drivetrainSubsystem.disableXstance())));
 
-    //preset fender
+    //preset launchpad
     operatorButtons[JoystickConstants.LAUNCHPAD].whileHeld(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
@@ -290,16 +294,18 @@ public class RobotContainer {
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
             new InstantCommand(()-> m_drivetrainSubsystem.enableXstance()))),
         new EnableStorageCommand(m_storage)));
-      operatorButtons[JoystickConstants.FENDER].whenReleased(
+        
+      operatorButtons[JoystickConstants.LAUNCHPAD].whenReleased(
         new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel()),
+          new SortStorageCommand(m_storage),
           new InstantCommand(() -> m_drivetrainSubsystem.disableXstance())));
 
     //shoot slow
     operatorButtons[JoystickConstants.SHOOT_SLOW].whenPressed(
       new ParallelCommandGroup(
         new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.SHOOT_SLOW_VELOCITY),
-        new InstantCommand(() -> m_storage.enableStorage())
+        new EnableStorageCommand(m_storage)
         ));
     operatorButtons[JoystickConstants.SHOOT_SLOW].whenReleased(
       new ParallelCommandGroup(
