@@ -62,7 +62,7 @@ public final class Constants {
     public static final int PIGEON_ID = 18;
 
     /* Limelight */
-    public static  double LIMELIGHT_P = 0.2; // FIXME: adjust when tuning and then make final
+    public static  double LIMELIGHT_P = 0.07; // FIXME: adjust when tuning and then make final
     public static  double LIMELIGHT_ALIGNMENT_TOLERANCE = 2; // degrees; FIXME: adjust when testing and then make final
   }
 
@@ -106,9 +106,9 @@ public final class Constants {
     public final static Gains GAINS_VELOCITY = new Gains(0.5 /* kP */, 0 /* kI */, 0 /* kD */, .0438 /* kF */,
         0 /* kIzone */, 1.00 /* kPeakOutput */);
     public final static int MAX_FLYWHEEL_VELOCITY = 17500;
-    public static final int WALL_SHOT_VELOCITY = 7682; // FIXME tune this
+    public static final int WALL_SHOT_VELOCITY = 7782; // FIXME tune this
     public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
-    public static final int LAUNCH_PAD_VELOCITY = 8547; // FIXME tune this
+    public static final int LAUNCH_PAD_VELOCITY = 8447; // FIXME tune this
     public static final int SHOOT_SLOW_VELOCITY = 4000; // FIXME tune this
     public static final double REVERSE_POWER = -0.2; // FIXME: tune this
 
@@ -155,7 +155,7 @@ public final class Constants {
     public static final int SHOOTER_SENSOR = 1;
     public static final int COLLECTOR_SENSOR = 0;
     public static final int STORAGE_MOTOR_ID = 4;
-    public static final double STORAGE_DEFAULT_SPEED = 0.8;
+    public static final double STORAGE_DEFAULT_SPEED = 0.7;
   }
 
   public static class ElevatorConstants {

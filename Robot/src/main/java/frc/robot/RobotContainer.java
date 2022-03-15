@@ -31,7 +31,6 @@ import frc.robot.commands.ReachToNextRungCommand;
 import frc.robot.commands.RetractClimberFullCommand;
 import frc.robot.commands.RetractClimberMinimumCommand;
 import frc.robot.commands.SetFlywheelVelocityCommand;
-import frc.robot.commands.SetHoodPositionCommand;
 import frc.robot.commands.SortStorageCommand;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -71,7 +70,7 @@ public class RobotContainer {
   private final Flywheel m_flywheel = new Flywheel();
   private final Hood m_hood = new Hood();
   private final LimelightMath m_limelight = new LimelightMath();
-  private final SecondaryArm m_secondMechanism = null; // = new SecondaryArm();
+  private final SecondaryArm m_secondMechanism = new SecondaryArm();
   private final Elevator m_elevator = new Elevator();
 
   private Command autoLeaveTarmac;
@@ -110,7 +109,7 @@ public class RobotContainer {
     m_limelight.register();
     m_storage.register();
     m_elevator.register();
-    // m_secondMechanism.register();
+     m_secondMechanism.register();
 
     // Set up the default command for the drivetrain.
     // The controls are for field-oriented driving:
@@ -201,7 +200,7 @@ public class RobotContainer {
                 length *= -1.0;
                 // rotate about the back-left when rotating counterclockwise; else, back-right, when rotating clockwise
                 // FIXME: confirm direction is as expected
-                if(-modifyAxis(joystick1.getX()) > 0.0) {
+                if(-modifyAxis(joystick1.getX()) < 0.0) {
                   width *= -1.0;
                 }
               }
@@ -271,7 +270,6 @@ public class RobotContainer {
     operatorButtons[JoystickConstants.FENDER].whileHeld(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
-          new SetHoodPositionCommand(m_hood, HoodConstants.LOW_ANGLE),
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.FENDER_SHOT_VELOCITY),
           new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem)),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
@@ -286,7 +284,6 @@ public class RobotContainer {
     operatorButtons[JoystickConstants.FIELD_WALL].whileHeld(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
-          new SetHoodPositionCommand(m_hood, HoodConstants.HIGH_ANGLE),
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
           new SequentialCommandGroup (
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
@@ -303,7 +300,6 @@ public class RobotContainer {
     operatorButtons[JoystickConstants.LAUNCHPAD].whileHeld(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
-          new SetHoodPositionCommand(m_hood, HoodConstants.HIGH_ANGLE),
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.LAUNCH_PAD_VELOCITY),
           new SequentialCommandGroup (
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
@@ -420,7 +416,15 @@ public class RobotContainer {
         // FIXME: Cannot call new SortStorageCommand(m_storage) as command only finished after both sensors are unblocked
         new FollowPath(PathPlanner.loadPath("Blue1(1)",
             AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-            thetaController, m_drivetrainSubsystem));
+            thetaController, m_drivetrainSubsystem),
+        new SequentialCommandGroup(
+            new ParallelCommandGroup(
+              new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
+              new SequentialCommandGroup (
+                new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+                new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+            new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
+
     // add shoot from fender command
 
     autoRed1 = new SequentialCommandGroup(

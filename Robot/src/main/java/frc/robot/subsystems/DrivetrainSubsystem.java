@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.LimelightAlignToTargetCommand;
 
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.DrivetrainConstants.*;
@@ -201,6 +202,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
                 tab.addNumber("CoG X", () -> this.centerGravity.getX());
                 tab.addNumber("CoG Y", () -> this.centerGravity.getY());
+                tab.add("align to target", new LimelightAlignToTargetCommand(this));
 
                 if (TUNING) {
                         // Add indicators and controls to this Shuffleboard tab to assist with
@@ -372,12 +374,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
                 if (rotationSupplier > 0) {     // FIXME: verify this is clockwise
-                        setCenterGrav(DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2,
-                                -DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2);
+                        setCenterGrav(DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2,
+                                -DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2);
                 }
                 else {  // counterclockwise
-                        setCenterGrav(-DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2,
-                                -DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2);
+                        setCenterGrav(DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2,
+                                DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2);
                 }
 
                 drive(translationXSupplier, translationYSupplier, rotationSupplier);
