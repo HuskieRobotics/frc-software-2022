@@ -199,6 +199,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 tab.addBoolean("isXstance", this :: isXstance);
                 tab.add("Enable XStance", new InstantCommand(() -> this.enableXstance()));
                 tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
+                tab.addNumber("CoG X", () -> this.centerGravity.getX());
+                tab.addNumber("CoG Y", () -> this.centerGravity.getY());
 
                 if (TUNING) {
                         // Add indicators and controls to this Shuffleboard tab to assist with
