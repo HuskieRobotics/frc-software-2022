@@ -10,6 +10,7 @@ import frc.robot.subsystems.*;
  */
 public class SortStorageCommand extends CommandBase {
     private Storage m_storage;
+    private int indexingDelay;
 
     public SortStorageCommand(Storage storage) {
         this.m_storage = storage;
@@ -19,16 +20,20 @@ public class SortStorageCommand extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-
+        indexingDelay = 0;
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
         if (!this.m_storage.isShooterSensorUnblocked()) {
-            this.m_storage.disableStorage();
+            indexingDelay++;
+            if(indexingDelay > 5) {
+                this.m_storage.disableStorage();
+            }
         } else if (!this.m_storage.isCollectorSensorUnblocked() & this.m_storage.isShooterSensorUnblocked()) {
             this.m_storage.enableStorage();
+            indexingDelay = 0;
         }
     }
 
