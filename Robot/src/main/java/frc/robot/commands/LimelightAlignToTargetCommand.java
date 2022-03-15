@@ -20,7 +20,7 @@ public class LimelightAlignToTargetCommand extends PIDCommand {
         drivetrainSubsystem = subsystem;
     }
 
-    public void initialize() {
+    public void initialize() {  // FIXME: remove after tuning
         super.initialize();
         getController().setP(DrivetrainConstants.LIMELIGHT_P);
     }
