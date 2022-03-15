@@ -433,16 +433,18 @@ public class RobotContainer {
     // add shoot from fender command
 
     autoRed1 = new SequentialCommandGroup(
-        new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-        // FIXME: new SortStorageCommand(m_storage),
-        new FollowPath(PathPlanner.loadPath("Red1(1)",
-            AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-            thetaController, m_drivetrainSubsystem));
-    // new WaitCommand(5)
-    // new FollowPath(PathPlanner.loadPath("Red1(2)",
-    // AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-    // thetaController, m_drivetrainSubsystem)
-    // add shoot from fender command
+      new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+      // FIXME: Cannot call new SortStorageCommand(m_storage) as command only finished after both sensors are unblocked
+      new FollowPath(PathPlanner.loadPath("Red1(1)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
+          thetaController, m_drivetrainSubsystem),
+      new SequentialCommandGroup(
+          new ParallelCommandGroup(
+            new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
+            new SequentialCommandGroup (
+              new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+              new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+          new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
 
     ShuffleboardTab tab = Shuffleboard.getTab("Auto");
     m_chooser.addOption("Leave Tarmac", autoLeaveTarmac);
