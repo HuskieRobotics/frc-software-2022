@@ -439,7 +439,8 @@ public class RobotContainer {
             new SequentialCommandGroup (
               new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
               new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
-          new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
+          new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+          new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
 
     ShuffleboardTab tab = Shuffleboard.getTab("Auto");
     m_chooser.addOption("Leave Tarmac", autoLeaveTarmac);
