@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import static frc.robot.Constants.*;
 import frc.robot.Constants.AutoConstants;
@@ -291,6 +292,10 @@ public class RobotContainer {
           new SequentialCommandGroup (
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
             new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitCommand(0.1),
+        new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+        new WaitCommand(0.3),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
 
       operatorButtons[JoystickConstants.FIELD_WALL].whenReleased(
