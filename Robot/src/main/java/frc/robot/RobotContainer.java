@@ -24,15 +24,7 @@ import static frc.robot.Constants.*;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.CollectorConstants;
 import frc.robot.Constants.StorageConstants;
-import frc.robot.commands.DefaultDriveCommand;
-import frc.robot.commands.ExtendClimberToMidRungCommand;
-import frc.robot.commands.FollowPath;
-import frc.robot.commands.LimelightAlignToTargetCommand;
-import frc.robot.commands.ReachToNextRungCommand;
-import frc.robot.commands.RetractClimberFullCommand;
-import frc.robot.commands.RetractClimberMinimumCommand;
-import frc.robot.commands.SetFlywheelVelocityCommand;
-import frc.robot.commands.SortStorageCommand;
+import frc.robot.commands.*;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.Elevator;
@@ -412,9 +404,11 @@ public class RobotContainer {
         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-    autoLeaveTarmac = new FollowPath(PathPlanner.loadPath("forward",
-        AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-        thetaController, m_drivetrainSubsystem);
+    autoLeaveTarmac = new SequentialCommandGroup(
+        new FollowPath(PathPlanner.loadPath("forward",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
+          thetaController, m_drivetrainSubsystem),
+        new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
     autoBlue1 = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
@@ -428,7 +422,8 @@ public class RobotContainer {
               new SequentialCommandGroup (
                 new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
                 new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
-            new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
+            new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+            new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
 
     // add shoot from fender command
 
