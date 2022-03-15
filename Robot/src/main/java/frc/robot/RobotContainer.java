@@ -351,7 +351,7 @@ public class RobotContainer {
 
     // configure climb to 2 rung climb sequence
     operatorButtons[1].whenPressed(
-        new RetractClimberMinimumCommand(m_elevator));
+        new RetractClimberFullCommand(m_elevator));
 
     // configure raise elevator before starting climb
     operatorButtons[2].whenPressed(
