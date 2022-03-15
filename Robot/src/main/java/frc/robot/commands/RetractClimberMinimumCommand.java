@@ -24,7 +24,7 @@ public class RetractClimberMinimumCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-
+        m_elevator.stopElevator();
     }
 
     @Override

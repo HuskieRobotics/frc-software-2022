@@ -23,7 +23,7 @@ public class ReachToNextRungCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-
+        m_elevator.stopElevator();
     }
 
     @Override

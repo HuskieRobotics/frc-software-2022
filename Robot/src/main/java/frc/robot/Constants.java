@@ -110,6 +110,7 @@ public final class Constants {
     public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
     public static final int LAUNCH_PAD_VELOCITY = 8547; // FIXME tune this
     public static final int SHOOT_SLOW_VELOCITY = 4000; // FIXME tune this
+    public static final double REVERSE_POWER = -0.2; // FIXME: tune this
 
 
   }
@@ -198,7 +199,7 @@ public final class Constants {
     public static final int CLIMBER_UP = 2;
     public static final int CLIMB_2 = 1;
     public static final int CLIMB_3 = 7;
-    public static final int CLIMB_4 = 6;
+    public static final int CLIMB_4 = 8;
     public static final int FENDER = 9;
     public static final int FIELD_WALL = 6;
     public static final int LAUNCHPAD = 5;

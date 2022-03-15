@@ -3,12 +3,7 @@ package frc.robot;
 import static frc.robot.Constants.JoystickConstants.*;
 
 
-import java.rmi.server.Operation;
-
-import javax.naming.PartialResultException;
-
 import com.pathplanner.lib.PathPlanner;
-
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
@@ -22,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import static frc.robot.Constants.*;
@@ -30,7 +24,6 @@ import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.CollectorConstants;
 import frc.robot.Constants.StorageConstants;
 import frc.robot.commands.DefaultDriveCommand;
-import frc.robot.commands.EnableStorageCommand;
 import frc.robot.commands.ExtendClimberToMidRungCommand;
 import frc.robot.commands.FollowPath;
 import frc.robot.commands.LimelightAlignToTargetCommand;
@@ -193,8 +186,13 @@ public class RobotContainer {
 
     //center of gravity
     joystickButtons1[4]
-        .whenPressed(new InstantCommand(() -> m_drivetrainSubsystem.setCenterGrav(
-            DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2, DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2),
+        .whenPressed(new InstantCommand(() -> {
+              double width = DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2;
+              // rotate about the front-left when rotating clockwise; front-right, when rotating counterclockwise
+              // FIXME: confirm direction is as expected
+              if(-modifyAxis(joystick1.getX()) < 0.0) { width *= -1.0; }
+              m_drivetrainSubsystem.setCenterGrav(width, DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2);
+            },
             m_drivetrainSubsystem));
     joystickButtons1[4]
         .whenReleased(new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav(), m_drivetrainSubsystem));
@@ -260,12 +258,14 @@ public class RobotContainer {
         new ParallelCommandGroup(
           new SetHoodPositionCommand(m_hood, HoodConstants.LOW_ANGLE),
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.FENDER_SHOT_VELOCITY),
-          new InstantCommand(()-> m_drivetrainSubsystem.enableXstance())),
-        new EnableStorageCommand(m_storage)));
+          new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem)),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
+
       operatorButtons[JoystickConstants.FENDER].whenReleased(
         new ParallelCommandGroup(
-          new InstantCommand(() -> m_flywheel.stopFlywheel()),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance())));
+          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
+          new SortStorageCommand(m_storage),
+          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
 
     //preset field wall
     operatorButtons[JoystickConstants.FIELD_WALL].whileHeld(
@@ -273,14 +273,18 @@ public class RobotContainer {
         new ParallelCommandGroup(
           new SetHoodPositionCommand(m_hood, HoodConstants.HIGH_ANGLE),
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
-          new InstantCommand(()-> m_drivetrainSubsystem.enableXstance())),
-        new EnableStorageCommand(m_storage)));
+          new SequentialCommandGroup (
+            new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+            new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
+
       operatorButtons[JoystickConstants.FIELD_WALL].whenReleased(
         new ParallelCommandGroup(
-          new InstantCommand(() -> m_flywheel.stopFlywheel()),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance())));
+          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
+          new SortStorageCommand(m_storage),
+          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
 
-    //preset fender
+    //preset launchpad
     operatorButtons[JoystickConstants.LAUNCHPAD].whileHeld(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
@@ -288,22 +292,24 @@ public class RobotContainer {
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.LAUNCH_PAD_VELOCITY),
           new SequentialCommandGroup (
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
-            new InstantCommand(()-> m_drivetrainSubsystem.enableXstance()))),
-        new EnableStorageCommand(m_storage)));
-      operatorButtons[JoystickConstants.FENDER].whenReleased(
+            new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
+        
+      operatorButtons[JoystickConstants.LAUNCHPAD].whenReleased(
         new ParallelCommandGroup(
-          new InstantCommand(() -> m_flywheel.stopFlywheel()),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance())));
+          new InstantCommand(() -> m_flywheel.stopFlywheel(),m_flywheel),
+          new SortStorageCommand(m_storage),
+          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
 
     //shoot slow
     operatorButtons[JoystickConstants.SHOOT_SLOW].whenPressed(
       new ParallelCommandGroup(
         new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.SHOOT_SLOW_VELOCITY),
-        new InstantCommand(() -> m_storage.enableStorage())
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage)
         ));
     operatorButtons[JoystickConstants.SHOOT_SLOW].whenReleased(
       new ParallelCommandGroup(
-        new InstantCommand(() -> m_flywheel.stopFlywheel()),
+        new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
         new SortStorageCommand(m_storage)
         ));
 
@@ -317,12 +323,12 @@ public class RobotContainer {
     operatorButtons[8].whenPressed(
         new SequentialCommandGroup(
             new RetractClimberFullCommand(m_elevator),
-            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
+            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism),
             new ReachToNextRungCommand(m_elevator),
             new ParallelCommandGroup(
                 new RetractClimberFullCommand(m_elevator),
-                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut())),
-            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
+                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism)),
+            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism),
             new ReachToNextRungCommand(m_elevator),
             new RetractClimberMinimumCommand(m_elevator)));
 
@@ -330,15 +336,15 @@ public class RobotContainer {
     operatorButtons[7].whenPressed(
         new SequentialCommandGroup(
             new RetractClimberFullCommand(m_elevator),
-            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut()),
+            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
             new ReachToNextRungCommand(m_elevator),
             new ParallelCommandGroup(
                 new RetractClimberMinimumCommand(m_elevator),
-                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()))));
+                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism))));
 
     // configure climb to 2 rung climb sequence
     operatorButtons[1].whenPressed(
-        new RetractClimberMinimumCommand(m_elevator));
+        new RetractClimberFullCommand(m_elevator));
 
     // configure raise elevator before starting climb
     operatorButtons[2].whenPressed(
@@ -351,18 +357,18 @@ public class RobotContainer {
 
     //extend climber
     xboxButtons[JoystickConstants.BUTTON_RB].whenPressed(
-      new InstantCommand(() -> m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER)));
+      new InstantCommand(() -> m_elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER), m_elevator));
 
 
     xboxButtons[JoystickConstants.BUTTON_RB].whenReleased(
-      new InstantCommand(() -> m_elevator.setElevatorMotorPower(0)));
+      new InstantCommand(() -> m_elevator.setElevatorMotorPower(0), m_elevator));
 
     //retract climber
     xboxButtons[JoystickConstants.BUTTON_LB].whenPressed(
-      new InstantCommand(() -> m_elevator.setElevatorMotorPower(-1 * ElevatorConstants.DEFAULT_MOTOR_POWER)));
+      new InstantCommand(() -> m_elevator.setElevatorMotorPower(-1 * ElevatorConstants.DEFAULT_MOTOR_POWER), m_elevator));
 
     xboxButtons[JoystickConstants.BUTTON_LB].whenReleased(
-      new InstantCommand(() -> m_elevator.setElevatorMotorPower(0)));
+      new InstantCommand(() -> m_elevator.setElevatorMotorPower(0), m_elevator));
 
     //pause elevator
     xboxButtons[JoystickConstants.BUTTON_START].whenPressed(new InstantCommand(() ->
