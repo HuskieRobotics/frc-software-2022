@@ -23,7 +23,7 @@ public class ExtendClimberToMidRungCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        m_elevator.disableElevator();
+        m_elevator.stopElevator();
 
     }
 
