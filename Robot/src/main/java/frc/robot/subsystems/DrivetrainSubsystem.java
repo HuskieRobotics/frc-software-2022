@@ -190,6 +190,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
                 tab.addBoolean("Is Aimed", () -> isAimed());
+                tab.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                 tab.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
                 tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
                 tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
@@ -371,6 +372,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public double getLimelightX(){
                 return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
            }
+
+        public double getLimelightDistanceIn() {
+                double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0.0);
+
+                double d = (LimelightConstants.HUB_H - LimelightConstants.ROBOT_H)
+                        / (Math.tan(Math.toRadians(43 * +LimelightConstants.LIMELIGHT_ANGLE_OFFSET + ty)));
+
+                return d;
+        }
 
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
                 if (rotationSupplier > 0) {     // FIXME: verify this is clockwise
