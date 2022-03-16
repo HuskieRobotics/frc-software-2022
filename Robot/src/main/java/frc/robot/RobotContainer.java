@@ -265,6 +265,10 @@ public class RobotContainer {
         new ParallelCommandGroup(
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.FENDER_SHOT_VELOCITY),
           new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem)),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitCommand(0.1),
+        new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+        new WaitCommand(0.3),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
 
       operatorButtons[JoystickConstants.FENDER].whenReleased(
@@ -301,6 +305,10 @@ public class RobotContainer {
           new SequentialCommandGroup (
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
             new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitCommand(0.1),
+        new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+        new WaitCommand(0.3),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
         
       operatorButtons[JoystickConstants.LAUNCHPAD].whenReleased(
