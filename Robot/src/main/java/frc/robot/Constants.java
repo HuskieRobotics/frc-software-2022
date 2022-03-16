@@ -62,8 +62,8 @@ public final class Constants {
     public static final int PIGEON_ID = 18;
 
     /* Limelight */
-    public static final double LIMELIGHT_P = 0.2; // FIXME: adjust when tuning
-    public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = 2; // degrees; FIXME: adjust when testing
+    public static  double LIMELIGHT_P = 0.07; // FIXME: adjust when tuning and then make final
+    public static  double LIMELIGHT_ALIGNMENT_TOLERANCE = 2; // degrees; FIXME: adjust when testing and then make final
   }
 
   public static final class CollectorConstants {
@@ -106,8 +106,12 @@ public final class Constants {
     public final static Gains GAINS_VELOCITY = new Gains(0.5 /* kP */, 0 /* kI */, 0 /* kD */, .0438 /* kF */,
         0 /* kIzone */, 1.00 /* kPeakOutput */);
     public final static int MAX_FLYWHEEL_VELOCITY = 17500;
-    public static final int WALL_SHOT_VELOCITY = 8000; // FIXME tune this
-    public static final int FENDER_SHOT_VELOCITY = 9000; // FIXME tune this
+    public static final int WALL_SHOT_VELOCITY = 7782; // FIXME tune this
+    public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
+    public static final int LAUNCH_PAD_VELOCITY = 8447; // FIXME tune this
+    public static final int SHOOT_SLOW_VELOCITY = 4000; // FIXME tune this
+    public static final double REVERSE_POWER = -0.2; // FIXME: tune this
+
 
   }
 
@@ -126,8 +130,8 @@ public final class Constants {
     public static final double ARBITRARY_FEED_FORWARD_UP_IN_PERCENT = 0.4; // FIXME find arbitrary feed foward for hood
     public static final double ARBITRARY_FEED_FORWARD_DOWN_IN_PERCENT = -0.2; // FIXME find arbitrary feed foward for hood
 
-    public static final double FENDER_ANGLE_POSITION = .2; // FIXME udpate once the value is known
-    public static final double WALL_ANGLE_POSITION = 1.0147; // FIXME udpate once the value is known
+    public static final double LOW_ANGLE = .2; // FIXME udpate once the value is known
+    public static final double HIGH_ANGLE = 1.0147; // FIXME udpate once the value is known
     public static final double HOOD_DEGREES_TO_HOOD_ENCODER = 0; // encodervalue/degrees ratio
     public static final double POSITION_TOLERANCE = .1;
 
@@ -151,7 +155,7 @@ public final class Constants {
     public static final int SHOOTER_SENSOR = 1;
     public static final int COLLECTOR_SENSOR = 0;
     public static final int STORAGE_MOTOR_ID = 4;
-    public static final double STORAGE_DEFAULT_SPEED = 0.8;
+    public static final double STORAGE_DEFAULT_SPEED = 0.7;
   }
 
   public static class ElevatorConstants {
@@ -166,7 +170,7 @@ public final class Constants {
     public static final int ELEVATOR_POSITION_TOLERANCE = 500;
     public static final double ARBITRARY_FEED_FORWARD_EXTEND = .02;
     public static final double ARBITRARY_FEED_FORWARD_RETRACT = -0.07;
-    public static final double DEFAULT_MOTOR_POWER = 0;
+    public static final double DEFAULT_MOTOR_POWER = 0; //FIXME TUNE
 
     public static final int kSlotIdx = 0;
     public static final int kPIDLoopIdx = 0;
@@ -193,7 +197,7 @@ public final class Constants {
     public static final int CLIMBER_UP = 2;
     public static final int CLIMB_2 = 1;
     public static final int CLIMB_3 = 7;
-    public static final int CLIMB_4 = 6;
+    public static final int CLIMB_4 = 8;
     public static final int FENDER = 9;
     public static final int FIELD_WALL = 6;
     public static final int LAUNCHPAD = 5;

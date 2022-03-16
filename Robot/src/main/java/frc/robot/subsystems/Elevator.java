@@ -142,6 +142,7 @@ public class Elevator extends SubsystemBase {
         Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(this));
         Shuffleboard.getTab("Elevator").add("Retract Climber Full", new RetractClimberFullCommand(this));
         Shuffleboard.getTab("Elevator").add("Retract Climber Minimum", new RetractClimberMinimumCommand(this));
+        Shuffleboard.getTab("Elevator").addBoolean("isElevatorControl Enabled", this :: isElevatorControlEnabled);
 
         if (TUNING) {
             this.isElevatorControlEnabled = true;
@@ -237,9 +238,9 @@ public class Elevator extends SubsystemBase {
             // // when tuning, we first set motor power and check the resulting velocity
             // // once we have determined our feedforward constant, comment the following
             // lines
-            // // and uncomment the ones to tune the PID
-            // double motorPower = this.elevatorMotorPowerNT.getDouble(0.0);
-            // this.setElevatorMotorPower(motorPower);
+            // and uncomment the ones to tune the PID
+            double motorPower = this.elevatorMotorPowerNT.getDouble(0.0);
+            this.setElevatorMotorPower(motorPower);
 
         }
     }
@@ -262,7 +263,7 @@ public class Elevator extends SubsystemBase {
         if (isElevatorControlEnabled()) {
             if ((power > 0 && this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 5000) ||
                     (power < 0 && this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 5000)) {
-                this.disableElevator();
+                this.stopElevator();
             } else {
                 this.leftElevatorMotor.set(ControlMode.PercentOutput, power);
                 this.rightElevatorMotor.set(ControlMode.PercentOutput, power);
@@ -279,7 +280,7 @@ public class Elevator extends SubsystemBase {
             // corresponding feed forward term
             if (desiredEncoderPosition > this.getElevatorEncoderHeight()) { // extending unloaded
                 if (this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 5000) {
-                    this.disableElevator();
+                    this.stopElevator();
                 } else {
                     this.leftElevatorMotor.follow(this.rightElevatorMotor);
                     rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition,
@@ -287,7 +288,7 @@ public class Elevator extends SubsystemBase {
                 }
             } else { // retracting loaded
                 if (this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 5000) {
-                    this.disableElevator();
+                    this.stopElevator();
                 } else {
                     this.leftElevatorMotor.follow(this.rightElevatorMotor);
                     rightElevatorMotor.set(TalonFXControlMode.Position, desiredEncoderPosition,
@@ -303,7 +304,7 @@ public class Elevator extends SubsystemBase {
         return Math.abs(this.getElevatorEncoderHeight() - this.encoderPositionSetpoint) < ELEVATOR_POSITION_TOLERANCE;
     }
 
-    public void disableElevator() {
+    public void stopElevator() {
         this.leftElevatorMotor.set(ControlMode.PercentOutput, 0.0);
         this.rightElevatorMotor.set(ControlMode.PercentOutput, 0.0);
     }
@@ -314,7 +315,7 @@ public class Elevator extends SubsystemBase {
 
     public void elevatorPause(boolean isStartPressed) {
         if (isStartPressed) {
-            this.disableElevator();
+            this.stopElevator();
         }
     }
 

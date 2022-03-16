@@ -231,4 +231,9 @@ public class Flywheel extends SubsystemBase {
         rightFlywheelMotor.set(TalonFXControlMode.PercentOutput, 0.0);
     }
 
+    public void unjamFlywheel() {
+        leftFlywheelMotor.set(TalonFXControlMode.PercentOutput, REVERSE_POWER);
+        rightFlywheelMotor.set(TalonFXControlMode.PercentOutput, REVERSE_POWER);
+    }
+
 }

@@ -7,6 +7,7 @@ import java.util.Map;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.SortStorageCommand;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -21,12 +22,14 @@ public class Storage extends SubsystemBase {
     private WPI_TalonSRX storage4;
     private DigitalInput collectorSensor0;
     private DigitalInput shooterSensor1;
+    private boolean isStorageEnabled;
 
     
     /**
     *
     */
     public Storage() {
+        this.isStorageEnabled = false;
         storage4 = new WPI_TalonSRX(StorageConstants.STORAGE_MOTOR_ID);
 
         collectorSensor0 = new DigitalInput(StorageConstants.COLLECTOR_SENSOR);
@@ -37,6 +40,7 @@ public class Storage extends SubsystemBase {
 
         Shuffleboard.getTab("Storage").addBoolean("Collector Unblocked", this::isCollectorSensorUnblocked);
         Shuffleboard.getTab("Storage").addBoolean("Shooter Unblocked", this::isShooterSensorUnblocked);
+        Shuffleboard.getTab("Storage").add("Sort Storage", new SortStorageCommand(this));
 
         if (TUNING) {
             // Each robot feature that requires PID tuniing has its own Shuffleboard tab for
@@ -74,10 +78,17 @@ public class Storage extends SubsystemBase {
     }
 
     public void enableStorage() {
+        this.isStorageEnabled = true;
         this.storage4.set(ControlMode.PercentOutput, StorageConstants.STORAGE_DEFAULT_SPEED);
+        
+
+    }
+    public boolean isStorageEnabled() { 
+        return isStorageEnabled;
     }
 
     public void disableStorage() {
+        this.isStorageEnabled = false;
         this.storage4.set(ControlMode.PercentOutput, 0);
     }
 

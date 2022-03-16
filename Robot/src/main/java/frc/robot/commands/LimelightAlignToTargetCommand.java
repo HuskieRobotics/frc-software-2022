@@ -3,7 +3,6 @@ import frc.robot.Constants.*;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import static frc.robot.Constants.DrivetrainConstants.*;
 
 public class LimelightAlignToTargetCommand extends PIDCommand {
 
@@ -19,6 +18,11 @@ public class LimelightAlignToTargetCommand extends PIDCommand {
         );
 
         drivetrainSubsystem = subsystem;
+    }
+
+    public void initialize() {  // FIXME: remove after tuning
+        super.initialize();
+        getController().setP(DrivetrainConstants.LIMELIGHT_P);
     }
 
     public void end(boolean interrupted) {
