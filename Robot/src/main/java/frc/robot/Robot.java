@@ -2,10 +2,17 @@ package frc.robot;
 
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoSink;
+import edu.wpi.first.cscore.VideoMode.PixelFormat;
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.StorageConstants;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -19,6 +26,9 @@ public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
 
     private RobotContainer m_robotContainer;
+    UsbCamera climbCam; 
+    UsbCamera storageCam;
+    VideoSink server;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -30,6 +40,21 @@ public class Robot extends TimedRobot {
         // and put our
         // autonomous chooser on the dashboard.
         m_robotContainer = RobotContainer.getInstance();
+
+        climbCam = CameraServer.startAutomaticCapture(ElevatorConstants.CLIMBER_CAMERA_PORT);
+        climbCam.setResolution(320,240);
+        climbCam.setFPS(15);
+        climbCam.setPixelFormat(PixelFormat.kYUYV);
+        climbCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+
+        storageCam = CameraServer.startAutomaticCapture(StorageConstants.STORAGE_CAMERA_PORT);
+        storageCam.setResolution(320,240);
+        storageCam.setFPS(15);
+        storageCam.setPixelFormat(PixelFormat.kYUYV);
+        storageCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+
+        server = CameraServer.getServer();
+
         HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);
 
     }
@@ -106,8 +131,14 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopPeriodic() {
-    }
 
+        if(this.m_robotContainer.isElevatorControlEnabled()){
+            server.setSource(climbCam);
+        }
+        else{
+            server.setSource(storageCam);
+        }
+    }
     @Override
     public void testInit() {
         // Cancels all running commands at the start of test mode.

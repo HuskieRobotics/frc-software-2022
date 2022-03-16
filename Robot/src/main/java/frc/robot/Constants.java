@@ -156,6 +156,7 @@ public final class Constants {
     public static final int COLLECTOR_SENSOR = 0;
     public static final int STORAGE_MOTOR_ID = 4;
     public static final double STORAGE_DEFAULT_SPEED = 0.7;
+    public static final int STORAGE_CAMERA_PORT = 1;
   }
 
   public static class ElevatorConstants {
@@ -185,7 +186,7 @@ public final class Constants {
     public static final int PIGEON_ID = 18;
     public static final int LEFT_ELEVATOR_MOTOR_CAN_ID = 22;
     public static final int RIGHT_ELEVATOR_MOTOR_CAN_ID = 19;
-
+    public static final int CLIMBER_CAMERA_PORT = 0;
   }
 
   public class SecondMechanismConstants {

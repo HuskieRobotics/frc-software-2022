@@ -471,4 +471,8 @@ public class RobotContainer {
     return value;
   }
 
+  public boolean isElevatorControlEnabled() {
+    return m_elevator.isElevatorControlEnabled();
+  }
+
 }
