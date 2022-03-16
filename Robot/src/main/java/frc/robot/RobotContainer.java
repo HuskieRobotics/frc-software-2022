@@ -18,21 +18,13 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import static frc.robot.Constants.*;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.CollectorConstants;
 import frc.robot.Constants.StorageConstants;
-import frc.robot.commands.DefaultDriveCommand;
-import frc.robot.commands.ExtendClimberToMidRungCommand;
-import frc.robot.commands.FollowPath;
-import frc.robot.commands.LimelightAlignToTargetCommand;
-import frc.robot.commands.ReachToNextRungCommand;
-import frc.robot.commands.RetractClimberFullCommand;
-import frc.robot.commands.RetractClimberMinimumCommand;
-import frc.robot.commands.SetFlywheelVelocityCommand;
-import frc.robot.commands.SetHoodPositionCommand;
-import frc.robot.commands.SortStorageCommand;
+import frc.robot.commands.*;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.Elevator;
@@ -71,7 +63,7 @@ public class RobotContainer {
   private final Flywheel m_flywheel = new Flywheel();
   private final Hood m_hood = new Hood();
   private final LimelightMath m_limelight = new LimelightMath();
-  private final SecondaryArm m_secondMechanism = null; // = new SecondaryArm();
+  private final SecondaryArm m_secondMechanism = new SecondaryArm();
   private final Elevator m_elevator = new Elevator();
 
   private Command autoLeaveTarmac;
@@ -110,7 +102,7 @@ public class RobotContainer {
     m_limelight.register();
     m_storage.register();
     m_elevator.register();
-    // m_secondMechanism.register();
+     m_secondMechanism.register();
 
     // Set up the default command for the drivetrain.
     // The controls are for field-oriented driving:
@@ -187,10 +179,25 @@ public class RobotContainer {
     //center of gravity
     joystickButtons1[4]
         .whenPressed(new InstantCommand(() -> {
-              double width = DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2;
-              // rotate about the front-left when rotating clockwise; front-right, when rotating counterclockwise
-              // FIXME: confirm direction is as expected
-              if(-modifyAxis(joystick1.getX()) < 0.0) { width *= -1.0; }
+              double width = DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2.0;
+              double length = DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2.0;
+              // if going forward....
+              if(-modifyAxis(joystick0.getY()) < 0.0) {
+                // rotate about the front-left when rotating clockwise; else, front-right, when rotating counterclockwise
+                // FIXME: confirm direction is as expected
+                if(-modifyAxis(joystick1.getX()) < 0.0) {
+                  width *= -1.0;
+                }
+              }
+              else {
+                length *= -1.0;
+                // rotate about the back-left when rotating counterclockwise; else, back-right, when rotating clockwise
+                // FIXME: confirm direction is as expected
+                if(-modifyAxis(joystick1.getX()) < 0.0) {
+                  width *= -1.0;
+                }
+              }
+
               m_drivetrainSubsystem.setCenterGrav(width, DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2);
             },
             m_drivetrainSubsystem));
@@ -256,7 +263,6 @@ public class RobotContainer {
     operatorButtons[JoystickConstants.FENDER].whileHeld(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
-          new SetHoodPositionCommand(m_hood, HoodConstants.LOW_ANGLE),
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.FENDER_SHOT_VELOCITY),
           new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem)),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
@@ -271,11 +277,14 @@ public class RobotContainer {
     operatorButtons[JoystickConstants.FIELD_WALL].whileHeld(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
-          new SetHoodPositionCommand(m_hood, HoodConstants.HIGH_ANGLE),
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
           new SequentialCommandGroup (
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
             new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitCommand(0.1),
+        new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+        new WaitCommand(0.3),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
 
       operatorButtons[JoystickConstants.FIELD_WALL].whenReleased(
@@ -288,7 +297,6 @@ public class RobotContainer {
     operatorButtons[JoystickConstants.LAUNCHPAD].whileHeld(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
-          new SetHoodPositionCommand(m_hood, HoodConstants.HIGH_ANGLE),
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.LAUNCH_PAD_VELOCITY),
           new SequentialCommandGroup (
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
@@ -396,29 +404,43 @@ public class RobotContainer {
         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-    autoLeaveTarmac = new FollowPath(PathPlanner.loadPath("forward",
-        AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-        thetaController, m_drivetrainSubsystem);
+    autoLeaveTarmac = new SequentialCommandGroup(
+        new FollowPath(PathPlanner.loadPath("forward",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
+          thetaController, m_drivetrainSubsystem),
+        new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
     autoBlue1 = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
         // FIXME: Cannot call new SortStorageCommand(m_storage) as command only finished after both sensors are unblocked
         new FollowPath(PathPlanner.loadPath("Blue1(1)",
             AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-            thetaController, m_drivetrainSubsystem));
+            thetaController, m_drivetrainSubsystem),
+        new SequentialCommandGroup(
+            new ParallelCommandGroup(
+              new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
+              new SequentialCommandGroup (
+                new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+                new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+            new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+            new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
+
     // add shoot from fender command
 
     autoRed1 = new SequentialCommandGroup(
-        new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-        // FIXME: new SortStorageCommand(m_storage),
-        new FollowPath(PathPlanner.loadPath("Red1(1)",
-            AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-            thetaController, m_drivetrainSubsystem));
-    // new WaitCommand(5)
-    // new FollowPath(PathPlanner.loadPath("Red1(2)",
-    // AutoConstants.kMaxSpeedMetersPerSecond,AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-    // thetaController, m_drivetrainSubsystem)
-    // add shoot from fender command
+      new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+      // FIXME: Cannot call new SortStorageCommand(m_storage) as command only finished after both sensors are unblocked
+      new FollowPath(PathPlanner.loadPath("Red1(1)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
+          thetaController, m_drivetrainSubsystem),
+      new SequentialCommandGroup(
+          new ParallelCommandGroup(
+            new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
+            new SequentialCommandGroup (
+              new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+              new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+          new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+          new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
 
     ShuffleboardTab tab = Shuffleboard.getTab("Auto");
     m_chooser.addOption("Leave Tarmac", autoLeaveTarmac);

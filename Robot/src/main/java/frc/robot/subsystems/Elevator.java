@@ -142,6 +142,7 @@ public class Elevator extends SubsystemBase {
         Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(this));
         Shuffleboard.getTab("Elevator").add("Retract Climber Full", new RetractClimberFullCommand(this));
         Shuffleboard.getTab("Elevator").add("Retract Climber Minimum", new RetractClimberMinimumCommand(this));
+        Shuffleboard.getTab("Elevator").addBoolean("isElevatorControl Enabled", this :: isElevatorControlEnabled);
 
         if (TUNING) {
             this.isElevatorControlEnabled = true;
@@ -237,9 +238,9 @@ public class Elevator extends SubsystemBase {
             // // when tuning, we first set motor power and check the resulting velocity
             // // once we have determined our feedforward constant, comment the following
             // lines
-            // // and uncomment the ones to tune the PID
-            // double motorPower = this.elevatorMotorPowerNT.getDouble(0.0);
-            // this.setElevatorMotorPower(motorPower);
+            // and uncomment the ones to tune the PID
+            double motorPower = this.elevatorMotorPowerNT.getDouble(0.0);
+            this.setElevatorMotorPower(motorPower);
 
         }
     }
