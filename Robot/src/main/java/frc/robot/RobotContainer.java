@@ -4,6 +4,8 @@ import static frc.robot.Constants.JoystickConstants.*;
 
 
 import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
@@ -423,10 +425,12 @@ public class RobotContainer {
         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
+    PathPlannerTrajectory autoBlueForwardPath = PathPlanner.loadPath("BlueForward",
+        AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     autoBlueForward = new SequentialCommandGroup(
-      new FollowPath(PathPlanner.loadPath("BlueForward",
-          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-          thetaController, m_drivetrainSubsystem),
+      new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoBlueForwardPath.getInitialState())),
+      new WaitCommand(2.0),
+      new FollowPath(autoBlueForwardPath, thetaController, m_drivetrainSubsystem),
       new SequentialCommandGroup(
           new ParallelCommandGroup(
             new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),

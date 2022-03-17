@@ -257,14 +257,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 return Rotation2d.fromDegrees(m_pigeon.getYaw());
         }
 
+        public void setGyroFromPath(PathPlannerState state) {
+                m_pigeon.setYaw(state.holonomicRotation.getDegrees());
+        }
+
         public Pose2d getPose() {
                 return m_odometry.getPoseMeters();
         }
 
-        public void resetOdometryAndGyro(PathPlannerState state) {
-                System.out.println("set gyro to: " + state.holonomicRotation.getDegrees());
-                m_pigeon.setYaw(state.holonomicRotation.getDegrees());
-                System.out.println("gyro reads: " + m_pigeon.getYaw());
+        public void resetOdometry(PathPlannerState state) {
                 m_odometry.resetPosition(new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation),
                  Rotation2d.fromDegrees(m_pigeon.getYaw()));
         }
