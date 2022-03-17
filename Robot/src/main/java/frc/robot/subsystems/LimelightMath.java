@@ -72,7 +72,7 @@ public class LimelightMath extends SubsystemBase {
         this.ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0.0);
 
         double d = (LimelightConstants.HUB_H - LimelightConstants.ROBOT_H)
-                / (Math.tan(Math.toRadians(50 * +LimelightConstants.LIMELIGHT_ANGLE_OFFSET + ty)));
+                / (Math.tan(Math.toRadians(LimelightConstants.LIMELIGHT_MOUNT_ANGLE +LimelightConstants.LIMELIGHT_ANGLE_OFFSET + ty)));
 
         return d;
     }

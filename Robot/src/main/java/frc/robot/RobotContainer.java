@@ -66,10 +66,11 @@ public class RobotContainer {
   private final SecondaryArm m_secondMechanism = new SecondaryArm();
   private final Elevator m_elevator = new Elevator();
 
-  private Command autoLeaveTarmac;
+  private Command autoBlueForward;
   private Command autoBlue1;
-  private Command autoRed1;
   private Command autoBlue2;
+  private Command autoRedForward;
+  private Command autoRed1;
   private Command autoRed2;
 
   // Joysticks
@@ -422,8 +423,8 @@ public class RobotContainer {
         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-    autoLeaveTarmac = new SequentialCommandGroup(
-      new FollowPath(PathPlanner.loadPath("forward",
+    autoBlueForward = new SequentialCommandGroup(
+      new FollowPath(PathPlanner.loadPath("BlueForward",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
           thetaController, m_drivetrainSubsystem),
       new SequentialCommandGroup(
@@ -465,7 +466,18 @@ public class RobotContainer {
           new InstantCommand(()-> m_storage.enableStorage(), m_storage),
           new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
 
-    // add shoot from fender command
+    autoRedForward = new SequentialCommandGroup(
+      new FollowPath(PathPlanner.loadPath("RedForward",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
+          thetaController, m_drivetrainSubsystem),
+      new SequentialCommandGroup(
+          new ParallelCommandGroup(
+            new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
+            new SequentialCommandGroup (
+              new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+              new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+          new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+          new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
 
     autoRed1 = new SequentialCommandGroup(
       new InstantCommand(() -> m_collector.enableCollector(), m_collector),
@@ -498,9 +510,10 @@ public class RobotContainer {
           new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
 
     ShuffleboardTab tab = Shuffleboard.getTab("Auto");
-    m_chooser.addOption("Leave Tarmac", autoLeaveTarmac);
+    m_chooser.addOption("Blue Forward", autoBlueForward);
     m_chooser.addOption("Blue 1", autoBlue1);
     m_chooser.addOption("Blue 2", autoBlue1);
+    m_chooser.addOption("Red Forward", autoRedForward);
     m_chooser.addOption("Red 1", autoRed1);
     m_chooser.addOption("Red 2", autoRed1);
     tab.add("Auto Mode", m_chooser);
@@ -531,14 +544,4 @@ public class RobotContainer {
   public boolean isElevatorControlEnabled() {
     return m_elevator.isElevatorControlEnabled();
   }
-
-  public void checkForGyroZero(){
-    //if(xboxButtons[BUTTON_Y].getAsBoolean()){
-      System.out.println("zero gyro");
-      m_drivetrainSubsystem.zeroGyroscope();
-     // }    
-    
-
-  }
-
 }
