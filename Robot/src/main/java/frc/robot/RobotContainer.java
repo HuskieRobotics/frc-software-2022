@@ -204,6 +204,13 @@ public class RobotContainer {
     joystickButtons1[4]
         .whenReleased(new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav(), m_drivetrainSubsystem));
 
+    joystickButtons0[1].whenPressed(
+      new ParallelCommandGroup(
+          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
+          new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem),
+          new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav(), m_drivetrainSubsystem)));
+
     // Reset Gyro
     xboxButtons[BUTTON_Y].whenPressed(
         new InstantCommand(() -> m_drivetrainSubsystem.zeroGyroscope(), m_drivetrainSubsystem));
@@ -278,7 +285,7 @@ public class RobotContainer {
           new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
 
     //preset field wall
-    operatorButtons[JoystickConstants.FIELD_WALL].whileHeld(
+    operatorButtons[JoystickConstants.FIELD_WALL].whenPressed(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
@@ -288,14 +295,13 @@ public class RobotContainer {
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
         new WaitCommand(0.1),
         new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-        new WaitCommand(0.3),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
-
-      operatorButtons[JoystickConstants.FIELD_WALL].whenReleased(
+        new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitCommand(0.25),
         new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
-          new SortStorageCommand(m_storage),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
+          new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem))));
 
     //preset launchpad
     operatorButtons[JoystickConstants.LAUNCHPAD].whileHeld(
