@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
+import static frc.robot.Constants.*;
+
 /**
  *
  */
@@ -21,9 +23,11 @@ public class SecondaryArm extends SubsystemBase {
                 SecondMechanismConstants.PNEUMATIC_CHANNEL);
         addChild("Secondary Mechanism", this.secondaryMechanism);
 
-        Shuffleboard.getTab("Secondary Arm").add("Second Arm Out", new InstantCommand(this::moveSecondaryArmOut));
-        Shuffleboard.getTab("Secondary Arm").add("Second Arm In", new InstantCommand(this::moveSecondaryArmIn));
-        Shuffleboard.getTab("Secondary Arm").addBoolean("Second Arm In?", this::isIn);
+        if(COMMAND_LOGGING) {
+            Shuffleboard.getTab("Secondary Arm").add("Second Arm Out", new InstantCommand(this::moveSecondaryArmOut));
+            Shuffleboard.getTab("Secondary Arm").add("Second Arm In", new InstantCommand(this::moveSecondaryArmIn));
+            Shuffleboard.getTab("Secondary Arm").addBoolean("Second Arm In?", this::isIn);
+        }
     }
 
     @Override
