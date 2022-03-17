@@ -261,7 +261,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 return m_odometry.getPoseMeters();
         }
 
-        public void resetOdometry(PathPlannerState state) {
+        public void resetOdometryAndGyro(PathPlannerState state) {
+                System.out.println("set gyro to: " + state.holonomicRotation.getDegrees());
+                m_pigeon.setYaw(state.holonomicRotation.getDegrees());
+                System.out.println("gyro reads: " + m_pigeon.getYaw());
                 m_odometry.resetPosition(new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation),
                  Rotation2d.fromDegrees(m_pigeon.getYaw()));
         }
@@ -420,6 +423,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         public void enableXstance() {
                 this.isXstance = true;
+                this.setXStance();
         }
         public void disableXstance() {
                 this.isXstance = false;

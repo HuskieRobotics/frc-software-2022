@@ -36,7 +36,7 @@ public class FollowPath extends PPSwerveControllerCommand {
         this.thetaController.reset(this.drivetrainSubsystem.getPose().getRotation().getRadians());
 
         // Reset odometry to the starting pose of the trajectory.
-        this.drivetrainSubsystem.resetOdometry(this.trajectory.getInitialState());
+        this.drivetrainSubsystem.resetOdometryAndGyro(this.trajectory.getInitialState());
 
     }
 }

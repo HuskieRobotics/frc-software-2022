@@ -509,7 +509,7 @@ public class RobotContainer {
           new InstantCommand(()-> m_storage.enableStorage(), m_storage),
           new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
 
-    ShuffleboardTab tab = Shuffleboard.getTab("Auto");
+    ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
     m_chooser.addOption("Blue Forward", autoBlueForward);
     m_chooser.addOption("Blue 1", autoBlue1);
     m_chooser.addOption("Blue 2", autoBlue1);
