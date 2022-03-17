@@ -47,15 +47,15 @@ public class Robot extends TimedRobot {
         // climbCam.setPixelFormat(PixelFormat.kYUYV);
         // climbCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
-        // storageCam = CameraServer.startAutomaticCapture(StorageConstants.STORAGE_CAMERA_PORT);
-        // // storageCam.setResolution(320,240);
-        // // storageCam.setFPS(15);
-        // // storageCam.setPixelFormat(PixelFormat.kYUYV);
-        // // storageCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+        storageCam = CameraServer.startAutomaticCapture(StorageConstants.STORAGE_CAMERA_PORT);
+        storageCam.setResolution(320,240);
+        storageCam.setFPS(15);
+        storageCam.setPixelFormat(PixelFormat.kYUYV);
+        storageCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
-        // server = CameraServer.getServer();
+        server = CameraServer.getServer();
 
-        // server.setSource(storageCam);
+    
 
         HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);
 
@@ -134,12 +134,12 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
 
-        // if(this.m_robotContainer.isElevatorControlEnabled()){
-        //     server.setSource(climbCam);
-        // }
-        // else{
-        //     server.setSource(storageCam);
-        // }
+        if(this.m_robotContainer.isElevatorControlEnabled()){
+            server.setSource(climbCam);
+        }
+        else{
+            server.setSource(storageCam);
+        }
 
     }
     @Override
