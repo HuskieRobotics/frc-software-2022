@@ -107,6 +107,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         public DrivetrainSubsystem() {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
+                ShuffleboardTab tabMain = Shuffleboard.getTab("MAIN");
                 this.isFieldRelative = false;
                 this.isXstance = false;
                 // this.m_robotCenter = new Translation2d(0,0);
@@ -190,18 +191,19 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
                 tab.add("drivetrain", this);
-                tab.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
-                tab.addBoolean("Wall Dist", () -> isAtWallDistance());
-                tab.addBoolean("Is Aimed", () -> isAimed());
-                tab.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
-                tab.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
+                tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
+                tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
+                tabMain.addBoolean("Is Aimed", () -> isAimed());
+                tabMain.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
+                tab.addNumber("Limelight y Dist", () -> getLimelighty());
+                tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
                 tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
                 tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
                 tab.addNumber("Pose Rotation", () -> m_odometry.getPoseMeters().getRotation().getDegrees());
-                this.fieldRelativeNT = Shuffleboard.getTab("Drivetrain")
+                this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
-                tab.addBoolean("isXstance", this :: isXstance);
+                tabMain.addBoolean("isXstance", this :: isXstance);
                 tab.add("Enable XStance", new InstantCommand(() -> this.enableXstance()));
                 tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
                 tab.addNumber("CoG X", () -> this.centerGravity.getX());
@@ -375,12 +377,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public double getLimelightX(){
                 return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
            }
+           public double getLimelighty(){
+                return NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
+           }
 
         public double getLimelightDistanceIn() {
                 double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0.0);
 
                 double d = (LimelightConstants.HUB_H - LimelightConstants.ROBOT_H)
-                        / (Math.tan(Math.toRadians(LimelightConstants.LIMELIGHT_MOUNT_ANGLE * +LimelightConstants.LIMELIGHT_ANGLE_OFFSET + ty)));
+                        / (Math.tan(Math.toRadians(LimelightConstants.LIMELIGHT_MOUNT_ANGLE +LimelightConstants.LIMELIGHT_ANGLE_OFFSET + ty)));
 
                 return d;
         }

@@ -144,8 +144,8 @@ public final class Constants {
     public static final double Flywheel_Radius_IN = 2;
     public static final double Velocity_Multiplier = 2;
     public static final double Ticks_Per_One_Rotation = 2048;
-    public static final int LIMELIGHT_ANGLE_OFFSET = -2;
-    public static final int LIMELIGHT_MOUNT_ANGLE = 39; 
+    public static final int LIMELIGHT_ANGLE_OFFSET = 0;
+    public static final int LIMELIGHT_MOUNT_ANGLE = 50; 
     public static final int D2_D1_OFFSET_IN = 24;
     public static final int H2_H1_OFFSET_IN = -24;
     public static final int DISTANCE_TOLERANCE = 12;
