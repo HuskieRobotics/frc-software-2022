@@ -41,11 +41,13 @@ public class Collector extends SubsystemBase {
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .getEntry();
 
-        Shuffleboard.getTab("Collector").add("collector", this);
-        Shuffleboard.getTab("Collector").add("deployCollector", new InstantCommand(this::deployCollectorPiston, this));
-        Shuffleboard.getTab("Collector").add("retractCollector",
-                new InstantCommand(this::retractCollectorPiston, this));
-        Shuffleboard.getTab("Collector").addBoolean("enabled", this::isEnabled);
+        if(COMMAND_LOGGING) {
+            Shuffleboard.getTab("Collector").add("collector", this);
+            Shuffleboard.getTab("Collector").add("deployCollector", new InstantCommand(this::deployCollectorPiston, this));
+            Shuffleboard.getTab("Collector").add("retractCollector",
+                    new InstantCommand(this::retractCollectorPiston, this));
+            Shuffleboard.getTab("Collector").addBoolean("enabled", this::isEnabled);
+        }
     }
 
     @Override

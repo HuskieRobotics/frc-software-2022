@@ -16,7 +16,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public final class Constants {
 
   public static final boolean TUNING = false;
-  public static final boolean COMMAND_LOGGING = true;
+  public static final boolean COMMAND_LOGGING = false;
 
   /* DRIVETRAIN CONSTANTS */
 
@@ -110,6 +110,7 @@ public final class Constants {
     public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
     public static final int LAUNCH_PAD_VELOCITY = 8447; // FIXME tune this
     public static final int SHOOT_SLOW_VELOCITY = 2000; // FIXME tune this
+    public static final int SHOT_VELOCITY_DIP = 400;  // FIXME: tune this
     public static final double REVERSE_POWER = -0.2; // FIXME: tune this
 
 
