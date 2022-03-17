@@ -444,7 +444,7 @@ public class RobotContainer {
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       autoBlue1 = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-        new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoBlueForwardPath.getInitialState())),
+        new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoBlue1Path.getInitialState())),
         new WaitCommand(2.0),
         new FollowPath(autoBlue1Path, thetaController, m_drivetrainSubsystem),
         new SequentialCommandGroup(
@@ -456,25 +456,28 @@ public class RobotContainer {
             new InstantCommand(()-> m_storage.enableStorage(), m_storage),
             new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
 
-    autoBlue2 = new SequentialCommandGroup(
-      new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-      // FIXME: Cannot call new SortStorageCommand(m_storage) as command only finished after both sensors are unblocked
-      new FollowPath(PathPlanner.loadPath("Blue2(1)",
-          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-          thetaController, m_drivetrainSubsystem),
-      new SequentialCommandGroup(
-          new ParallelCommandGroup(
-            new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
-            new SequentialCommandGroup (
-              new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
-              new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
-          new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-          new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
+      PathPlannerTrajectory autoBlue2Path = PathPlanner.loadPath("Blue2(1)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+      autoBlue2 = new SequentialCommandGroup(
+        new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+        new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoBlue2Path.getInitialState())),
+        new WaitCommand(2.0),
+        new FollowPath(autoBlue2Path, thetaController, m_drivetrainSubsystem),
+        new SequentialCommandGroup(
+            new ParallelCommandGroup(
+              new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
+              new SequentialCommandGroup (
+                new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+                new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+            new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+            new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
 
+    PathPlannerTrajectory autoRedForwardPath = PathPlanner.loadPath("RedForward",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     autoRedForward = new SequentialCommandGroup(
-      new FollowPath(PathPlanner.loadPath("RedForward",
-          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-          thetaController, m_drivetrainSubsystem),
+      new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoRedForwardPath.getInitialState())),
+      new WaitCommand(2.0),
+      new FollowPath(autoRedForwardPath, thetaController, m_drivetrainSubsystem),
       new SequentialCommandGroup(
           new ParallelCommandGroup(
             new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
@@ -484,12 +487,13 @@ public class RobotContainer {
           new InstantCommand(()-> m_storage.enableStorage(), m_storage),
           new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
 
+    PathPlannerTrajectory autoRed1Path = PathPlanner.loadPath("Red1(1)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     autoRed1 = new SequentialCommandGroup(
       new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-      // FIXME: Cannot call new SortStorageCommand(m_storage) as command only finished after both sensors are unblocked
-      new FollowPath(PathPlanner.loadPath("Red1(1)",
-          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-          thetaController, m_drivetrainSubsystem),
+      new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoRed1Path.getInitialState())),
+      new WaitCommand(2.0),
+      new FollowPath(autoRed1Path, thetaController, m_drivetrainSubsystem),
       new SequentialCommandGroup(
           new ParallelCommandGroup(
             new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
@@ -499,12 +503,13 @@ public class RobotContainer {
           new InstantCommand(()-> m_storage.enableStorage(), m_storage),
           new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
 
+    PathPlannerTrajectory autoRed2Path = PathPlanner.loadPath("Red2(1)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     autoRed2 = new SequentialCommandGroup(
       new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-      // FIXME: Cannot call new SortStorageCommand(m_storage) as command only finished after both sensors are unblocked
-      new FollowPath(PathPlanner.loadPath("Red2(1)",
-          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-          thetaController, m_drivetrainSubsystem),
+      new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoRed2Path.getInitialState())),
+      new WaitCommand(2.0),
+      new FollowPath(autoRed2Path, thetaController, m_drivetrainSubsystem),
       new SequentialCommandGroup(
           new ParallelCommandGroup(
             new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
