@@ -26,6 +26,7 @@ public class Flywheel extends SubsystemBase {
     private WPI_TalonFX leftFlywheelMotor;
     private WPI_TalonFX rightFlywheelMotor;
     private double velocitySetPoint;
+    private int setPointCount;
 
     /**
     *
@@ -224,7 +225,15 @@ public class Flywheel extends SubsystemBase {
     }
 
     public boolean isAtSetpoint() {
-        return Math.abs(this.getVelocity() - this.velocitySetPoint) < VELOCITY_TOLERANCE;
+        if(Math.abs(this.getVelocity() - this.velocitySetPoint) < VELOCITY_TOLERANCE) {
+            setPointCount++;
+            if(setPointCount == 10) {
+                setPointCount = 0;
+                return true;
+            }
+        }
+            return false;
+        
     }
 
     public void stopFlywheel() {

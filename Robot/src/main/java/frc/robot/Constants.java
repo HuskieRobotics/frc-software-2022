@@ -63,7 +63,7 @@ public final class Constants {
 
     /* Limelight */
     public static  double LIMELIGHT_P = 0.07; // FIXME: adjust when tuning and then make final
-    public static  double LIMELIGHT_ALIGNMENT_TOLERANCE = 2; // degrees; FIXME: adjust when testing and then make final
+    public static  double LIMELIGHT_ALIGNMENT_TOLERANCE = 1.5; // degrees; FIXME: adjust when testing and then make final
   }
 
   public static final class CollectorConstants {
@@ -100,7 +100,7 @@ public final class Constants {
     public static final int SLOT_INDEX = 0;
     public static final int PID_LOOP_INDEX = 0;
     public static final int TIMEOUT_MS = 30;
-    public static final int VELOCITY_TOLERANCE = 500; 
+    public static final int VELOCITY_TOLERANCE = 300; 
     public static final int LEFT_FLYWHEELMOTOR_CANID = 1;
     public static final int RIGHT_FLYWHEELMOTOR_CANID = 2;
     public final static Gains GAINS_VELOCITY = new Gains(0.5 /* kP */, 0 /* kI */, 0 /* kD */, .0438 /* kF */,

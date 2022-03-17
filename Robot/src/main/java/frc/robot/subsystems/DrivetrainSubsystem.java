@@ -105,6 +105,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         private SimpleMotorFeedforward feedForward;
 
+        private int aimSetpointCount;
+
         public DrivetrainSubsystem() {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
                 ShuffleboardTab tabMain = Shuffleboard.getTab("MAIN");
@@ -262,9 +264,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         public void resetOdometryAndGyro(PathPlannerState state) {
-                System.out.println("set gyro to: " + state.holonomicRotation.getDegrees());
-                m_pigeon.setYaw(state.holonomicRotation.getDegrees());
-                System.out.println("gyro reads: " + m_pigeon.getYaw());
+                // System.out.println("set gyro to: " + state.holonomicRotation.getDegrees());
+                // m_pigeon.setYaw(state.holonomicRotation.getDegrees());
+                // System.out.println("gyro reads: " + m_pigeon.getYaw());
                 m_odometry.resetPosition(new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation),
                  Rotation2d.fromDegrees(m_pigeon.getYaw()));
         }
@@ -418,7 +420,16 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         public boolean isAimed() {
-                return Math.abs(0.0 - getLimelightX()) - LIMELIGHT_ALIGNMENT_TOLERANCE <= 0;
+
+                if(Math.abs(0.0 - getLimelightX()) - LIMELIGHT_ALIGNMENT_TOLERANCE <= 0){
+                        aimSetpointCount++;
+                        if(aimSetpointCount >= 5){
+                                aimSetpointCount = 0;
+                                return true;
+                        }
+                }
+                return false;
+
         }
 
         public void enableXstance() {
