@@ -69,6 +69,8 @@ public class RobotContainer {
   private Command autoLeaveTarmac;
   private Command autoBlue1;
   private Command autoRed1;
+  private Command autoBlue2;
+  private Command autoRed2;
 
   // Joysticks
 
@@ -419,10 +421,17 @@ public class RobotContainer {
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     autoLeaveTarmac = new SequentialCommandGroup(
-        new FollowPath(PathPlanner.loadPath("forward",
+      new FollowPath(PathPlanner.loadPath("forward",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
           thetaController, m_drivetrainSubsystem),
-        new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
+      new SequentialCommandGroup(
+          new ParallelCommandGroup(
+            new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
+            new SequentialCommandGroup (
+              new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+              new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+          new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+          new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
 
     autoBlue1 = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
@@ -438,6 +447,21 @@ public class RobotContainer {
                 new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
             new InstantCommand(()-> m_storage.enableStorage(), m_storage),
             new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
+
+    autoBlue2 = new SequentialCommandGroup(
+      new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+      // FIXME: Cannot call new SortStorageCommand(m_storage) as command only finished after both sensors are unblocked
+      new FollowPath(PathPlanner.loadPath("Blue2(1)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
+          thetaController, m_drivetrainSubsystem),
+      new SequentialCommandGroup(
+          new ParallelCommandGroup(
+            new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
+            new SequentialCommandGroup (
+              new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+              new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+          new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+          new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
 
     // add shoot from fender command
 
@@ -456,10 +480,27 @@ public class RobotContainer {
           new InstantCommand(()-> m_storage.enableStorage(), m_storage),
           new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
 
+    autoRed2 = new SequentialCommandGroup(
+      new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+      // FIXME: Cannot call new SortStorageCommand(m_storage) as command only finished after both sensors are unblocked
+      new FollowPath(PathPlanner.loadPath("Red2(1)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
+          thetaController, m_drivetrainSubsystem),
+      new SequentialCommandGroup(
+          new ParallelCommandGroup(
+            new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
+            new SequentialCommandGroup (
+              new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+              new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+          new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+          new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
+
     ShuffleboardTab tab = Shuffleboard.getTab("Auto");
     m_chooser.addOption("Leave Tarmac", autoLeaveTarmac);
     m_chooser.addOption("Blue 1", autoBlue1);
+    m_chooser.addOption("Blue 2", autoBlue1);
     m_chooser.addOption("Red 1", autoRed1);
+    m_chooser.addOption("Red 2", autoRed1);
     tab.add("Auto Mode", m_chooser);
   }
 
