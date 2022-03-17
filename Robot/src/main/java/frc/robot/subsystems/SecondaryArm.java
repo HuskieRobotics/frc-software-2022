@@ -46,12 +46,12 @@ public class SecondaryArm extends SubsystemBase {
     }
 
     public void moveSecondaryArmIn() {
-        this.secondaryMechanism.set(true);
+        this.secondaryMechanism.set(false);
         this.isIn = true;
     }
 
     public void moveSecondaryArmOut() {
-        this.secondaryMechanism.set(false);
+        this.secondaryMechanism.set(true);
         this.isIn = false;
     }
 
