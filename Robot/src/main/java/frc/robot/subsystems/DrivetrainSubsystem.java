@@ -422,7 +422,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         public boolean isAimed() {
 
-                if(Math.abs(0.0 - getLimelightX()) - LIMELIGHT_ALIGNMENT_TOLERANCE <= 0){
+                if(Math.abs(0.0 - getLimelightX()) < LIMELIGHT_ALIGNMENT_TOLERANCE){
                         aimSetpointCount++;
                         if(aimSetpointCount >= 5){
                                 aimSetpointCount = 0;

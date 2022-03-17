@@ -440,12 +440,13 @@ public class RobotContainer {
           new InstantCommand(()-> m_storage.enableStorage(), m_storage),
           new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
 
-    autoBlue1 = new SequentialCommandGroup(
+      PathPlannerTrajectory autoBlue1Path = PathPlanner.loadPath("Blue1(1)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+      autoBlue1 = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-        // FIXME: Cannot call new SortStorageCommand(m_storage) as command only finished after both sensors are unblocked
-        new FollowPath(PathPlanner.loadPath("Blue1(1)",
-            AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-            thetaController, m_drivetrainSubsystem),
+        new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoBlueForwardPath.getInitialState())),
+        new WaitCommand(2.0),
+        new FollowPath(autoBlue1Path, thetaController, m_drivetrainSubsystem),
         new SequentialCommandGroup(
             new ParallelCommandGroup(
               new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
