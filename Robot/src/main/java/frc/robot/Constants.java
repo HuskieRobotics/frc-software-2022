@@ -171,7 +171,7 @@ public final class Constants {
     public static final int ELEVATOR_POSITION_TOLERANCE = 500;
     public static final double ARBITRARY_FEED_FORWARD_EXTEND = .02;
     public static final double ARBITRARY_FEED_FORWARD_RETRACT = -0.07;
-    public static final double DEFAULT_MOTOR_POWER = 0; //FIXME TUNE
+    public static final double DEFAULT_MOTOR_POWER = 0.5; //FIXME TUNE
 
     public static final int kSlotIdx = 0;
     public static final int kPIDLoopIdx = 0;
