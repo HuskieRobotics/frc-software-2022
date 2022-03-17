@@ -237,6 +237,10 @@ public class Flywheel extends SubsystemBase {
         rightFlywheelMotor.set(TalonFXControlMode.Velocity, velocitySetPoint);
     }
 
+    public double getVelocitySetPoint() {
+        return this.velocitySetPoint;
+    }
+
     public boolean isAtSetpoint() {
         if(Math.abs(this.getVelocity() - this.velocitySetPoint) < VELOCITY_TOLERANCE) {
             setPointCount++;

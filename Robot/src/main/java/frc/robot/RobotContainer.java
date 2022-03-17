@@ -298,11 +298,11 @@ public class RobotContainer {
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
             new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitCommand(0.5),
+        new WaitForShotCommand(m_flywheel, m_storage),
         new InstantCommand(()-> m_storage.disableStorage(), m_storage),
         new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitCommand(0.5),
+        new WaitForShotCommand(m_flywheel, m_storage),
         new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
           new InstantCommand(()-> m_storage.disableStorage(), m_storage),
@@ -320,7 +320,7 @@ public class RobotContainer {
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
         new WaitCommand(0.5),
         new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-        new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
+        new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.LAUNCH_PAD_VELOCITY),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
         new WaitCommand(0.5),
         new ParallelCommandGroup(
@@ -336,7 +336,7 @@ public class RobotContainer {
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
         new WaitCommand(0.5),
         new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-        new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
+        new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.SHOOT_SLOW_VELOCITY),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
         new WaitCommand(0.5),
         new ParallelCommandGroup(
