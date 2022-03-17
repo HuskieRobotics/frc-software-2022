@@ -189,6 +189,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts,
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
+                tab.add("drivetrain", this);
                 tab.addBoolean("Is Aimed", () -> isAimed());
                 tab.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                 tab.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());

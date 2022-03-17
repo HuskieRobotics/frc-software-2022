@@ -130,6 +130,7 @@ public class Elevator extends SubsystemBase {
         /* Initialize */
         this.rightElevatorMotor.getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
 
+        Shuffleboard.getTab("Elevator").add("elevator", this);
         Shuffleboard.getTab("Elevator").addBoolean("At Setpoint", this::atSetpoint);
         Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight);
         Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);

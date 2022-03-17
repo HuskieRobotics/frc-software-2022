@@ -38,6 +38,7 @@ public class Storage extends SubsystemBase {
         shooterSensor1 = new DigitalInput(StorageConstants.SHOOTER_SENSOR);
         addChild("Shooter Sensor 1", shooterSensor1);
 
+        Shuffleboard.getTab("Storage").add("storage", this);
         Shuffleboard.getTab("Storage").addBoolean("Collector Unblocked", this::isCollectorSensorUnblocked);
         Shuffleboard.getTab("Storage").addBoolean("Shooter Unblocked", this::isShooterSensorUnblocked);
         Shuffleboard.getTab("Storage").add("Sort Storage", new SortStorageCommand(this));
