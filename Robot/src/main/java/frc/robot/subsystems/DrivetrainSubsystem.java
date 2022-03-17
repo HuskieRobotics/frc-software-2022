@@ -190,6 +190,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
                 tab.add("drivetrain", this);
+                tab.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
+                tab.addBoolean("Wall Dist", () -> isAtWallDistance());
                 tab.addBoolean("Is Aimed", () -> isAimed());
                 tab.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                 tab.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
@@ -378,9 +380,19 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0.0);
 
                 double d = (LimelightConstants.HUB_H - LimelightConstants.ROBOT_H)
-                        / (Math.tan(Math.toRadians(43 * +LimelightConstants.LIMELIGHT_ANGLE_OFFSET + ty)));
+                        / (Math.tan(Math.toRadians(LimelightConstants.LIMELIGHT_MOUNT_ANGLE * +LimelightConstants.LIMELIGHT_ANGLE_OFFSET + ty)));
 
                 return d;
+        }
+
+        public boolean isAtLaunchpadDistance() {
+                double dist = getLimelightDistanceIn();
+                return Math.abs(LimelightConstants.HUB_LAUNCHPAD_DISTANCE - dist) <= LimelightConstants.DISTANCE_TOLERANCE;
+        }
+
+        public boolean isAtWallDistance() {
+                double dist = getLimelightDistanceIn();
+                return Math.abs(LimelightConstants.HUB_WALL_DISTANCE - dist) <= LimelightConstants.DISTANCE_TOLERANCE;
         }
 
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {

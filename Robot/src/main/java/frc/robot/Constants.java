@@ -145,8 +145,17 @@ public final class Constants {
     public static final double Velocity_Multiplier = 2;
     public static final double Ticks_Per_One_Rotation = 2048;
     public static final int LIMELIGHT_ANGLE_OFFSET = -2;
+    public static final int LIMELIGHT_MOUNT_ANGLE = 43; // FIXME: measure angle
     public static final int D2_D1_OFFSET_IN = 24;
     public static final int H2_H1_OFFSET_IN = -24;
+    public static final int DISTANCE_TOLERANCE = 12;
+    // 203" from center of hub to center of lauchpad;
+    //  26" from edge of hub to center of hub;
+    //  3" from center of launch pad to bumpers;
+    //  18" from bumpers to center of robot;
+    //  7.5" from center of robot to Limeligtht
+    public static final int HUB_LAUNCHPAD_DISTANCE = 149; 
+    public static final int HUB_WALL_DISTANCE = 111;
 
   }
 
