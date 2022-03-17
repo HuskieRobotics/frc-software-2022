@@ -27,6 +27,7 @@ public class Flywheel extends SubsystemBase {
     private WPI_TalonFX rightFlywheelMotor;
     private double velocitySetPoint;
     private int setPointCount;
+    private double minVelocityAfterShot;
 
     /**
     *
@@ -113,6 +114,7 @@ public class Flywheel extends SubsystemBase {
         if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Shooter").add("shooter", this);
             Shuffleboard.getTab("Shooter").addNumber("FlywheelVelocity", this::getVelocity);
+            Shuffleboard.getTab("Shooter").addNumber("FlywheelMinVelocity", this::getMinVelocity);
             Shuffleboard.getTab("Shooter").addNumber("FlywheelRightEncoderReading",
                     this.rightFlywheelMotor::getSelectedSensorVelocity);
             Shuffleboard.getTab("Shooter").addNumber("FlywheelLeftEncoderReading",
@@ -220,6 +222,14 @@ public class Flywheel extends SubsystemBase {
         return this.rightFlywheelMotor.getSelectedSensorVelocity(SLOT_INDEX);
     }
 
+    public double getMinVelocity() {
+        double velocity = getVelocity();
+        if(velocity < this.minVelocityAfterShot && rightFlywheelMotor.get() > 0) {
+            minVelocityAfterShot = velocity;
+        }
+        return this.minVelocityAfterShot;
+    }
+
     public void setVelocity(double velocitySetPoint) {
         this.velocitySetPoint = velocitySetPoint;
 
@@ -232,6 +242,7 @@ public class Flywheel extends SubsystemBase {
             setPointCount++;
             if(setPointCount >= 10) {
                 setPointCount = 0;
+                minVelocityAfterShot = this.getVelocity();
                 return true;
             }
         }
