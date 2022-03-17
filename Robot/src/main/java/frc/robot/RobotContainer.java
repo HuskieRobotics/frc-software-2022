@@ -211,7 +211,7 @@ public class RobotContainer {
           new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
           new InstantCommand(()-> m_storage.disableStorage(), m_storage),
           new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem),
-          new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav(), m_drivetrainSubsystem)));
+          new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav())));
 
     // Reset Gyro
     xboxButtons[BUTTON_Y].whenPressed(
@@ -295,18 +295,18 @@ public class RobotContainer {
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
             new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitCommand(0.1),
+        new WaitCommand(0.5),
         new InstantCommand(()-> m_storage.disableStorage(), m_storage),
         new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitCommand(0.25),
+        new WaitCommand(0.5),
         new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
           new InstantCommand(()-> m_storage.disableStorage(), m_storage),
           new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem))));
 
     //preset launchpad
-    operatorButtons[JoystickConstants.LAUNCHPAD].whileHeld(
+    operatorButtons[JoystickConstants.LAUNCHPAD].whenPressed(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.LAUNCH_PAD_VELOCITY),
@@ -314,28 +314,30 @@ public class RobotContainer {
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
             new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitCommand(0.1),
+        new WaitCommand(0.5),
         new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-        new WaitCommand(0.3),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
-        
-      operatorButtons[JoystickConstants.LAUNCHPAD].whenReleased(
+        new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitCommand(0.5),
         new ParallelCommandGroup(
-          new InstantCommand(() -> m_flywheel.stopFlywheel(),m_flywheel),
-          new SortStorageCommand(m_storage),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
-
+          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
+          new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem))));
+        
     //shoot slow
     operatorButtons[JoystickConstants.SHOOT_SLOW].whenPressed(
-      new ParallelCommandGroup(
+      new SequentialCommandGroup(
         new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.SHOOT_SLOW_VELOCITY),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage)
-        ));
-    operatorButtons[JoystickConstants.SHOOT_SLOW].whenReleased(
-      new ParallelCommandGroup(
-        new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
-        new SortStorageCommand(m_storage)
-        ));
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitCommand(0.5),
+        new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+        new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitCommand(0.5),
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
+          new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem))));
 
    
       
@@ -528,6 +530,15 @@ public class RobotContainer {
 
   public boolean isElevatorControlEnabled() {
     return m_elevator.isElevatorControlEnabled();
+  }
+
+  public void checkForGyroZero(){
+    //if(xboxButtons[BUTTON_Y].getAsBoolean()){
+      System.out.println("zero gyro");
+      m_drivetrainSubsystem.zeroGyroscope();
+     // }    
+    
+
   }
 
 }

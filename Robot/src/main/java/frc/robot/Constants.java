@@ -109,7 +109,7 @@ public final class Constants {
     public static final int WALL_SHOT_VELOCITY = 7782; // FIXME tune this
     public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
     public static final int LAUNCH_PAD_VELOCITY = 8447; // FIXME tune this
-    public static final int SHOOT_SLOW_VELOCITY = 4000; // FIXME tune this
+    public static final int SHOOT_SLOW_VELOCITY = 2000; // FIXME tune this
     public static final double REVERSE_POWER = -0.2; // FIXME: tune this
 
 
@@ -145,7 +145,7 @@ public final class Constants {
     public static final double Velocity_Multiplier = 2;
     public static final double Ticks_Per_One_Rotation = 2048;
     public static final int LIMELIGHT_ANGLE_OFFSET = -2;
-    public static final int LIMELIGHT_MOUNT_ANGLE = 43; // FIXME: measure angle
+    public static final int LIMELIGHT_MOUNT_ANGLE = 39; 
     public static final int D2_D1_OFFSET_IN = 24;
     public static final int H2_H1_OFFSET_IN = -24;
     public static final int DISTANCE_TOLERANCE = 12;
@@ -165,7 +165,7 @@ public final class Constants {
     public static final int COLLECTOR_SENSOR = 0;
     public static final int STORAGE_MOTOR_ID = 4;
     public static final double STORAGE_DEFAULT_SPEED = 0.7;
-    public static final int STORAGE_CAMERA_PORT = 1;
+    public static final int STORAGE_CAMERA_PORT = 0;
   }
 
   public static class ElevatorConstants {
