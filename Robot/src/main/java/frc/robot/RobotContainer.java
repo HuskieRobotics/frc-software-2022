@@ -4,6 +4,8 @@ import static frc.robot.Constants.JoystickConstants.*;
 
 
 import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
@@ -66,9 +68,12 @@ public class RobotContainer {
   private final SecondaryArm m_secondMechanism = new SecondaryArm();
   private final Elevator m_elevator = new Elevator();
 
-  private Command autoLeaveTarmac;
+  private Command autoBlueForward;
   private Command autoBlue1;
+  private Command autoBlue2;
+  private Command autoRedForward;
   private Command autoRed1;
+  private Command autoRed2;
 
   // Joysticks
 
@@ -204,6 +209,13 @@ public class RobotContainer {
     joystickButtons1[4]
         .whenReleased(new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav(), m_drivetrainSubsystem));
 
+    joystickButtons0[1].whenPressed(
+      new ParallelCommandGroup(
+          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
+          new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem),
+          new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav())));
+
     // Reset Gyro
     xboxButtons[BUTTON_Y].whenPressed(
         new InstantCommand(() -> m_drivetrainSubsystem.zeroGyroscope(), m_drivetrainSubsystem));
@@ -265,6 +277,10 @@ public class RobotContainer {
         new ParallelCommandGroup(
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.FENDER_SHOT_VELOCITY),
           new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem)),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitCommand(0.1),
+        new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+        new WaitCommand(0.3),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
 
       operatorButtons[JoystickConstants.FENDER].whenReleased(
@@ -274,55 +290,16 @@ public class RobotContainer {
           new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
 
     //preset field wall
-    operatorButtons[JoystickConstants.FIELD_WALL].whileHeld(
-      new SequentialCommandGroup(
-        new ParallelCommandGroup(
-          new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
-          new SequentialCommandGroup (
-            new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
-            new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitCommand(0.1),
-        new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-        new WaitCommand(0.3),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
-
-      operatorButtons[JoystickConstants.FIELD_WALL].whenReleased(
-        new ParallelCommandGroup(
-          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
-          new SortStorageCommand(m_storage),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
+    operatorButtons[JoystickConstants.FIELD_WALL].whenPressed(
+      createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY));
 
     //preset launchpad
-    operatorButtons[JoystickConstants.LAUNCHPAD].whileHeld(
-      new SequentialCommandGroup(
-        new ParallelCommandGroup(
-          new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.LAUNCH_PAD_VELOCITY),
-          new SequentialCommandGroup (
-            new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
-            new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
+    operatorButtons[JoystickConstants.LAUNCHPAD].whenPressed(
+      createShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY));
         
-      operatorButtons[JoystickConstants.LAUNCHPAD].whenReleased(
-        new ParallelCommandGroup(
-          new InstantCommand(() -> m_flywheel.stopFlywheel(),m_flywheel),
-          new SortStorageCommand(m_storage),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
-
     //shoot slow
     operatorButtons[JoystickConstants.SHOOT_SLOW].whenPressed(
-      new ParallelCommandGroup(
-        new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.SHOOT_SLOW_VELOCITY),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage)
-        ));
-    operatorButtons[JoystickConstants.SHOOT_SLOW].whenReleased(
-      new ParallelCommandGroup(
-        new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
-        new SortStorageCommand(m_storage)
-        ));
-
-   
-      
+      createShootCommandSequence(FlywheelConstants.SHOOT_SLOW_VELOCITY));
   }
 
   private void configureClimberButtons() {
@@ -404,49 +381,92 @@ public class RobotContainer {
         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-    autoLeaveTarmac = new SequentialCommandGroup(
-        new FollowPath(PathPlanner.loadPath("forward",
-          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-          thetaController, m_drivetrainSubsystem),
+    PathPlannerTrajectory autoBlueForwardPath = PathPlanner.loadPath("BlueForward",
+        AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+    autoBlueForward = new SequentialCommandGroup(
+      new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoBlueForwardPath.getInitialState())),
+      new WaitCommand(2.0),
+      new FollowPath(autoBlueForwardPath, thetaController, m_drivetrainSubsystem),
+      createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
+      new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
+
+      PathPlannerTrajectory autoBlue1Path = PathPlanner.loadPath("Blue1(1)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+      autoBlue1 = new SequentialCommandGroup(
+        new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+        new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoBlue1Path.getInitialState())),
+        new WaitCommand(2.0),
+        new FollowPath(autoBlue1Path, thetaController, m_drivetrainSubsystem),
+        createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
         new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
-    autoBlue1 = new SequentialCommandGroup(
+      PathPlannerTrajectory autoBlue2Path = PathPlanner.loadPath("Blue2(1)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+      autoBlue2 = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-        // FIXME: Cannot call new SortStorageCommand(m_storage) as command only finished after both sensors are unblocked
-        new FollowPath(PathPlanner.loadPath("Blue1(1)",
-            AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-            thetaController, m_drivetrainSubsystem),
-        new SequentialCommandGroup(
-            new ParallelCommandGroup(
-              new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
-              new SequentialCommandGroup (
-                new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
-                new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
-            new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-            new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
+        new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoBlue2Path.getInitialState())),
+        new WaitCommand(2.0),
+        new FollowPath(autoBlue2Path, thetaController, m_drivetrainSubsystem),
+        createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
+        new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
-    // add shoot from fender command
+    PathPlannerTrajectory autoRedForwardPath = PathPlanner.loadPath("RedForward",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+    autoRedForward = new SequentialCommandGroup(
+      new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoRedForwardPath.getInitialState())),
+      new WaitCommand(2.0),
+      new FollowPath(autoRedForwardPath, thetaController, m_drivetrainSubsystem),
+      createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
+      new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
+    PathPlannerTrajectory autoRed1Path = PathPlanner.loadPath("Red1(1)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     autoRed1 = new SequentialCommandGroup(
       new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-      // FIXME: Cannot call new SortStorageCommand(m_storage) as command only finished after both sensors are unblocked
-      new FollowPath(PathPlanner.loadPath("Red1(1)",
-          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared),
-          thetaController, m_drivetrainSubsystem),
-      new SequentialCommandGroup(
-          new ParallelCommandGroup(
-            new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY),
-            new SequentialCommandGroup (
-              new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
-              new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
-          new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-          new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector)));
+      new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoRed1Path.getInitialState())),
+      new WaitCommand(2.0),
+      new FollowPath(autoRed1Path, thetaController, m_drivetrainSubsystem),
+      createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
+      new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
-    ShuffleboardTab tab = Shuffleboard.getTab("Auto");
-    m_chooser.addOption("Leave Tarmac", autoLeaveTarmac);
+    PathPlannerTrajectory autoRed2Path = PathPlanner.loadPath("Red2(1)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+    autoRed2 = new SequentialCommandGroup(
+      new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+      new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoRed2Path.getInitialState())),
+      new WaitCommand(2.0),
+      new FollowPath(autoRed2Path, thetaController, m_drivetrainSubsystem),
+      createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
+      new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
+
+    ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
+    m_chooser.addOption("Blue Forward", autoBlueForward);
     m_chooser.addOption("Blue 1", autoBlue1);
+    m_chooser.addOption("Blue 2", autoBlue1);
+    m_chooser.addOption("Red Forward", autoRedForward);
     m_chooser.addOption("Red 1", autoRed1);
+    m_chooser.addOption("Red 2", autoRed1);
     tab.add("Auto Mode", m_chooser);
+  }
+
+  private Command createShootCommandSequence(int shotVelocity) {
+    return new SequentialCommandGroup(
+        new ParallelCommandGroup(
+          new SetFlywheelVelocityCommand(m_flywheel, shotVelocity),
+          new SequentialCommandGroup (
+            new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+            new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitForShotCommand(m_flywheel, m_storage),
+        new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+        new SetFlywheelVelocityCommand(m_flywheel, shotVelocity),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitForShotCommand(m_flywheel, m_storage),
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
+          new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem),
+          new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav())));
   }
 
   private static double deadband(double value, double deadband) {
@@ -474,5 +494,4 @@ public class RobotContainer {
   public boolean isElevatorControlEnabled() {
     return m_elevator.isElevatorControlEnabled();
   }
-
 }

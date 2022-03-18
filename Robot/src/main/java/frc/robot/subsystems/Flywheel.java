@@ -26,6 +26,8 @@ public class Flywheel extends SubsystemBase {
     private WPI_TalonFX leftFlywheelMotor;
     private WPI_TalonFX rightFlywheelMotor;
     private double velocitySetPoint;
+    private int setPointCount;
+    private double minVelocityAfterShot;
 
     /**
     *
@@ -107,20 +109,25 @@ public class Flywheel extends SubsystemBase {
 
         this.velocitySetPoint = 0.0;
 
-        Shuffleboard.getTab("Shooter").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
-        Shuffleboard.getTab("Shooter").addNumber("FlywheelVelocity", this::getVelocity);
-        Shuffleboard.getTab("Shooter").addNumber("FlywheelRightEncoderReading",
-                this.rightFlywheelMotor::getSelectedSensorVelocity);
-        Shuffleboard.getTab("Shooter").addNumber("FlywheelLeftEncoderReading",
-                this.leftFlywheelMotor::getSelectedSensorVelocity);
-        Shuffleboard.getTab("Shooter").addNumber("FlywheelRightClosedLoopError",
-                this.rightFlywheelMotor::getClosedLoopError);
-        Shuffleboard.getTab("Shooter").addNumber("Left Power", this.leftFlywheelMotor::getMotorOutputPercent);
-        Shuffleboard.getTab("Shooter").addNumber("Right Power", this.rightFlywheelMotor::getMotorOutputPercent);
+        Shuffleboard.getTab("MAIN").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
+        
+        if(COMMAND_LOGGING) {
+            Shuffleboard.getTab("Shooter").add("shooter", this);
+            Shuffleboard.getTab("Shooter").addNumber("FlywheelVelocity", this::getVelocity);
+            Shuffleboard.getTab("Shooter").addNumber("FlywheelMinVelocity", this::getMinVelocity);
+            Shuffleboard.getTab("Shooter").addNumber("FlywheelRightEncoderReading",
+                    this.rightFlywheelMotor::getSelectedSensorVelocity);
+            Shuffleboard.getTab("Shooter").addNumber("FlywheelLeftEncoderReading",
+                    this.leftFlywheelMotor::getSelectedSensorVelocity);
+            Shuffleboard.getTab("Shooter").addNumber("FlywheelRightClosedLoopError",
+                    this.rightFlywheelMotor::getClosedLoopError);
+            Shuffleboard.getTab("Shooter").addNumber("Left Power", this.leftFlywheelMotor::getMotorOutputPercent);
+            Shuffleboard.getTab("Shooter").addNumber("Right Power", this.rightFlywheelMotor::getMotorOutputPercent);
 
-        Shuffleboard.getTab("Shooter").add("Wall Shot", new SetFlywheelVelocityCommand(this, WALL_SHOT_VELOCITY));
-        Shuffleboard.getTab("Shooter").add("Fender Shot", new SetFlywheelVelocityCommand(this, FENDER_SHOT_VELOCITY));
-        Shuffleboard.getTab("Shooter").add("Stop Flywheel", new SetFlywheelVelocityCommand(this, 0));
+            Shuffleboard.getTab("Shooter").add("Wall Shot", new SetFlywheelVelocityCommand(this, WALL_SHOT_VELOCITY));
+            Shuffleboard.getTab("Shooter").add("Fender Shot", new SetFlywheelVelocityCommand(this, FENDER_SHOT_VELOCITY));
+            Shuffleboard.getTab("Shooter").add("Stop Flywheel", new SetFlywheelVelocityCommand(this, 0));
+        }
 
         // Shuffleboard.getTab("Shooter").add("SpinFlywheelForFenderCommand",
         // new SpinFlywheelCommand(this, FENDER_VELOCITY));
@@ -215,6 +222,14 @@ public class Flywheel extends SubsystemBase {
         return this.rightFlywheelMotor.getSelectedSensorVelocity(SLOT_INDEX);
     }
 
+    public double getMinVelocity() {
+        double velocity = getVelocity();
+        if(velocity < this.minVelocityAfterShot && rightFlywheelMotor.get() > 0) {
+            minVelocityAfterShot = velocity;
+        }
+        return this.minVelocityAfterShot;
+    }
+
     public void setVelocity(double velocitySetPoint) {
         this.velocitySetPoint = velocitySetPoint;
 
@@ -222,8 +237,23 @@ public class Flywheel extends SubsystemBase {
         rightFlywheelMotor.set(TalonFXControlMode.Velocity, velocitySetPoint);
     }
 
+    public double getVelocitySetPoint() {
+        return this.velocitySetPoint;
+    }
+
     public boolean isAtSetpoint() {
-        return Math.abs(this.getVelocity() - this.velocitySetPoint) < VELOCITY_TOLERANCE;
+        if(Math.abs(this.getVelocity() - this.velocitySetPoint) < VELOCITY_TOLERANCE) {
+            setPointCount++;
+            if(setPointCount >= 10) {
+                minVelocityAfterShot = this.getVelocity();
+                return true;
+            }
+        }
+        else {
+            setPointCount = 0;
+        }
+            return false;
+        
     }
 
     public void stopFlywheel() {

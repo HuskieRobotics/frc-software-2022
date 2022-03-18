@@ -130,19 +130,23 @@ public class Elevator extends SubsystemBase {
         /* Initialize */
         this.rightElevatorMotor.getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
 
-        Shuffleboard.getTab("Elevator").addBoolean("At Setpoint", this::atSetpoint);
-        Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight);
-        Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
-        Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this::getSetpoint);
-        Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error", this.rightElevatorMotor::getClosedLoopError);
-        Shuffleboard.getTab("Elevator").addNumber("Velocity", this.rightElevatorMotor::getSelectedSensorVelocity);
-        Shuffleboard.getTab("Elevator").addNumber("Left Motor Power", this.leftElevatorMotor::getMotorOutputPercent);
-        Shuffleboard.getTab("Elevator").addNumber("Right Motor Power", this.rightElevatorMotor::getMotorOutputPercent);
-        Shuffleboard.getTab("Elevator").add("Extend Climber to Mid", new ExtendClimberToMidRungCommand(this));
-        Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(this));
-        Shuffleboard.getTab("Elevator").add("Retract Climber Full", new RetractClimberFullCommand(this));
-        Shuffleboard.getTab("Elevator").add("Retract Climber Minimum", new RetractClimberMinimumCommand(this));
-        Shuffleboard.getTab("Elevator").addBoolean("isElevatorControl Enabled", this :: isElevatorControlEnabled);
+        Shuffleboard.getTab("MAIN").addBoolean("Elevator At Setpoint", this::atSetpoint);
+        
+        if(COMMAND_LOGGING) {
+            Shuffleboard.getTab("Elevator").add("elevator", this);
+            Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight);
+            Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
+            Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this::getSetpoint);
+            Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error", this.rightElevatorMotor::getClosedLoopError);
+            Shuffleboard.getTab("Elevator").addNumber("Velocity", this.rightElevatorMotor::getSelectedSensorVelocity);
+            Shuffleboard.getTab("Elevator").addNumber("Left Motor Power", this.leftElevatorMotor::getMotorOutputPercent);
+            Shuffleboard.getTab("Elevator").addNumber("Right Motor Power", this.rightElevatorMotor::getMotorOutputPercent);
+            Shuffleboard.getTab("Elevator").add("Extend Climber to Mid", new ExtendClimberToMidRungCommand(this));
+            Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(this));
+            Shuffleboard.getTab("Elevator").add("Retract Climber Full", new RetractClimberFullCommand(this));
+            Shuffleboard.getTab("Elevator").add("Retract Climber Minimum", new RetractClimberMinimumCommand(this));
+            Shuffleboard.getTab("Elevator").addBoolean("isElevatorControl Enabled", this :: isElevatorControlEnabled);
+        }
 
         if (TUNING) {
             this.isElevatorControlEnabled = true;

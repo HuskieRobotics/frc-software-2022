@@ -41,11 +41,11 @@ public class Robot extends TimedRobot {
         // autonomous chooser on the dashboard.
         m_robotContainer = RobotContainer.getInstance();
 
-        climbCam = CameraServer.startAutomaticCapture(ElevatorConstants.CLIMBER_CAMERA_PORT);
-        climbCam.setResolution(320,240);
-        climbCam.setFPS(15);
-        climbCam.setPixelFormat(PixelFormat.kYUYV);
-        climbCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+        // climbCam = CameraServer.startAutomaticCapture(ElevatorConstants.CLIMBER_CAMERA_PORT);
+        // climbCam.setResolution(320,240);
+        // climbCam.setFPS(15);
+        // climbCam.setPixelFormat(PixelFormat.kYUYV);
+        // climbCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
         storageCam = CameraServer.startAutomaticCapture(StorageConstants.STORAGE_CAMERA_PORT);
         storageCam.setResolution(320,240);
@@ -54,6 +54,8 @@ public class Robot extends TimedRobot {
         storageCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
 
         server = CameraServer.getServer();
+
+    
 
         HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);
 
@@ -138,6 +140,7 @@ public class Robot extends TimedRobot {
         else{
             server.setSource(storageCam);
         }
+
     }
     @Override
     public void testInit() {

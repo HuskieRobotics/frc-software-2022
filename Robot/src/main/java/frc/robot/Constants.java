@@ -16,7 +16,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public final class Constants {
 
   public static final boolean TUNING = false;
-  public static final boolean COMMAND_LOGGING = true;
+  public static final boolean COMMAND_LOGGING = false;
 
   /* DRIVETRAIN CONSTANTS */
 
@@ -62,8 +62,8 @@ public final class Constants {
     public static final int PIGEON_ID = 18;
 
     /* Limelight */
-    public static  double LIMELIGHT_P = 0.07; // FIXME: adjust when tuning and then make final
-    public static  double LIMELIGHT_ALIGNMENT_TOLERANCE = 2; // degrees; FIXME: adjust when testing and then make final
+    public static  double LIMELIGHT_P = 0.055; // FIXME: adjust when tuning and then make final
+    public static  double LIMELIGHT_ALIGNMENT_TOLERANCE = 1; // degrees; FIXME: adjust when testing and then make final
   }
 
   public static final class CollectorConstants {
@@ -100,7 +100,7 @@ public final class Constants {
     public static final int SLOT_INDEX = 0;
     public static final int PID_LOOP_INDEX = 0;
     public static final int TIMEOUT_MS = 30;
-    public static final int VELOCITY_TOLERANCE = 500; 
+    public static final int VELOCITY_TOLERANCE = 300; 
     public static final int LEFT_FLYWHEELMOTOR_CANID = 1;
     public static final int RIGHT_FLYWHEELMOTOR_CANID = 2;
     public final static Gains GAINS_VELOCITY = new Gains(0.5 /* kP */, 0 /* kI */, 0 /* kD */, .0438 /* kF */,
@@ -109,7 +109,8 @@ public final class Constants {
     public static final int WALL_SHOT_VELOCITY = 7782; // FIXME tune this
     public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
     public static final int LAUNCH_PAD_VELOCITY = 8447; // FIXME tune this
-    public static final int SHOOT_SLOW_VELOCITY = 4000; // FIXME tune this
+    public static final int SHOOT_SLOW_VELOCITY = 2000; // FIXME tune this
+    public static final int SHOT_VELOCITY_DIP = 500;  // FIXME: tune this
     public static final double REVERSE_POWER = -0.2; // FIXME: tune this
 
 
@@ -144,9 +145,18 @@ public final class Constants {
     public static final double Flywheel_Radius_IN = 2;
     public static final double Velocity_Multiplier = 2;
     public static final double Ticks_Per_One_Rotation = 2048;
-    public static final int LIMELIGHT_ANGLE_OFFSET = -2;
+    public static final int LIMELIGHT_ANGLE_OFFSET = 0;
+    public static final int LIMELIGHT_MOUNT_ANGLE = 50; 
     public static final int D2_D1_OFFSET_IN = 24;
     public static final int H2_H1_OFFSET_IN = -24;
+    public static final int DISTANCE_TOLERANCE = 12;
+    // 203" from center of hub to center of lauchpad;
+    //  26" from edge of hub to center of hub;
+    //  3" from center of launch pad to bumpers;
+    //  18" from bumpers to center of robot;
+    //  7.5" from center of robot to Limeligtht
+    public static final int HUB_LAUNCHPAD_DISTANCE = 149; 
+    public static final int HUB_WALL_DISTANCE = 111;
 
   }
 
@@ -155,8 +165,8 @@ public final class Constants {
     public static final int SHOOTER_SENSOR = 1;
     public static final int COLLECTOR_SENSOR = 0;
     public static final int STORAGE_MOTOR_ID = 4;
-    public static final double STORAGE_DEFAULT_SPEED = 0.7;
-    public static final int STORAGE_CAMERA_PORT = 1;
+    public static final double STORAGE_DEFAULT_SPEED = 0.6;
+    public static final int STORAGE_CAMERA_PORT = 0;
   }
 
   public static class ElevatorConstants {
@@ -171,7 +181,7 @@ public final class Constants {
     public static final int ELEVATOR_POSITION_TOLERANCE = 500;
     public static final double ARBITRARY_FEED_FORWARD_EXTEND = .02;
     public static final double ARBITRARY_FEED_FORWARD_RETRACT = -0.07;
-    public static final double DEFAULT_MOTOR_POWER = 0; //FIXME TUNE
+    public static final double DEFAULT_MOTOR_POWER = 0.5; //FIXME TUNE
 
     public static final int kSlotIdx = 0;
     public static final int kPIDLoopIdx = 0;

@@ -105,8 +105,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         private SimpleMotorFeedforward feedForward;
 
+        private int aimSetpointCount;
+
         public DrivetrainSubsystem() {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
+                ShuffleboardTab tabMain = Shuffleboard.getTab("MAIN");
                 this.isFieldRelative = false;
                 this.isXstance = false;
                 // this.m_robotCenter = new Translation2d(0,0);
@@ -189,20 +192,28 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts,
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
-                tab.addBoolean("Is Aimed", () -> isAimed());
-                tab.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
-                tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
-                tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
-                tab.addNumber("Pose Rotation", () -> m_odometry.getPoseMeters().getRotation().getDegrees());
-                this.fieldRelativeNT = Shuffleboard.getTab("Drivetrain")
+                tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
+                tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
+                tabMain.addBoolean("Is Aimed", () -> isAimed());
+                tabMain.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
+                tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
+                tabMain.addBoolean("isXstance", this :: isXstance);
+                this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
-                tab.addBoolean("isXstance", this :: isXstance);
-                tab.add("Enable XStance", new InstantCommand(() -> this.enableXstance()));
-                tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
-                tab.addNumber("CoG X", () -> this.centerGravity.getX());
-                tab.addNumber("CoG Y", () -> this.centerGravity.getY());
-                tab.add("align to target", new LimelightAlignToTargetCommand(this));
+                
+                if(COMMAND_LOGGING) {
+                        tab.add("drivetrain", this);
+                        tab.addNumber("Limelight y Dist", () -> getLimelighty());
+                        tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
+                        tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
+                        tab.addNumber("Pose Rotation", () -> m_odometry.getPoseMeters().getRotation().getDegrees());
+                        tab.add("Enable XStance", new InstantCommand(() -> this.enableXstance()));
+                        tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
+                        tab.addNumber("CoG X", () -> this.centerGravity.getX());
+                        tab.addNumber("CoG Y", () -> this.centerGravity.getY());
+                        tab.add("align to target", new LimelightAlignToTargetCommand(this));
+                }
 
                 if (TUNING) {
                         // Add indicators and controls to this Shuffleboard tab to assist with
@@ -249,6 +260,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         public Rotation2d getGyroscopeRotation() {
                 return Rotation2d.fromDegrees(m_pigeon.getYaw());
+        }
+
+        public void setGyroFromPath(PathPlannerState state) {
+                m_pigeon.setYaw(state.holonomicRotation.getDegrees());
         }
 
         public Pose2d getPose() {
@@ -371,6 +386,28 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public double getLimelightX(){
                 return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
            }
+           public double getLimelighty(){
+                return NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
+           }
+
+        public double getLimelightDistanceIn() {
+                double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0.0);
+
+                double d = (LimelightConstants.HUB_H - LimelightConstants.ROBOT_H)
+                        / (Math.tan(Math.toRadians(LimelightConstants.LIMELIGHT_MOUNT_ANGLE +LimelightConstants.LIMELIGHT_ANGLE_OFFSET + ty)));
+
+                return d;
+        }
+
+        public boolean isAtLaunchpadDistance() {
+                double dist = getLimelightDistanceIn();
+                return Math.abs(LimelightConstants.HUB_LAUNCHPAD_DISTANCE - dist) <= LimelightConstants.DISTANCE_TOLERANCE;
+        }
+
+        public boolean isAtWallDistance() {
+                double dist = getLimelightDistanceIn();
+                return Math.abs(LimelightConstants.HUB_WALL_DISTANCE - dist) <= LimelightConstants.DISTANCE_TOLERANCE;
+        }
 
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
                 if (rotationSupplier > 0) {     // FIXME: verify this is clockwise
@@ -387,11 +424,22 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         public boolean isAimed() {
-                return Math.abs(0.0 - getLimelightX()) - LIMELIGHT_ALIGNMENT_TOLERANCE <= 0;
+                if(Math.abs(0.0 - getLimelightX()) < LIMELIGHT_ALIGNMENT_TOLERANCE){
+                        aimSetpointCount++;
+                        if(aimSetpointCount >= 5){
+                                return true;
+                        }
+                }
+                else {
+                        aimSetpointCount = 0;
+                }
+                return false;
+
         }
 
         public void enableXstance() {
                 this.isXstance = true;
+                this.setXStance();
         }
         public void disableXstance() {
                 this.isXstance = false;
