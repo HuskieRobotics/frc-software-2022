@@ -73,6 +73,7 @@ public final class Constants {
     public static final int PEUNAMATICS_HUB_CAN_ID = 20;
     public static final int COLLECTOR_SOLENOID_CHANNEL = 0;
     public static final double COLLECTOR_DEFUALT_SPEED = 0.7; // FIX_ME change this to desired speed
+    public static final int TIMEOUT_MS = 30;
 
   }
 
@@ -168,6 +169,7 @@ public final class Constants {
     public static final int STORAGE_MOTOR_ID = 4;
     public static final double STORAGE_DEFAULT_SPEED = 0.6;
     public static final int STORAGE_CAMERA_PORT = 0;
+    public static final int TIMEOUT_MS = 30;
   }
 
   public static class ElevatorConstants {
