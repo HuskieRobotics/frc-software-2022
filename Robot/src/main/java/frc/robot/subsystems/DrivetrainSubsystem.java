@@ -107,6 +107,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         private SimpleMotorFeedforward feedForward;
 
         private int aimSetpointCount;
+        private double lastLimelightDistance;
 
         public DrivetrainSubsystem() {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
@@ -194,10 +195,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts,
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
+                tabMain.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
                 tabMain.addBoolean("Is Aimed", () -> isAimed());
-                tabMain.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                 tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
                 tabMain.addBoolean("isXstance", this :: isXstance);
                 this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
@@ -395,20 +396,18 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public double getLimelightDistanceIn() {
                 double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0.0);
 
-                double d = (LimelightConstants.HUB_H - LimelightConstants.ROBOT_H)
+                this.lastLimelightDistance = (LimelightConstants.HUB_H - LimelightConstants.ROBOT_H)
                         / (Math.tan(Math.toRadians(LimelightConstants.LIMELIGHT_MOUNT_ANGLE +LimelightConstants.LIMELIGHT_ANGLE_OFFSET + ty)));
-
-                return d;
+                
+                return this.lastLimelightDistance;
         }
 
         public boolean isAtLaunchpadDistance() {
-                double dist = getLimelightDistanceIn();
-                return Math.abs(LimelightConstants.HUB_LAUNCHPAD_DISTANCE - dist) <= LimelightConstants.DISTANCE_TOLERANCE;
+                return Math.abs(LimelightConstants.HUB_LAUNCHPAD_DISTANCE - this.lastLimelightDistance) <= LimelightConstants.DISTANCE_TOLERANCE;
         }
 
         public boolean isAtWallDistance() {
-                double dist = getLimelightDistanceIn();
-                return Math.abs(LimelightConstants.HUB_WALL_DISTANCE - dist) <= LimelightConstants.DISTANCE_TOLERANCE;
+                return Math.abs(LimelightConstants.HUB_WALL_DISTANCE - this.lastLimelightDistance) <= LimelightConstants.DISTANCE_TOLERANCE;
         }
 
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
