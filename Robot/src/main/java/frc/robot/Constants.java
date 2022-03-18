@@ -60,6 +60,7 @@ public final class Constants {
     public static final double ROBOT_LENGTH_WITH_BUMPERS = 0.91;
 
     public static final int PIGEON_ID = 18;
+    public static final int TIMEOUT_MS = 30;
 
     /* Limelight */
     public static  double LIMELIGHT_P = 0.055; // FIXME: adjust when tuning and then make final
