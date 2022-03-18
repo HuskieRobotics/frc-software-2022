@@ -62,8 +62,8 @@ public final class Constants {
     public static final int PIGEON_ID = 18;
 
     /* Limelight */
-    public static  double LIMELIGHT_P = 0.07; // FIXME: adjust when tuning and then make final
-    public static  double LIMELIGHT_ALIGNMENT_TOLERANCE = 1.5; // degrees; FIXME: adjust when testing and then make final
+    public static  double LIMELIGHT_P = 0.055; // FIXME: adjust when tuning and then make final
+    public static  double LIMELIGHT_ALIGNMENT_TOLERANCE = 1; // degrees; FIXME: adjust when testing and then make final
   }
 
   public static final class CollectorConstants {
@@ -110,7 +110,7 @@ public final class Constants {
     public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
     public static final int LAUNCH_PAD_VELOCITY = 8447; // FIXME tune this
     public static final int SHOOT_SLOW_VELOCITY = 2000; // FIXME tune this
-    public static final int SHOT_VELOCITY_DIP = 400;  // FIXME: tune this
+    public static final int SHOT_VELOCITY_DIP = 500;  // FIXME: tune this
     public static final double REVERSE_POWER = -0.2; // FIXME: tune this
 
 
@@ -165,7 +165,7 @@ public final class Constants {
     public static final int SHOOTER_SENSOR = 1;
     public static final int COLLECTOR_SENSOR = 0;
     public static final int STORAGE_MOTOR_ID = 4;
-    public static final double STORAGE_DEFAULT_SPEED = 0.7;
+    public static final double STORAGE_DEFAULT_SPEED = 0.6;
     public static final int STORAGE_CAMERA_PORT = 0;
   }
 

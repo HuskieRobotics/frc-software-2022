@@ -245,7 +245,6 @@ public class Flywheel extends SubsystemBase {
         if(Math.abs(this.getVelocity() - this.velocitySetPoint) < VELOCITY_TOLERANCE) {
             setPointCount++;
             if(setPointCount >= 10) {
-                setPointCount = 0;
                 minVelocityAfterShot = this.getVelocity();
                 return true;
             }

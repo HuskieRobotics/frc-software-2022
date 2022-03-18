@@ -427,7 +427,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 if(Math.abs(0.0 - getLimelightX()) < LIMELIGHT_ALIGNMENT_TOLERANCE){
                         aimSetpointCount++;
                         if(aimSetpointCount >= 5){
-                                aimSetpointCount = 0;
                                 return true;
                         }
                 }
