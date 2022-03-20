@@ -32,8 +32,6 @@ import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Flywheel;
-import frc.robot.subsystems.Hood;
-import frc.robot.subsystems.LimelightMath;
 import frc.robot.subsystems.SecondaryArm;
 import frc.robot.subsystems.Storage;
 
@@ -206,7 +204,7 @@ public class RobotContainer {
                 }
               }
 
-              m_drivetrainSubsystem.setCenterGrav(width, DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2);
+              m_drivetrainSubsystem.setCenterGrav(width, length);
             },
             m_drivetrainSubsystem));
     joystickButtons1[4]
@@ -362,7 +360,6 @@ public class RobotContainer {
     xboxButtons[JoystickConstants.BUTTON_START].whenPressed(new InstantCommand(() ->
     m_elevator.elevatorPause(xboxButtons[JoystickConstants.BUTTON_BACK].get()), m_elevator));
 
-    //FIXME toggle camera
     operatorButtons[12].toggleWhenPressed(
         new ConditionalCommand(
             new InstantCommand(() -> m_elevator.disableElevatorControl(), m_elevator),
@@ -437,10 +434,10 @@ public class RobotContainer {
     ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
     m_chooser.addOption("Blue Forward", autoBlueForward);
     m_chooser.addOption("Blue 1", autoBlue1);
-    m_chooser.addOption("Blue 2", autoBlue1);
+    m_chooser.addOption("Blue 2", autoBlue2);
     m_chooser.addOption("Red Forward", autoRedForward);
     m_chooser.addOption("Red 1", autoRed1);
-    m_chooser.addOption("Red 2", autoRed1);
+    m_chooser.addOption("Red 2", autoRed2);
     tab.add("Auto Mode", m_chooser);
   }
 

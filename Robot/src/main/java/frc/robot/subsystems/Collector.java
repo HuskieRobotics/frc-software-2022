@@ -1,6 +1,6 @@
 package frc.robot.subsystems;
 
-import frc.robot.Constants.CollectorConstants;
+import static frc.robot.Constants.CollectorConstants.*;
 import static frc.robot.Constants.*;
 
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
