@@ -89,6 +89,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
         // cause the angle reading to increase until it wraps back over to zero.
         private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
 
+        private double gyroOffset;
+
         // These are our modules. We initialize them in the constructor.
         private final SwerveModule m_frontLeftModule;
         private final SwerveModule m_frontRightModule;
@@ -116,7 +118,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.isXstance = false;
                 // this.m_robotCenter = new Translation2d(0,0);
 
-                m_pigeon.setYaw(0.0);
+                this.zeroGyroscope();
                 this.m_pigeon.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_6_SensorFusion, 255, TIMEOUT_MS);
 
                 // There are 4 methods you can call to create your swerve modules.
@@ -253,20 +255,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         public void zeroGyroscope() {
                 m_pigeon.setYaw(0.0);
-        }
-
-        public void zeroPoseGyroscope() {
-                m_odometry.resetPosition(
-                                new Pose2d(m_odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0.0)),
-                                Rotation2d.fromDegrees(m_pigeon.getYaw()));
+                this.gyroOffset = 0.0;
         }
 
         public Rotation2d getGyroscopeRotation() {
-                return Rotation2d.fromDegrees(m_pigeon.getYaw());
+                return Rotation2d.fromDegrees(m_pigeon.getYaw() + this.gyroOffset);
         }
 
-        public void setGyroFromPath(PathPlannerState state) {
-                m_pigeon.setYaw(state.holonomicRotation.getDegrees());
+        public void setGyroOffset(double expectedYaw) {
+                this.gyroOffset = expectedYaw - m_pigeon.getYaw();
         }
 
         public Pose2d getPose() {
@@ -275,7 +272,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         public void resetOdometry(PathPlannerState state) {
                 m_odometry.resetPosition(new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation),
-                 Rotation2d.fromDegrees(m_pigeon.getYaw()));
+                 this.getGyroscopeRotation());
         }
 
         // Implement change in center of gravity here
@@ -310,7 +307,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         @Override
         public void periodic() {
-                m_odometry.update(Rotation2d.fromDegrees(m_pigeon.getYaw()),
+                m_odometry.update(this.getGyroscopeRotation(),
                                 new SwerveModuleState(m_frontLeftModule.getDriveVelocity(),
                                                 new Rotation2d(m_frontLeftModule.getSteerAngle())),
                                 new SwerveModuleState(m_frontRightModule.getDriveVelocity(),

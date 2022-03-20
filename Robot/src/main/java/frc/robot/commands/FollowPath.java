@@ -31,6 +31,8 @@ public class FollowPath extends PPSwerveControllerCommand {
     public void initialize() {
         super.initialize();
 
+        this.drivetrainSubsystem.setGyroOffset(this.trajectory.getInitialState().holonomicRotation.getDegrees());
+
         // reset the theta controller such that old accumuldated ID values aren't used with the new path
         //      this doesn't matter if only the P value is non-zero, which is the current behavior
         this.thetaController.reset(this.drivetrainSubsystem.getPose().getRotation().getRadians());
