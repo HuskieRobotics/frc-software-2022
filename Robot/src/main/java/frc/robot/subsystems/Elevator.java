@@ -144,11 +144,13 @@ public class Elevator extends SubsystemBase {
         this.isBelowRungCount = 0;
 
         Shuffleboard.getTab("MAIN").addBoolean("Elevator At Setpoint", this::atSetpoint);
+        Shuffleboard.getTab("MAIN").addBoolean("Elevator At Setpoint", this::isTimeToExtend);
+        Shuffleboard.getTab("MAIN").addBoolean("Elevator At Setpoint", this::isContactingUnderRung);
+        Shuffleboard.getTab("MAIN").addNumber("Roll Value", m_pigeon::getRoll);
         
         if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Elevator").add("elevator", this);
             Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight);
-            Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
             Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this::getSetpoint);
             Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error", this.rightElevatorMotor::getClosedLoopError);
             Shuffleboard.getTab("Elevator").addNumber("Velocity", this.rightElevatorMotor::getSelectedSensorVelocity);
