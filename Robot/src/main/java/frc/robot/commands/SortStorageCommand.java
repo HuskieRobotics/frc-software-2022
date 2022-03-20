@@ -29,10 +29,10 @@ public class SortStorageCommand extends CommandBase {
     public void execute() {
         if (!this.m_storage.isShooterSensorUnblocked()) {
             indexingDelay++;
-            if(indexingDelay == 6) {
+            if(indexingDelay == 8) {
                 this.m_storage.setStoragePower(StorageConstants.OUTTAKE_POWER);
             }
-            else if(indexingDelay > 6) {
+            else if(indexingDelay > 8) {
                 this.m_storage.disableStorage();
             }
         } else if (!this.m_storage.isCollectorSensorUnblocked() & this.m_storage.isShooterSensorUnblocked()) {

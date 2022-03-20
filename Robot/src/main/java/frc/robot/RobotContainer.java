@@ -9,6 +9,7 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -63,8 +64,8 @@ public class RobotContainer {
   private final Storage m_storage = new Storage();
   private final Collector m_collector = new Collector();
   private final Flywheel m_flywheel = new Flywheel();
-  private final Hood m_hood = new Hood();
-  private final LimelightMath m_limelight = new LimelightMath();
+  //private final Hood m_hood = new Hood();
+  //private final LimelightMath m_limelight = new LimelightMath();
   private final SecondaryArm m_secondMechanism = new SecondaryArm();
   private final Elevator m_elevator = new Elevator();
 
@@ -85,6 +86,8 @@ public class RobotContainer {
    */
   private RobotContainer() {
 
+    LiveWindow.disableAllTelemetry();
+
     this.joystickButtons0 = new JoystickButton[13];
     this.joystickButtons1 = new JoystickButton[13];
     this.operatorButtons = new JoystickButton[13];
@@ -103,8 +106,8 @@ public class RobotContainer {
     m_storage.register();
     m_collector.register();
     m_flywheel.register();
-    m_hood.register();
-    m_limelight.register();
+    //m_hood.register();
+    //m_limelight.register();
     m_storage.register();
     m_elevator.register();
      m_secondMechanism.register();

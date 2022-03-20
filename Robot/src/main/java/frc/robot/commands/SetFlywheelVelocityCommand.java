@@ -8,15 +8,15 @@ public class SetFlywheelVelocityCommand extends CommandBase {
     private Flywheel flywheel;
     private double velocity;
 
-    public SetFlywheelVelocityCommand(Flywheel flywheel, LimelightMath limelight) {
-        this.flywheel = flywheel;
-        // FIXME: this will get the ideal velocity when the command is constructed; not
-        // when the command is scheduled
-        // The next line should be moved to the initialzie method.
-        this.velocity = limelight.getIdealVelocity();
-        addRequirements(this.flywheel);
+    // public SetFlywheelVelocityCommand(Flywheel flywheel, LimelightMath limelight) {
+    //     this.flywheel = flywheel;
+    //     // FIXME: this will get the ideal velocity when the command is constructed; not
+    //     // when the command is scheduled
+    //     // The next line should be moved to the initialzie method.
+    //     this.velocity = limelight.getIdealVelocity();
+    //     addRequirements(this.flywheel);
 
-    }
+    // }
 
     public SetFlywheelVelocityCommand(Flywheel flywheel, double velocity) {
         this.flywheel = flywheel;

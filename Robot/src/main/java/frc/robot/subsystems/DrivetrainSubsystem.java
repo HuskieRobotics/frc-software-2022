@@ -202,6 +202,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
                 tabMain.addBoolean("Is Aimed", () -> isAimed());
                 tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
+                tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
                 tabMain.addBoolean("isXstance", this :: isXstance);
                 this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
                                 .add("FieldRelativeState", this.isFieldRelative)
