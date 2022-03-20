@@ -358,7 +358,7 @@ public class RobotContainer {
 
     //pause elevator
     xboxButtons[JoystickConstants.BUTTON_START].whenPressed(new InstantCommand(() ->
-    m_elevator.elevatorPause(xboxButtons[JoystickConstants.BUTTON_BACK].get()), m_elevator));
+        m_elevator.elevatorPause(xboxButtons[JoystickConstants.BUTTON_BACK].get()), m_elevator));
 
     operatorButtons[12].toggleWhenPressed(
         new ConditionalCommand(

@@ -18,7 +18,9 @@ public class ReachToNextRungCommand extends CommandBase {
 
     @Override
     public void execute() {
-        m_elevator.setElevatorMotorPosition(ElevatorConstants.REACH_TO_NEXT_RUNG_HEIGHT);
+        if(m_elevator.isTimeToExtend()) {
+            m_elevator.setElevatorMotorPosition(ElevatorConstants.REACH_TO_NEXT_RUNG_HEIGHT);
+        }
     }
 
     @Override
@@ -31,12 +33,7 @@ public class ReachToNextRungCommand extends CommandBase {
         if (!m_elevator.isElevatorControlEnabled()) {
             return true;
         }
-        return m_elevator.atSetpoint() && m_elevator.atPitch();
-    }
-
-    @Override
-    public boolean runsWhenDisabled() {
-        return false;
+        return m_elevator.atSetpoint() && m_elevator.isContactingUnderRung();
     }
 
 }
