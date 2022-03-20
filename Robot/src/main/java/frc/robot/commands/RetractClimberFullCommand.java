@@ -35,9 +35,4 @@ public class RetractClimberFullCommand extends CommandBase {
         return m_elevator.atSetpoint();
     }
 
-    @Override
-    public boolean runsWhenDisabled() {
-        return false;
-    }
-
 }
