@@ -13,6 +13,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
 import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -129,6 +130,9 @@ public class Elevator extends SubsystemBase {
 
         /* Initialize */
         this.rightElevatorMotor.getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
+
+		this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, kTimeoutMs);
+        this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, kTimeoutMs);
 
         Shuffleboard.getTab("MAIN").addBoolean("Elevator At Setpoint", this::atSetpoint);
         

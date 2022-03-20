@@ -60,6 +60,7 @@ public final class Constants {
     public static final double ROBOT_LENGTH_WITH_BUMPERS = 0.91;
 
     public static final int PIGEON_ID = 18;
+    public static final int TIMEOUT_MS = 30;
 
     /* Limelight */
     public static  double LIMELIGHT_P = 0.055; // FIXME: adjust when tuning and then make final
@@ -71,7 +72,8 @@ public final class Constants {
     public static final int COLLECTOR_MOTOR_ID = 5;
     public static final int PEUNAMATICS_HUB_CAN_ID = 20;
     public static final int COLLECTOR_SOLENOID_CHANNEL = 0;
-    public static final double COLLECTOR_DEFUALT_SPEED = 0.7; // FIX_ME change this to desired speed
+    public static final double COLLECTOR_DEFUALT_SPEED = 0.9; // FIX_ME change this to desired speed; was 0.7
+    public static final int TIMEOUT_MS = 30;
 
   }
 
@@ -109,7 +111,7 @@ public final class Constants {
     public static final int WALL_SHOT_VELOCITY = 7782; // FIXME tune this
     public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
     public static final int LAUNCH_PAD_VELOCITY = 8447; // FIXME tune this
-    public static final int SHOOT_SLOW_VELOCITY = 2000; // FIXME tune this
+    public static final int SHOOT_SLOW_VELOCITY = 4000; // FIXME tune this
     public static final int SHOT_VELOCITY_DIP = 500;  // FIXME: tune this
     public static final double REVERSE_POWER = -0.2; // FIXME: tune this
 
@@ -167,6 +169,7 @@ public final class Constants {
     public static final int STORAGE_MOTOR_ID = 4;
     public static final double STORAGE_DEFAULT_SPEED = 0.6;
     public static final int STORAGE_CAMERA_PORT = 0;
+    public static final int TIMEOUT_MS = 30;
   }
 
   public static class ElevatorConstants {

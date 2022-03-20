@@ -9,6 +9,7 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -63,8 +64,8 @@ public class RobotContainer {
   private final Storage m_storage = new Storage();
   private final Collector m_collector = new Collector();
   private final Flywheel m_flywheel = new Flywheel();
-  private final Hood m_hood = new Hood();
-  private final LimelightMath m_limelight = new LimelightMath();
+  //private final Hood m_hood = new Hood();
+  //private final LimelightMath m_limelight = new LimelightMath();
   private final SecondaryArm m_secondMechanism = new SecondaryArm();
   private final Elevator m_elevator = new Elevator();
 
@@ -85,6 +86,8 @@ public class RobotContainer {
    */
   private RobotContainer() {
 
+    LiveWindow.disableAllTelemetry();
+
     this.joystickButtons0 = new JoystickButton[13];
     this.joystickButtons1 = new JoystickButton[13];
     this.operatorButtons = new JoystickButton[13];
@@ -103,8 +106,8 @@ public class RobotContainer {
     m_storage.register();
     m_collector.register();
     m_flywheel.register();
-    m_hood.register();
-    m_limelight.register();
+    //m_hood.register();
+    //m_limelight.register();
     m_storage.register();
     m_elevator.register();
      m_secondMechanism.register();
@@ -384,8 +387,6 @@ public class RobotContainer {
     PathPlannerTrajectory autoBlueForwardPath = PathPlanner.loadPath("BlueForward",
         AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     autoBlueForward = new SequentialCommandGroup(
-      new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoBlueForwardPath.getInitialState())),
-      new WaitCommand(2.0),
       new FollowPath(autoBlueForwardPath, thetaController, m_drivetrainSubsystem),
       createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
       new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
@@ -394,9 +395,8 @@ public class RobotContainer {
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       autoBlue1 = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-        new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoBlue1Path.getInitialState())),
-        new WaitCommand(2.0),
         new FollowPath(autoBlue1Path, thetaController, m_drivetrainSubsystem),
+        new InstantCommand(() -> m_collector.disableCollector(), m_collector),
         createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
         new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
@@ -404,17 +404,14 @@ public class RobotContainer {
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       autoBlue2 = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-        new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoBlue2Path.getInitialState())),
-        new WaitCommand(2.0),
         new FollowPath(autoBlue2Path, thetaController, m_drivetrainSubsystem),
+        new InstantCommand(() -> m_collector.disableCollector(), m_collector),
         createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
         new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
     PathPlannerTrajectory autoRedForwardPath = PathPlanner.loadPath("RedForward",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     autoRedForward = new SequentialCommandGroup(
-      new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoRedForwardPath.getInitialState())),
-      new WaitCommand(2.0),
       new FollowPath(autoRedForwardPath, thetaController, m_drivetrainSubsystem),
       createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
       new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
@@ -423,9 +420,8 @@ public class RobotContainer {
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     autoRed1 = new SequentialCommandGroup(
       new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-      new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoRed1Path.getInitialState())),
-      new WaitCommand(2.0),
       new FollowPath(autoRed1Path, thetaController, m_drivetrainSubsystem),
+      new InstantCommand(() -> m_collector.disableCollector(), m_collector),
       createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
       new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
@@ -433,9 +429,8 @@ public class RobotContainer {
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     autoRed2 = new SequentialCommandGroup(
       new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-      new InstantCommand(() -> m_drivetrainSubsystem.setGyroFromPath(autoRed2Path.getInitialState())),
-      new WaitCommand(2.0),
       new FollowPath(autoRed2Path, thetaController, m_drivetrainSubsystem),
+      new InstantCommand(() -> m_collector.disableCollector(), m_collector),
       createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
       new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 

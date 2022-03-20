@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
+import static frc.robot.Constants.*;
 
 /**
  * This command continuously runs the belt in the feeder until cargo is detected
@@ -28,7 +29,10 @@ public class SortStorageCommand extends CommandBase {
     public void execute() {
         if (!this.m_storage.isShooterSensorUnblocked()) {
             indexingDelay++;
-            if(indexingDelay > 5) {
+            if(indexingDelay == 8) {
+                this.m_storage.setStoragePower(StorageConstants.OUTTAKE_POWER);
+            }
+            else if(indexingDelay > 8) {
                 this.m_storage.disableStorage();
             }
         } else if (!this.m_storage.isCollectorSensorUnblocked() & this.m_storage.isShooterSensorUnblocked()) {

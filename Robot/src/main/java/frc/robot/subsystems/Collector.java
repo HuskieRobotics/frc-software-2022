@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -31,6 +32,9 @@ public class Collector extends SubsystemBase {
         isEnabled = false;
         collector5 = new WPI_TalonSRX(CollectorConstants.COLLECTOR_MOTOR_ID);
         collector5.setInverted(true);
+
+        this.collector5.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, TIMEOUT_MS);
+        this.collector5.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, TIMEOUT_MS);
 
         collectorPiston = new Solenoid(CollectorConstants.PEUNAMATICS_HUB_CAN_ID, PneumaticsModuleType.REVPH,
                 CollectorConstants.COLLECTOR_SOLENOID_CHANNEL);

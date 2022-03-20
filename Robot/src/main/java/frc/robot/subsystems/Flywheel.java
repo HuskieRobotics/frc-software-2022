@@ -13,6 +13,7 @@ import frc.robot.commands.SetFlywheelVelocityCommand;
 import java.util.Map;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
@@ -104,6 +105,9 @@ public class Flywheel extends SubsystemBase {
 
         /* APPLY the config settings */
         this.rightFlywheelMotor.configAllSettings(_rightConfig);
+
+        this.leftFlywheelMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, TIMEOUT_MS);
+        this.leftFlywheelMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, TIMEOUT_MS);
 
         // rightFlywheelMotor.selectProfileSlot(SLOT_INDEX, PID_LOOP_INDEX);
 

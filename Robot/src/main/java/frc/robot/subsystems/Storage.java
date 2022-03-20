@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static frc.robot.Constants.*;
+import static frc.robot.Constants.StorageConstants.*;
 
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.SortStorageCommand;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.networktables.EntryListenerFlags;
@@ -32,16 +34,19 @@ public class Storage extends SubsystemBase {
         this.isStorageEnabled = false;
         storage4 = new WPI_TalonSRX(StorageConstants.STORAGE_MOTOR_ID);
 
+        this.storage4.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, TIMEOUT_MS);
+        this.storage4.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, TIMEOUT_MS);
+
         collectorSensor0 = new DigitalInput(StorageConstants.COLLECTOR_SENSOR);
         addChild("Collector Sensor 0", collectorSensor0);
 
         shooterSensor1 = new DigitalInput(StorageConstants.SHOOTER_SENSOR);
         addChild("Shooter Sensor 1", shooterSensor1);
 
-        Shuffleboard.getTab("MAIN").addBoolean("Collector Unblocked", this::isCollectorSensorUnblocked);
-        Shuffleboard.getTab("MAIN").addBoolean("Shooter Unblocked", this::isShooterSensorUnblocked);
         
         if(COMMAND_LOGGING) {
+            Shuffleboard.getTab("MAIN").addBoolean("Collector Unblocked", this::isCollectorSensorUnblocked);
+            Shuffleboard.getTab("MAIN").addBoolean("Shooter Unblocked", this::isShooterSensorUnblocked);
             Shuffleboard.getTab("Storage").add("storage", this);
             Shuffleboard.getTab("Storage").add("Sort Storage", new SortStorageCommand(this));
         }

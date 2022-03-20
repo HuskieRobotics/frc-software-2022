@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.sensors.PigeonIMU_StatusFrame;
 //import com.ctre.phoenix.sensors.PigeonIMU;
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
@@ -88,6 +89,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
         // cause the angle reading to increase until it wraps back over to zero.
         private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
 
+        private double gyroOffset;
+
         // These are our modules. We initialize them in the constructor.
         private final SwerveModule m_frontLeftModule;
         private final SwerveModule m_frontRightModule;
@@ -106,6 +109,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         private SimpleMotorFeedforward feedForward;
 
         private int aimSetpointCount;
+        private double lastLimelightDistance;
 
         public DrivetrainSubsystem() {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
@@ -114,7 +118,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.isXstance = false;
                 // this.m_robotCenter = new Translation2d(0,0);
 
-                m_pigeon.setYaw(0.0);
+                this.zeroGyroscope();
+                this.m_pigeon.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_6_SensorFusion, 255, TIMEOUT_MS);
 
                 // There are 4 methods you can call to create your swerve modules.
                 // The method you use depends on what motors you are using.
@@ -192,11 +197,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts,
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
+                tabMain.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
                 tabMain.addBoolean("Is Aimed", () -> isAimed());
-                tabMain.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                 tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
+                tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
                 tabMain.addBoolean("isXstance", this :: isXstance);
                 this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
                                 .add("FieldRelativeState", this.isFieldRelative)
@@ -250,20 +256,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         public void zeroGyroscope() {
                 m_pigeon.setYaw(0.0);
-        }
-
-        public void zeroPoseGyroscope() {
-                m_odometry.resetPosition(
-                                new Pose2d(m_odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0.0)),
-                                Rotation2d.fromDegrees(m_pigeon.getYaw()));
+                this.gyroOffset = 0.0;
         }
 
         public Rotation2d getGyroscopeRotation() {
-                return Rotation2d.fromDegrees(m_pigeon.getYaw());
+                return Rotation2d.fromDegrees(m_pigeon.getYaw() + this.gyroOffset);
         }
 
-        public void setGyroFromPath(PathPlannerState state) {
-                m_pigeon.setYaw(state.holonomicRotation.getDegrees());
+        public void setGyroOffset(double expectedYaw) {
+                this.gyroOffset = expectedYaw - m_pigeon.getYaw();
         }
 
         public Pose2d getPose() {
@@ -272,7 +273,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         public void resetOdometry(PathPlannerState state) {
                 m_odometry.resetPosition(new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation),
-                 Rotation2d.fromDegrees(m_pigeon.getYaw()));
+                 this.getGyroscopeRotation());
         }
 
         // Implement change in center of gravity here
@@ -307,7 +308,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         @Override
         public void periodic() {
-                m_odometry.update(Rotation2d.fromDegrees(m_pigeon.getYaw()),
+                m_odometry.update(this.getGyroscopeRotation(),
                                 new SwerveModuleState(m_frontLeftModule.getDriveVelocity(),
                                                 new Rotation2d(m_frontLeftModule.getSteerAngle())),
                                 new SwerveModuleState(m_frontRightModule.getDriveVelocity(),
@@ -393,20 +394,18 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public double getLimelightDistanceIn() {
                 double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0.0);
 
-                double d = (LimelightConstants.HUB_H - LimelightConstants.ROBOT_H)
+                this.lastLimelightDistance = (LimelightConstants.HUB_H - LimelightConstants.ROBOT_H)
                         / (Math.tan(Math.toRadians(LimelightConstants.LIMELIGHT_MOUNT_ANGLE +LimelightConstants.LIMELIGHT_ANGLE_OFFSET + ty)));
-
-                return d;
+                
+                return this.lastLimelightDistance;
         }
 
         public boolean isAtLaunchpadDistance() {
-                double dist = getLimelightDistanceIn();
-                return Math.abs(LimelightConstants.HUB_LAUNCHPAD_DISTANCE - dist) <= LimelightConstants.DISTANCE_TOLERANCE;
+                return Math.abs(LimelightConstants.HUB_LAUNCHPAD_DISTANCE - this.lastLimelightDistance) <= LimelightConstants.DISTANCE_TOLERANCE;
         }
 
         public boolean isAtWallDistance() {
-                double dist = getLimelightDistanceIn();
-                return Math.abs(LimelightConstants.HUB_WALL_DISTANCE - dist) <= LimelightConstants.DISTANCE_TOLERANCE;
+                return Math.abs(LimelightConstants.HUB_WALL_DISTANCE - this.lastLimelightDistance) <= LimelightConstants.DISTANCE_TOLERANCE;
         }
 
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {

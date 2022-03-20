@@ -126,6 +126,8 @@ public class Robot extends TimedRobot {
             m_autonomousCommand.cancel();
         }
 
+        server.setSource(storageCam);
+
     }
 
     /**
@@ -134,12 +136,12 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
 
-        if(this.m_robotContainer.isElevatorControlEnabled()){
-            server.setSource(climbCam);
-        }
-        else{
-            server.setSource(storageCam);
-        }
+        // if(this.m_robotContainer.isElevatorControlEnabled()){
+        //     server.setSource(climbCam);
+        // }
+        // else{
+        //     server.setSource(storageCam);
+        // }
 
     }
     @Override
