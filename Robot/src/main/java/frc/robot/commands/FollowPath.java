@@ -16,8 +16,9 @@ public class FollowPath extends PPSwerveControllerCommand {
     private ProfiledPIDController thetaController;
     private DrivetrainSubsystem drivetrainSubsystem;
     private PathPlannerTrajectory trajectory;
+    private boolean initialPath;
 
-    public FollowPath(PathPlannerTrajectory trajectory, ProfiledPIDController thetaController, DrivetrainSubsystem subsystem) {
+    public FollowPath(PathPlannerTrajectory trajectory, ProfiledPIDController thetaController, DrivetrainSubsystem subsystem, boolean initialPath) {
         super(trajectory, subsystem::getPose, subsystem.getKinematics(), new PIDController(AutoConstants.kPXController, 0, 0),
                 new PIDController(AutoConstants.kPYController, 0, 0), thetaController,
                 subsystem::setSwerveModuleStates, subsystem);
@@ -25,20 +26,25 @@ public class FollowPath extends PPSwerveControllerCommand {
         this.thetaController = thetaController;
         this.drivetrainSubsystem = subsystem;
         this.trajectory = trajectory;
+        this.initialPath = initialPath;
     }
 
     @Override
     public void initialize() {
         super.initialize();
 
-        this.drivetrainSubsystem.setGyroOffset(this.trajectory.getInitialState().holonomicRotation.getDegrees());
+        if(initialPath) {
+            this.drivetrainSubsystem.setGyroOffset(this.trajectory.getInitialState().holonomicRotation.getDegrees());
+
+            // Reset odometry to the starting pose of the trajectory.
+            this.drivetrainSubsystem.resetOdometry(this.trajectory.getInitialState());
+        }
 
         // reset the theta controller such that old accumuldated ID values aren't used with the new path
         //      this doesn't matter if only the P value is non-zero, which is the current behavior
         this.thetaController.reset(this.drivetrainSubsystem.getPose().getRotation().getRadians());
 
-        // Reset odometry to the starting pose of the trajectory.
-        this.drivetrainSubsystem.resetOdometry(this.trajectory.getInitialState());
+        
 
     }
 }

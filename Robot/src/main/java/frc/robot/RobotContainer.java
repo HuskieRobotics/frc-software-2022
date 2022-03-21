@@ -385,7 +385,7 @@ public class RobotContainer {
     PathPlannerTrajectory autoBlueForwardPath = PathPlanner.loadPath("BlueForward",
         AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     autoBlueForward = new SequentialCommandGroup(
-      new FollowPath(autoBlueForwardPath, thetaController, m_drivetrainSubsystem),
+      new FollowPath(autoBlueForwardPath, thetaController, m_drivetrainSubsystem, true),
       createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
       new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
@@ -393,7 +393,7 @@ public class RobotContainer {
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       autoBlue1 = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-        new FollowPath(autoBlue1Path, thetaController, m_drivetrainSubsystem),
+        new FollowPath(autoBlue1Path, thetaController, m_drivetrainSubsystem, true),
         new InstantCommand(() -> m_collector.disableCollector(), m_collector),
         createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
         new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
@@ -402,7 +402,7 @@ public class RobotContainer {
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       autoBlue2 = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-        new FollowPath(autoBlue2Path, thetaController, m_drivetrainSubsystem),
+        new FollowPath(autoBlue2Path, thetaController, m_drivetrainSubsystem, true),
         new InstantCommand(() -> m_collector.disableCollector(), m_collector),
         createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
         new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
@@ -414,46 +414,18 @@ public class RobotContainer {
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       autoBlue3 = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-        new FollowPath(autoBlue31Path, thetaController, m_drivetrainSubsystem),
+        new FollowPath(autoBlue31Path, thetaController, m_drivetrainSubsystem, true),
         createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
-        new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem),
+        new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem, false),
         createShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY),
-        new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+        //new InstantCommand(() -> m_collector.disableCollector(), m_collector),
         new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
-
-    PathPlannerTrajectory autoRedForwardPath = PathPlanner.loadPath("RedForward",
-          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-    autoRedForward = new SequentialCommandGroup(
-      new FollowPath(autoRedForwardPath, thetaController, m_drivetrainSubsystem),
-      createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
-      new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
-
-    PathPlannerTrajectory autoRed1Path = PathPlanner.loadPath("Red1(1)",
-          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-    autoRed1 = new SequentialCommandGroup(
-      new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-      new FollowPath(autoRed1Path, thetaController, m_drivetrainSubsystem),
-      new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-      createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
-      new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
-
-    PathPlannerTrajectory autoRed2Path = PathPlanner.loadPath("Red2(1)",
-          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-    autoRed2 = new SequentialCommandGroup(
-      new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-      new FollowPath(autoRed2Path, thetaController, m_drivetrainSubsystem),
-      new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-      createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
-      new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
     ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
     m_chooser.addOption("Blue Forward", autoBlueForward);
     m_chooser.addOption("Blue 1", autoBlue1);
     m_chooser.addOption("Blue 2", autoBlue2);
     m_chooser.addOption("Blue 3", autoBlue3);
-    m_chooser.addOption("Red Forward", autoRedForward);
-    m_chooser.addOption("Red 1", autoRed1);
-    m_chooser.addOption("Red 2", autoRed2);
     tab.add("Auto Mode", m_chooser);
   }
 
