@@ -477,6 +477,19 @@ public class RobotContainer {
           new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav())));
   }
 
+  private Command createAutoShootCommandSequence(int shotVelocity) {
+    return new SequentialCommandGroup(
+        new ParallelCommandGroup(
+          new SetFlywheelVelocityCommand(m_flywheel, shotVelocity),
+          new LimelightAlignToTargetCommand(m_drivetrainSubsystem)),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitCommand(1.0),
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
+          new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+          new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav())));
+  }
+
   private static double deadband(double value, double deadband) {
     if (Math.abs(value) > deadband) {
       if (value > 0.0) {
