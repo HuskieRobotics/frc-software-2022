@@ -111,6 +111,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
         private int aimSetpointCount;
         private double lastLimelightDistance;
 
+        private double logX, logY, logZ;        // FIXME: delete after testing
+
         public DrivetrainSubsystem() {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
                 ShuffleboardTab tabMain = Shuffleboard.getTab("MAIN");
@@ -204,6 +206,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
                 tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
                 tabMain.addBoolean("isXstance", this :: isXstance);
+                tabMain.addNumber("joyX", () -> this.logX);     // FIXME: delete these 5 after testing
+                tabMain.addNumber("joyY", () -> this.logY);
+                tabMain.addNumber("joyZ", () -> this.logZ);
+                tabMain.addNumber("CoG X", () -> this.centerGravity.getX());
+                tabMain.addNumber("CoG Y", () -> this.centerGravity.getY());
                 this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
@@ -369,19 +376,47 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 m_backRightModule.set(0, (3.0/2.0 * Math.PI - Math.atan(22.5 / 23.5)));
         }
 
-        /*
-         * Make center of gravity into a instance command and have the instance command
-         * change based on the method
-         * need to implement the instance variable within the periodic method
-         * Create either a whenPressed or toggleWhenPressed method in robotContainer
-         * Use below method to test
-         */
         public void setCenterGrav(double x, double y) {
                 this.centerGravity = new Translation2d(x, y);
         }
 
         public void resetCenterGrav() {
                 setCenterGrav(0.0, 0.0);
+        }
+
+        /*
+                Assumptions:
+                        * positive x is moving joystick 0 right
+                        * positive y is moving joystick 0 forward
+                        * positive z is moving joystick 1 right
+                        * gyro values increase when rotation counter clockwise
+        */
+        public void rotateEvasively(double x, double y, double z) {
+                double gyro = getGyroscopeRotation().getDegrees();
+
+                // FIXME: delete after testing
+                logX = x;
+                logY = y;
+                logZ = z;
+
+                // change the sign of z to map to standard coordinate system (CCW is positive)
+                z *= -1.0;
+
+                double worldFrameAngle = Math.toDegrees(Math.atan(y / x));
+                double robotFrameAngle = worldFrameAngle - gyro;
+                double robotFrameCOGAngle;
+
+                if(z < 0) {
+                        robotFrameCOGAngle = robotFrameAngle + COG_OFFSET;
+                }
+                else {
+                        robotFrameCOGAngle = robotFrameAngle - COG_OFFSET;
+                }
+
+                double cogX = Math.cos(Math.toRadians(robotFrameCOGAngle)) * EVASIVE_ROTATION_COG_SHIFT_MAGNITUDE;
+                double cogY = Math.sin(Math.toRadians(robotFrameCOGAngle)) * EVASIVE_ROTATION_COG_SHIFT_MAGNITUDE;
+
+                setCenterGrav(cogX, cogY);
         }
 
         public double getLimelightX(){

@@ -58,6 +58,8 @@ public final class Constants {
 
     public static final double ROBOT_WIDTH_WITH_BUMPERS = 0.89;
     public static final double ROBOT_LENGTH_WITH_BUMPERS = 0.91;
+    public static final double EVASIVE_ROTATION_COG_SHIFT_MAGNITUDE = 0.707;  // a bit beyond the bumper permimeter
+    public static final double COG_OFFSET = 45;
 
     public static final int PIGEON_ID = 18;
     public static final int TIMEOUT_MS = 30;
