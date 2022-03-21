@@ -84,6 +84,7 @@ public final class Constants {
     public static final double kvVoltSecondsPerMeter = 2.3014;
     public static final double kaVoltSecondsSquaredPerMeter = 0.12872;
 
+    // FIXME: increase if needed for 4-ball auto
     public static final double kMaxSpeedMetersPerSecond = 1;//3;
     public static final double kMaxAccelerationMetersPerSecondSquared = 1;//3;
     public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI/3;

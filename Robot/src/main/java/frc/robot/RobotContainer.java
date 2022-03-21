@@ -70,6 +70,7 @@ public class RobotContainer {
   private Command autoBlueForward;
   private Command autoBlue1;
   private Command autoBlue2;
+  private Command autoBlue3;
   private Command autoRedForward;
   private Command autoRed1;
   private Command autoRed2;
@@ -406,6 +407,20 @@ public class RobotContainer {
         createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
         new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
+      PathPlannerTrajectory autoBlue31Path = PathPlanner.loadPath("Blue3(1)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+      // change to Blue3(23) after testing Blue3(2)
+      PathPlannerTrajectory autoBlue32Path = PathPlanner.loadPath("Blue3(2)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+      autoBlue3 = new SequentialCommandGroup(
+        new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+        new FollowPath(autoBlue31Path, thetaController, m_drivetrainSubsystem),
+        createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
+        new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem),
+        createShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY),
+        new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+        new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
+
     PathPlannerTrajectory autoRedForwardPath = PathPlanner.loadPath("RedForward",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     autoRedForward = new SequentialCommandGroup(
@@ -435,6 +450,7 @@ public class RobotContainer {
     m_chooser.addOption("Blue Forward", autoBlueForward);
     m_chooser.addOption("Blue 1", autoBlue1);
     m_chooser.addOption("Blue 2", autoBlue2);
+    m_chooser.addOption("Blue 3", autoBlue3);
     m_chooser.addOption("Red Forward", autoRedForward);
     m_chooser.addOption("Red 1", autoRed1);
     m_chooser.addOption("Red 2", autoRed2);
