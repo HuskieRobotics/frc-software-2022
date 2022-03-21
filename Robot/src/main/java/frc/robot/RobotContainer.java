@@ -415,9 +415,9 @@ public class RobotContainer {
       autoBlue3 = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
         new FollowPath(autoBlue31Path, thetaController, m_drivetrainSubsystem, true),
-        createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
+        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
         new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem, false),
-        createShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY),
+        createAutoShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY),
         //new InstantCommand(() -> m_collector.disableCollector(), m_collector),
         new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
