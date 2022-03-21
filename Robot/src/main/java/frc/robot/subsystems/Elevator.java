@@ -44,9 +44,9 @@ public class Elevator extends SubsystemBase {
     private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
     private double encoderPositionSetpoint;
     private boolean isElevatorControlEnabled;
-    private double maxRoll;
-    private double prevRoll;
-    private double rollCountBeforeExtension;
+    private double maxPitch;
+    private double prevPitch;
+    private double pitchCountBeforeExtension;
     private int isBelowRungCount;
 
     public Elevator() {
@@ -138,15 +138,15 @@ public class Elevator extends SubsystemBase {
 		this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, kTimeoutMs);
         this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, kTimeoutMs);
 
-        this.prevRoll = Double.MIN_VALUE;
-        this.maxRoll = Double.MIN_VALUE;
-        this.rollCountBeforeExtension = 0;
+        this.prevPitch = Double.MIN_VALUE;
+        this.maxPitch = Double.MIN_VALUE;
+        this.pitchCountBeforeExtension = 0;
         this.isBelowRungCount = 0;
 
         Shuffleboard.getTab("MAIN").addBoolean("Elevator At Setpoint", this::atSetpoint);
         Shuffleboard.getTab("MAIN").addBoolean("Elevator At Setpoint", this::isTimeToExtend);
         Shuffleboard.getTab("MAIN").addBoolean("Elevator At Setpoint", this::isContactingUnderRung);
-        Shuffleboard.getTab("MAIN").addNumber("Roll Value", m_pigeon::getRoll);
+        Shuffleboard.getTab("MAIN").addNumber("Pitch Value", m_pigeon::getPitch);
         
         if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Elevator").add("elevator", this);
@@ -331,35 +331,35 @@ public class Elevator extends SubsystemBase {
     // returns true when the robot reaches the maximum positive amplitude
     //  (if this results in extending the elevator too late, make crossing zero the trigger)
     public boolean isTimeToExtend() {
-        double roll = m_pigeon.getRoll();
+        double pitch = m_pigeon.getPitch();
 
         // determine the amplitude of the swing
-        if(roll > this.maxRoll) {
-            this.maxRoll = roll;
+        if(pitch > this.maxPitch) {
+            this.maxPitch = pitch;
         }
 
         // if the robot starts swinging down from the positive side
-        if(roll < this.maxRoll && roll < this.prevRoll) {
+        if(pitch < this.maxPitch && pitch < this.prevPitch) {
             // wait the specified number of 20 ms intervals before extending the elevator
-            this.rollCountBeforeExtension++;
-            if(this.rollCountBeforeExtension >= REACH_TO_NEXT_RUNG_DELAY) {
+            this.pitchCountBeforeExtension++;
+            if(this.pitchCountBeforeExtension >= REACH_TO_NEXT_RUNG_DELAY) {
                 // reset in preparation for the next swing
-                this.prevRoll = Double.MIN_VALUE;
-                this.maxRoll = Double.MIN_VALUE;
-                this.rollCountBeforeExtension = 0;
+                this.prevPitch = Double.MIN_VALUE;
+                this.maxPitch = Double.MIN_VALUE;
+                this.pitchCountBeforeExtension = 0;
                 return true;
             }
         }
         
-        this.prevRoll = roll;
+        this.prevPitch = pitch;
 
         return false;
     }
 
     public boolean isContactingUnderRung() {
-        double roll = m_pigeon.getRoll();
+        double pitch = m_pigeon.getPitch();
 
-        if(Math.abs(roll - ROLL_WHEN_BELOW_NEXT_RUNG) < ROLL_WHEN_BELOW_NEXT_RUNG_TOLERANCE) {
+        if(Math.abs(pitch - PITCH_WHEN_BELOW_NEXT_RUNG) < PITCH_WHEN_BELOW_NEXT_RUNG_TOLERANCE) {
             this.isBelowRungCount++;
             if(this.isBelowRungCount >= BELOW_NEXT_RUNG_DELAY) {
                 return true;
