@@ -63,7 +63,9 @@ public final class Constants {
     public static final int TIMEOUT_MS = 30;
 
     /* Limelight */
+    public static  double LIMELIGHT_F = 0.0; // FIXME: adjust when tuning and then make final
     public static  double LIMELIGHT_P = 0.055; // FIXME: adjust when tuning and then make final
+    public static  double LIMELIGHT_I = 0.1; // FIXME: adjust when tuning and then make final
     public static  double LIMELIGHT_ALIGNMENT_TOLERANCE = 1; // degrees; FIXME: adjust when testing and then make final
   }
 

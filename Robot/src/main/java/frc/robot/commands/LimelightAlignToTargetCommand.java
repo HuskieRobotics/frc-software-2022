@@ -10,7 +10,7 @@ public class LimelightAlignToTargetCommand extends PIDCommand {
 
     public LimelightAlignToTargetCommand(DrivetrainSubsystem subsystem){
         super(
-            new PIDController(DrivetrainConstants.LIMELIGHT_P,0.1,0),
+            new PIDController(DrivetrainConstants.LIMELIGHT_P,DrivetrainConstants.LIMELIGHT_I,0),
             subsystem :: getLimelightX,
             0,
             output -> subsystem.aim(0,0,output),//0.7
