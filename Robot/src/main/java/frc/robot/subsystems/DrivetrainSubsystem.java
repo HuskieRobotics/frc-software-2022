@@ -400,23 +400,22 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 setCenterGrav(0.0, 0.0);
         }
 
-        /*
-                Assumptions:
-                        * positive x is moving joystick 0 right (no, it's positive when forward)
-                        * positive y is moving joystick 0 forward (no it's positive when left)
-                        * positive z is moving joystick 1 right (no, it's negative)
-                        * gyro values increase when rotation counter clockwise
-        */
-        public void rotateEvasively(double x, double y, double z) {
+        public void rotateEvasively(double translationX, double translationY, double rotation) {
+
                 double gyro = getGyroscopeRotation().getDegrees();
 
-                // FIXME: delete after testing
-                logX = x;
-                logY = y;
-                logZ = z;
+                /*
+                        Assumptions:
+                                * positive x is moving joystick 0 right (no it's positive when left)
+                                * positive y is moving joystick 0 forward (correct)
+                                * positive z is moving joystick 1 left (correct)
+                                * gyro values increase when rotation counter clockwise
+                */
+                
 
-                // change the sign of z to map to standard coordinate system (CCW is positive)
-                z *= -1.0;
+                double x = -translationX;
+                double y = translationY;
+                double z = rotation;
 
                 double worldFrameAngle = Math.toDegrees(Math.atan(y / x));
                 if(x < 0) {

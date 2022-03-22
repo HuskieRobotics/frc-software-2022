@@ -185,7 +185,7 @@ public class RobotContainer {
     //center of gravity
     joystickButtons1[4].whenPressed(
           new InstantCommand(() -> 
-              m_drivetrainSubsystem.rotateEvasively(-modifyAxis(joystick0.getX()), -modifyAxis(joystick0.getY()), -modifyAxis(joystick1.getX())),
+              m_drivetrainSubsystem.rotateEvasively(-modifyAxis(joystick0.getY()), -modifyAxis(joystick0.getX()), -modifyAxis(joystick1.getX())),
               m_drivetrainSubsystem));
     joystickButtons1[4]
         .whenReleased(new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav(), m_drivetrainSubsystem));
