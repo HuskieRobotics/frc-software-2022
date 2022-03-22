@@ -403,6 +403,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 z *= -1.0;
 
                 double worldFrameAngle = Math.toDegrees(Math.atan(y / x));
+                if(x < 0) {
+                        worldFrameAngle += 180.0;
+                }
                 double robotFrameAngle = worldFrameAngle - gyro;
                 double robotFrameCOGAngle;
 
