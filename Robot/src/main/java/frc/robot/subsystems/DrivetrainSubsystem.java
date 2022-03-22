@@ -409,14 +409,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
-                // if (rotationSupplier > 0) {     // FIXME: verify this is clockwise
-                //         setCenterGrav(DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2,
-                //                 -DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2);
-                // }
-                // else {  // counterclockwise
-                //         setCenterGrav(DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2,
-                //                 DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2);
-                // }
+                if (rotationSupplier > 0) {     // FIXME: verify this is clockwise
+                        setCenterGrav(DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2,
+                                -DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2);
+                }
+                else {  // counterclockwise
+                        setCenterGrav(DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2,
+                                DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2);
+                }
 
                 drive(translationXSupplier, translationYSupplier, rotationSupplier);
 
