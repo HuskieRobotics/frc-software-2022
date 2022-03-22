@@ -111,8 +111,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
         private int aimSetpointCount;
         private double lastLimelightDistance;
 
-        private double logX, logY, logZ;        // FIXME: delete after testing
-
         public DrivetrainSubsystem() {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
                 ShuffleboardTab tabMain = Shuffleboard.getTab("MAIN");
@@ -206,11 +204,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
                 tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
                 tabMain.addBoolean("isXstance", this :: isXstance);
-                tabMain.addNumber("joyX", () -> this.getLogX());     // FIXME: delete these 5 after testing
-                tabMain.addNumber("joyY", () -> this.getLogY());
-                tabMain.addNumber("joyZ", () -> this.getLogZ());
-                tabMain.addNumber("CoG X", () -> this.centerGravity.getX());
-                tabMain.addNumber("CoG Y", () -> this.centerGravity.getY());
                 this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
@@ -278,18 +271,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 return m_odometry.getPoseMeters();
         }
 
-        public double getLogX() {
-                return logX;
-        }
-
-        public double getLogY() {
-                return logY;
-        }
-
-        public double getLogZ() {
-                return logZ;
-        }
-
         public void resetOdometry(PathPlannerState state) {
                 m_odometry.resetPosition(new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation),
                  this.getGyroscopeRotation());
@@ -297,10 +278,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         // Implement change in center of gravity here
         public void drive(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
-
-                logX = translationXSupplier;
-                logY = translationYSupplier;
-                logZ = rotationSupplier;
         if (isXstance) {
                 this.setXStance();
         }
