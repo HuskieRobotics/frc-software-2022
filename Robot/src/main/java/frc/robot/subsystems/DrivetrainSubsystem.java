@@ -297,6 +297,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         // Implement change in center of gravity here
         public void drive(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
+
+                logX = translationXSupplier;
+                logY = translationYSupplier;
+                logZ = rotationSupplier;
         if (isXstance) {
                 this.setXStance();
         }
