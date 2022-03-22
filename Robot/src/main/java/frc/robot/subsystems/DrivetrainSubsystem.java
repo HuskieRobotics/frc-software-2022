@@ -20,11 +20,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -33,8 +31,6 @@ import frc.robot.commands.LimelightAlignToTargetCommand;
 
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.DrivetrainConstants.*;
-
-import java.util.Map;
 
 public class DrivetrainSubsystem extends SubsystemBase {
         /**
@@ -225,23 +221,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         // Add indicators and controls to this Shuffleboard tab to assist with
                         // interactively tuning the system.
             
-                        Shuffleboard.getTab("Limelight")
-                                .add("Angle Tolerance", LIMELIGHT_ALIGNMENT_TOLERANCE)
-                                .withWidget(BuiltInWidgets.kNumberSlider)
-                                .withProperties(Map.of("min", 0, "max", 10)) // specify widget properties here
-                                .getEntry()
-                                .addListener(event -> {
-                                        LIMELIGHT_ALIGNMENT_TOLERANCE = event.getEntry().getValue().getDouble();
-                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-            
-                        Shuffleboard.getTab("Limelight")
-                                .add("Limelight P", LIMELIGHT_P)
-                                .withWidget(BuiltInWidgets.kNumberSlider)
-                                .withProperties(Map.of("min", -2.0, "max", 2.0)) // specify widget properties here
-                                .getEntry()
-                                .addListener(event -> {
-                                        LIMELIGHT_P = event.getEntry().getValue().getDouble();
-                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+                        
                 }
 
 
@@ -439,13 +419,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
-                if (rotationSupplier > 0) {     // FIXME: verify this is clockwise
-                        setCenterGrav(DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2,
-                                -DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2);
+                if (rotationSupplier > 0) {     // clockwise
+                        rotationSupplier += LIMELIGHT_F;
                 }
                 else {  // counterclockwise
-                        setCenterGrav(DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2,
-                                DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2);
+                        rotationSupplier -= LIMELIGHT_F;
                 }
 
                 drive(translationXSupplier, translationYSupplier, rotationSupplier);
@@ -460,6 +438,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         }
                 }
                 else {
+                        
                         aimSetpointCount = 0;
                 }
                 return false;
