@@ -181,30 +181,10 @@ public class RobotContainer {
             m_drivetrainSubsystem::getFieldRelative));
 
     //center of gravity
-    joystickButtons1[4]
-        .whenPressed(new InstantCommand(() -> {
-              double width = DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2.0;
-              double length = DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2.0;
-              // if going forward....
-              if(-modifyAxis(joystick0.getY()) < 0.0) {
-                // rotate about the front-left when rotating clockwise; else, front-right, when rotating counterclockwise
-                // FIXME: confirm direction is as expected
-                if(-modifyAxis(joystick1.getX()) < 0.0) {
-                  width *= -1.0;
-                }
-              }
-              else {
-                length *= -1.0;
-                // rotate about the back-left when rotating counterclockwise; else, back-right, when rotating clockwise
-                // FIXME: confirm direction is as expected
-                if(-modifyAxis(joystick1.getX()) < 0.0) {
-                  width *= -1.0;
-                }
-              }
-
-              m_drivetrainSubsystem.setCenterGrav(width, length);
-            },
-            m_drivetrainSubsystem));
+    joystickButtons1[4].whenPressed(
+          new InstantCommand(() -> 
+              m_drivetrainSubsystem.rotateEvasively(-modifyAxis(joystick0.getY()), -modifyAxis(joystick0.getX()), -modifyAxis(joystick1.getX())),
+              m_drivetrainSubsystem));
     joystickButtons1[4]
         .whenReleased(new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav(), m_drivetrainSubsystem));
 

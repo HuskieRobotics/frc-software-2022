@@ -369,19 +369,49 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 m_backRightModule.set(0, (3.0/2.0 * Math.PI - Math.atan(22.5 / 23.5)));
         }
 
-        /*
-         * Make center of gravity into a instance command and have the instance command
-         * change based on the method
-         * need to implement the instance variable within the periodic method
-         * Create either a whenPressed or toggleWhenPressed method in robotContainer
-         * Use below method to test
-         */
         public void setCenterGrav(double x, double y) {
                 this.centerGravity = new Translation2d(x, y);
         }
 
         public void resetCenterGrav() {
                 setCenterGrav(0.0, 0.0);
+        }
+
+        public void rotateEvasively(double translationX, double translationY, double rotation) {
+
+                double gyro = getGyroscopeRotation().getDegrees();
+
+                /*
+                        Assumptions:
+                                * positive x is moving joystick 0 right (no it's positive when left)
+                                * positive y is moving joystick 0 forward (correct)
+                                * positive z is moving joystick 1 left (correct)
+                                * gyro values increase when rotation counter clockwise
+                */
+                
+
+                double x = -translationX;
+                double y = translationY;
+                double z = rotation;
+
+                double worldFrameAngle = Math.toDegrees(Math.atan(y / x));
+                if(x < 0) {
+                        worldFrameAngle += 180.0;
+                }
+                double robotFrameAngle = worldFrameAngle - gyro;
+                double robotFrameCOGAngle;
+
+                if(z < 0) {
+                        robotFrameCOGAngle = robotFrameAngle + COG_OFFSET;
+                }
+                else {
+                        robotFrameCOGAngle = robotFrameAngle - COG_OFFSET;
+                }
+
+                double cogX = Math.cos(Math.toRadians(robotFrameCOGAngle)) * EVASIVE_ROTATION_COG_SHIFT_MAGNITUDE;
+                double cogY = Math.sin(Math.toRadians(robotFrameCOGAngle)) * EVASIVE_ROTATION_COG_SHIFT_MAGNITUDE;
+
+                setCenterGrav(cogX, cogY);
         }
 
         public double getLimelightX(){
