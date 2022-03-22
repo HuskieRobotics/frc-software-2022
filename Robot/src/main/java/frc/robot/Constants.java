@@ -58,6 +58,8 @@ public final class Constants {
 
     public static final double ROBOT_WIDTH_WITH_BUMPERS = 0.89;
     public static final double ROBOT_LENGTH_WITH_BUMPERS = 0.91;
+    public static final double EVASIVE_ROTATION_COG_SHIFT_MAGNITUDE = 0.707;  // a bit beyond the bumper permimeter
+    public static final double COG_OFFSET = 45;
 
     public static final int PIGEON_ID = 18;
     public static final int TIMEOUT_MS = 30;
@@ -84,8 +86,8 @@ public final class Constants {
     public static final double kvVoltSecondsPerMeter = 2.3014;
     public static final double kaVoltSecondsSquaredPerMeter = 0.12872;
 
-    public static final double kMaxSpeedMetersPerSecond = 1;//3;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 1;//3;
+    public static final double kMaxSpeedMetersPerSecond = 3;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
     public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI/3;
     public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI/3;
 
