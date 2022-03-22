@@ -206,9 +206,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
                 tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
                 tabMain.addBoolean("isXstance", this :: isXstance);
-                tabMain.addNumber("joyX", () -> this.logX);     // FIXME: delete these 5 after testing
-                tabMain.addNumber("joyY", () -> this.logY);
-                tabMain.addNumber("joyZ", () -> this.logZ);
+                tabMain.addNumber("joyX", () -> this.getLogX());     // FIXME: delete these 5 after testing
+                tabMain.addNumber("joyY", () -> this.getLogY());
+                tabMain.addNumber("joyZ", () -> this.getLogZ());
                 tabMain.addNumber("CoG X", () -> this.centerGravity.getX());
                 tabMain.addNumber("CoG Y", () -> this.centerGravity.getY());
                 this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
@@ -276,6 +276,18 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         public Pose2d getPose() {
                 return m_odometry.getPoseMeters();
+        }
+
+        public double getLogX() {
+                return logX;
+        }
+
+        public double getLogY() {
+                return logY;
+        }
+
+        public double getLogZ() {
+                return logZ;
         }
 
         public void resetOdometry(PathPlannerState state) {
