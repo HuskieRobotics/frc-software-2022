@@ -220,19 +220,16 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
                         tab.addNumber("CoG X", () -> this.centerGravity.getX());
                         tab.addNumber("CoG Y", () -> this.centerGravity.getY());
-                        //tab.add("align to target", new LimelightAlignToTargetCommand(this));
+                        tab.add("align to target", new LimelightAlignToTargetCommand(this));
                 }
 
-                //if (TUNING) {
+                if (TUNING) {
                         // Add indicators and controls to this Shuffleboard tab to assist with
                         // interactively tuning the system.
             
                         tab.addBoolean("LL Is Aimed", () -> isAimed());
-                        tab.add("align to target", new LimelightAlignToTargetCommand(this));
-                        tab.add("find FF", new InstantCommand(() -> this.drive(0.0, 0.0, LIMELIGHT_F)));
-
-                        tab
-                                .add("Angle Tolerance", LIMELIGHT_ALIGNMENT_TOLERANCE)
+                        
+                        tab.add("Angle Tolerance", LIMELIGHT_ALIGNMENT_TOLERANCE)
                                 .withWidget(BuiltInWidgets.kNumberSlider)
                                 .withProperties(Map.of("min", 0, "max", 5)) // specify widget properties here
                                 .getEntry()
@@ -240,8 +237,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                         LIMELIGHT_ALIGNMENT_TOLERANCE = event.getEntry().getValue().getDouble();
                                 }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
             
-                        tab
-                                .add("Limelight P", LIMELIGHT_P)
+                        tab.add("Limelight P", LIMELIGHT_P)
                                 .withWidget(BuiltInWidgets.kNumberSlider)
                                 .withProperties(Map.of("min", -2.0, "max", 2.0)) // specify widget properties here
                                 .getEntry()
@@ -249,8 +245,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                         LIMELIGHT_P = event.getEntry().getValue().getDouble();
                                 }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-                        tab
-                                .add("Limelight I", LIMELIGHT_I)
+                        tab.add("Limelight I", LIMELIGHT_I)
                                 .withWidget(BuiltInWidgets.kNumberSlider)
                                 .withProperties(Map.of("min", -2.0, "max", 2.0)) // specify widget properties here
                                 .getEntry()
@@ -258,15 +253,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                         LIMELIGHT_I = event.getEntry().getValue().getDouble();
                                 }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-                        tab
-                                .add("Limelight F", LIMELIGHT_F)
+                        tab.add("Limelight F", LIMELIGHT_F)
                                 .withWidget(BuiltInWidgets.kNumberSlider)
                                 .withProperties(Map.of("min", -1.0, "max", 1.0)) // specify widget properties here
                                 .getEntry()
                                 .addListener(event -> {
                                         LIMELIGHT_F = event.getEntry().getValue().getDouble();
                                 }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-                //}
+                }
 
 
 
@@ -432,16 +426,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 return Math.abs(LimelightConstants.HUB_WALL_DISTANCE - this.lastLimelightDistance) <= LimelightConstants.DISTANCE_TOLERANCE;
         }
 
-        // FIXME: do we really need to rotate about the front corners instead of the center? Would we rotate smoother about the center?
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
-                if (rotationSupplier > 0) {     // FIXME: verify this is clockwise
-                        //setCenterGrav(DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2,
-                        //        -DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2);
+                if (rotationSupplier > 0) {     // clockwise
                         rotationSupplier += LIMELIGHT_F;
                 }
                 else {  // counterclockwise
-                        //setCenterGrav(DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2,
-                        //        DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2);
                         rotationSupplier -= LIMELIGHT_F;
                 }
 
