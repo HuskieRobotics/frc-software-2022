@@ -398,9 +398,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         /*
                 Assumptions:
-                        * positive x is moving joystick 0 right
-                        * positive y is moving joystick 0 forward
-                        * positive z is moving joystick 1 right
+                        * positive x is moving joystick 0 right (no, it's positive when forward)
+                        * positive y is moving joystick 0 forward (no it's positive when left)
+                        * positive z is moving joystick 1 right (no, it's negative)
                         * gyro values increase when rotation counter clockwise
         */
         public void rotateEvasively(double x, double y, double z) {
