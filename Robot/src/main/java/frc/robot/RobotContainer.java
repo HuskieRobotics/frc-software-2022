@@ -288,12 +288,12 @@ public class RobotContainer {
         new SequentialCommandGroup(
             new RetractClimberFullCommand(m_elevator),
             new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism),
-            new ReachToNextRungCommand(m_elevator),
+            new ReachToNextRungCommand(m_elevator, m_secondMechanism),
             new ParallelCommandGroup(
                 new RetractClimberFullCommand(m_elevator),
                 new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism)),
             new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism),
-            new ReachToNextRungCommand(m_elevator),
+            new ReachToNextRungCommand(m_elevator, m_secondMechanism),
             new RetractClimberMinimumCommand(m_elevator)));
 
     // configure climb to third rung climb sequence
@@ -301,7 +301,7 @@ public class RobotContainer {
         new SequentialCommandGroup(
             new RetractClimberFullCommand(m_elevator),
             new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
-            new ReachToNextRungCommand(m_elevator),
+            new ReachToNextRungCommand(m_elevator, m_secondMechanism),
             new ParallelCommandGroup(
                 new RetractClimberMinimumCommand(m_elevator),
                 new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism))));

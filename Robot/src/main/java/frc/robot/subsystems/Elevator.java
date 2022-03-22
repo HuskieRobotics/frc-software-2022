@@ -372,6 +372,10 @@ public class Elevator extends SubsystemBase {
         return false;
     }
 
+    public boolean hasTransferredToSecondary() {
+        return this.getElevatorEncoderHeight() > TRANSFER_TO_SECONDARY_HEIGHT;
+    }
+
     public void elevatorPause(boolean isStartPressed) {
         if (isStartPressed) {
             this.stopElevator();
