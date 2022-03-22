@@ -63,10 +63,10 @@ public final class Constants {
     public static final int TIMEOUT_MS = 30;
 
     /* Limelight */
-    public static  double LIMELIGHT_F = 0.475; // FIXME: adjust when tuning and then make final
-    public static  double LIMELIGHT_P = 0.12; // FIXME: adjust when tuning and then make final
-    public static  double LIMELIGHT_I = 0.0; // FIXME: adjust when tuning and then make final
-    public static  double LIMELIGHT_ALIGNMENT_TOLERANCE = .8; // degrees; FIXME: adjust when testing and then make final
+    public static final double LIMELIGHT_F = 0.475;
+    public static final double LIMELIGHT_P = 0.12;
+    public static final double LIMELIGHT_I = 0.0;
+    public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = .8;
   }
 
   public static final class CollectorConstants {
