@@ -410,16 +410,18 @@ public class RobotContainer {
       PathPlannerTrajectory autoBlue31Path = PathPlanner.loadPath("Blue3(1)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       // change to Blue3(23) after testing Blue3(2)
-      PathPlannerTrajectory autoBlue32Path = PathPlanner.loadPath("Blue3(2)",
+      PathPlannerTrajectory autoBlue32Path = PathPlanner.loadPath("Blue3(23)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       autoBlue3 = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
         new FollowPath(autoBlue31Path, thetaController, m_drivetrainSubsystem, true),
-        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
-        new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem, false),
-        createAutoShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY),
+        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 1),
+        new ParallelCommandGroup(
+          new SortStorageCommand(m_storage),
+          new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem, false)),
+        createAutoShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY, 5));
         //new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-        new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
+        //new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
     ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
     m_chooser.addOption("Blue Forward", autoBlueForward);
@@ -449,13 +451,13 @@ public class RobotContainer {
           new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav())));
   }
 
-  private Command createAutoShootCommandSequence(int shotVelocity) {
+  private Command createAutoShootCommandSequence(int shotVelocity, double shotDelay) {
     return new SequentialCommandGroup(
         new ParallelCommandGroup(
           new SetFlywheelVelocityCommand(m_flywheel, shotVelocity),
           new LimelightAlignToTargetCommand(m_drivetrainSubsystem)),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitCommand(1.0),
+        new WaitCommand(shotDelay),
         new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
           new InstantCommand(()-> m_storage.disableStorage(), m_storage),
