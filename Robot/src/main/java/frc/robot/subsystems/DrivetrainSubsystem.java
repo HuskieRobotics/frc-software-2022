@@ -36,6 +36,8 @@ import static frc.robot.Constants.DrivetrainConstants.*;
 
 import java.util.Map;
 
+import javax.swing.plaf.basic.BasicTabbedPaneUI.TabbedPaneLayout;
+
 public class DrivetrainSubsystem extends SubsystemBase {
         /**
          * The maximum voltage that will be delivered to the drive motors.
@@ -229,7 +231,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         tab.add("align to target", new LimelightAlignToTargetCommand(this));
                         tab.add("find FF", new InstantCommand(() -> this.drive(0.0, 0.0, LIMELIGHT_F)));
 
-                        Shuffleboard.getTab("Limelight")
+                        tab
                                 .add("Angle Tolerance", LIMELIGHT_ALIGNMENT_TOLERANCE)
                                 .withWidget(BuiltInWidgets.kNumberSlider)
                                 .withProperties(Map.of("min", 0, "max", 5)) // specify widget properties here
@@ -238,7 +240,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                         LIMELIGHT_ALIGNMENT_TOLERANCE = event.getEntry().getValue().getDouble();
                                 }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
             
-                        Shuffleboard.getTab("Limelight")
+                        tab
                                 .add("Limelight P", LIMELIGHT_P)
                                 .withWidget(BuiltInWidgets.kNumberSlider)
                                 .withProperties(Map.of("min", -2.0, "max", 2.0)) // specify widget properties here
@@ -247,7 +249,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                         LIMELIGHT_P = event.getEntry().getValue().getDouble();
                                 }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-                        Shuffleboard.getTab("Limelight")
+                        tab
                                 .add("Limelight I", LIMELIGHT_I)
                                 .withWidget(BuiltInWidgets.kNumberSlider)
                                 .withProperties(Map.of("min", -2.0, "max", 2.0)) // specify widget properties here
@@ -256,7 +258,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                         LIMELIGHT_I = event.getEntry().getValue().getDouble();
                                 }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-                        Shuffleboard.getTab("Limelight")
+                        tab
                                 .add("Limelight F", LIMELIGHT_F)
                                 .withWidget(BuiltInWidgets.kNumberSlider)
                                 .withProperties(Map.of("min", -1.0, "max", 1.0)) // specify widget properties here
@@ -433,13 +435,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
         // FIXME: do we really need to rotate about the front corners instead of the center? Would we rotate smoother about the center?
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
                 if (rotationSupplier > 0) {     // FIXME: verify this is clockwise
-                        setCenterGrav(DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2,
-                                -DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2);
+                        //setCenterGrav(DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2,
+                        //        -DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2);
                         rotationSupplier += LIMELIGHT_F;
                 }
                 else {  // counterclockwise
-                        setCenterGrav(DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2,
-                                DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2);
+                        //setCenterGrav(DrivetrainConstants.ROBOT_LENGTH_WITH_BUMPERS/2,
+                        //        DrivetrainConstants.ROBOT_WIDTH_WITH_BUMPERS/2);
                         rotationSupplier -= LIMELIGHT_F;
                 }
 
@@ -455,6 +457,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         }
                 }
                 else {
+                        
                         aimSetpointCount = 0;
                 }
                 return false;
