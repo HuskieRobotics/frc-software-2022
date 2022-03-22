@@ -20,11 +20,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -33,10 +31,6 @@ import frc.robot.commands.LimelightAlignToTargetCommand;
 
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.DrivetrainConstants.*;
-
-import java.util.Map;
-
-import javax.swing.plaf.basic.BasicTabbedPaneUI.TabbedPaneLayout;
 
 public class DrivetrainSubsystem extends SubsystemBase {
         /**
@@ -227,39 +221,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         // Add indicators and controls to this Shuffleboard tab to assist with
                         // interactively tuning the system.
             
-                        tab.addBoolean("LL Is Aimed", () -> isAimed());
                         
-                        tab.add("Angle Tolerance", LIMELIGHT_ALIGNMENT_TOLERANCE)
-                                .withWidget(BuiltInWidgets.kNumberSlider)
-                                .withProperties(Map.of("min", 0, "max", 5)) // specify widget properties here
-                                .getEntry()
-                                .addListener(event -> {
-                                        LIMELIGHT_ALIGNMENT_TOLERANCE = event.getEntry().getValue().getDouble();
-                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-            
-                        tab.add("Limelight P", LIMELIGHT_P)
-                                .withWidget(BuiltInWidgets.kNumberSlider)
-                                .withProperties(Map.of("min", -2.0, "max", 2.0)) // specify widget properties here
-                                .getEntry()
-                                .addListener(event -> {
-                                        LIMELIGHT_P = event.getEntry().getValue().getDouble();
-                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-
-                        tab.add("Limelight I", LIMELIGHT_I)
-                                .withWidget(BuiltInWidgets.kNumberSlider)
-                                .withProperties(Map.of("min", -2.0, "max", 2.0)) // specify widget properties here
-                                .getEntry()
-                                .addListener(event -> {
-                                        LIMELIGHT_I = event.getEntry().getValue().getDouble();
-                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-
-                        tab.add("Limelight F", LIMELIGHT_F)
-                                .withWidget(BuiltInWidgets.kNumberSlider)
-                                .withProperties(Map.of("min", -1.0, "max", 1.0)) // specify widget properties here
-                                .getEntry()
-                                .addListener(event -> {
-                                        LIMELIGHT_F = event.getEntry().getValue().getDouble();
-                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
                 }
 
 
