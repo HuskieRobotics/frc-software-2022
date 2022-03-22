@@ -71,9 +71,6 @@ public class RobotContainer {
   private Command autoBlue1;
   private Command autoBlue2;
   private Command autoBlue3;
-  private Command autoRedForward;
-  private Command autoRed1;
-  private Command autoRed2;
 
   // Joysticks
 
