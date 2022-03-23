@@ -363,7 +363,7 @@ public class RobotContainer {
         AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     autoBlueForward = new SequentialCommandGroup(
       new FollowPath(autoBlueForwardPath, thetaController, m_drivetrainSubsystem, true),
-      createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
+      createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 5),
       new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
       PathPlannerTrajectory autoBlue1Path = PathPlanner.loadPath("Blue1(1)",
@@ -372,7 +372,7 @@ public class RobotContainer {
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
         new FollowPath(autoBlue1Path, thetaController, m_drivetrainSubsystem, true),
         new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-        createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
+        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 5),
         new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
       PathPlannerTrajectory autoBlue2Path = PathPlanner.loadPath("Blue2(1)",
@@ -381,7 +381,7 @@ public class RobotContainer {
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
         new FollowPath(autoBlue2Path, thetaController, m_drivetrainSubsystem, true),
         new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-        createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
+        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 5),
         new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
       PathPlannerTrajectory autoBlue31Path = PathPlanner.loadPath("Blue3(1)",
@@ -390,7 +390,9 @@ public class RobotContainer {
       PathPlannerTrajectory autoBlue32Path = PathPlanner.loadPath("Blue3(23)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       autoBlue3 = new SequentialCommandGroup(
-        new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+          new InstantCommand(() -> m_flywheel.startFlywheel(), m_flywheel)),
         new FollowPath(autoBlue31Path, thetaController, m_drivetrainSubsystem, true),
         createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 1),
         new ParallelCommandGroup(
@@ -436,9 +438,7 @@ public class RobotContainer {
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
         new WaitCommand(shotDelay),
         new ParallelCommandGroup(
-          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
-          new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-          new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav())));
+          new InstantCommand(()-> m_storage.disableStorage(), m_storage)));
   }
 
   private static double deadband(double value, double deadband) {

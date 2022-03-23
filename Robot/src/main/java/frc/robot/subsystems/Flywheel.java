@@ -260,6 +260,11 @@ public class Flywheel extends SubsystemBase {
         
     }
 
+    public void startFlywheel() {
+        leftFlywheelMotor.set(TalonFXControlMode.PercentOutput, 1.0);
+        rightFlywheelMotor.set(TalonFXControlMode.PercentOutput, 1.0);
+    }
+
     public void stopFlywheel() {
         leftFlywheelMotor.set(TalonFXControlMode.PercentOutput, 0.0);
         rightFlywheelMotor.set(TalonFXControlMode.PercentOutput, 0.0);
