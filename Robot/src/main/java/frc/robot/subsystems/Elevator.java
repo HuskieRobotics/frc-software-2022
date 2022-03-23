@@ -7,6 +7,7 @@ import frc.robot.commands.ExtendClimberToMidRungCommand;
 import frc.robot.commands.ReachToNextRungCommand;
 import frc.robot.commands.RetractClimberFullCommand;
 import frc.robot.commands.RetractClimberMinimumCommand;
+import frc.robot.commands.ExtendClimberBeforeNextRungCommand;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
@@ -156,6 +157,7 @@ public class Elevator extends SubsystemBase {
             //Shuffleboard.getTab("Elevator").addNumber("Left Motor Power", this.leftElevatorMotor::getMotorOutputPercent);
             //Shuffleboard.getTab("Elevator").addNumber("Right Motor Power", this.rightElevatorMotor::getMotorOutputPercent);
             Shuffleboard.getTab("Elevator").add("Extend Climber to Mid", new ExtendClimberToMidRungCommand(this));
+            Shuffleboard.getTab("Elevator").add("Extend Before Next", new ExtendClimberBeforeNextRungCommand(this));
             Shuffleboard.getTab("Elevator").add("Retract Climber Full", new RetractClimberFullCommand(this));
             Shuffleboard.getTab("Elevator").add("Retract Climber Minimum", new RetractClimberMinimumCommand(this));
             Shuffleboard.getTab("Elevator").addBoolean("isElevatorControl Enabled", this :: isElevatorControlEnabled);
@@ -331,26 +333,11 @@ public class Elevator extends SubsystemBase {
     public boolean isTimeToExtend() {
         double pitch = m_pigeon.getPitch();
 
-        // determine the amplitude of the swing
-        if(pitch > this.maxPitch) {
-            this.maxPitch = pitch;
-        }
-
         // if the robot starts swinging down from the positive side
-        if(pitch < this.maxPitch && pitch < this.prevPitch) {
-            // wait the specified number of 20 ms intervals before extending the elevator
-            this.pitchCountBeforeExtension++;
-            if(this.pitchCountBeforeExtension >= REACH_TO_NEXT_RUNG_DELAY) {
-                // reset in preparation for the next swing
-                this.prevPitch = Double.MIN_VALUE;
-                this.maxPitch = Double.MIN_VALUE;
-                this.pitchCountBeforeExtension = 0;
-                return true;
-            }
+        if(pitch < -38.5) {
+            return true;
         }
         
-        this.prevPitch = pitch;
-
         return false;
     }
 

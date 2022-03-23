@@ -111,7 +111,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         private int aimSetpointCount;
         private double lastLimelightDistance;
 
-        public DrivetrainSubsystem() {
+        public DrivetrainSubsystem(){
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
                 ShuffleboardTab tabMain = Shuffleboard.getTab("MAIN");
                 this.isFieldRelative = false;
