@@ -56,7 +56,7 @@ public class Storage extends SubsystemBase {
             // tuning (i.e., "ShooterTuning")
             // Add indicators and controls to this Shuffleboard tab to assist with
             // interactively tuning the system.
-
+/*
             Shuffleboard.getTab("Storage")
                     .add("Storage Power", 0.0)
                     .withWidget(BuiltInWidgets.kNumberSlider)
@@ -65,7 +65,36 @@ public class Storage extends SubsystemBase {
                     .addListener(event -> {
                         this.setStoragePower(event.getEntry().getValue().getDouble());
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-        }
+                */
+                
+            Shuffleboard.getTab("Storage")
+                    .add("Storage Power Constant", 0.0)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0.0, "max", 1.0)) // specify widget properties here
+                    .getEntry()
+                    .addListener(event -> {
+                        this.setStorageDeafaultPower(event.getEntry().getValue().getDouble());
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+
+            Shuffleboard.getTab("Storage")
+                    .add("Storage Delay", 0.0)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0.0, "max", 20.0)) // specify widget properties here
+                    .getEntry()
+                    .addListener(event -> {
+                        this.setStorageDelay((int) (event.getEntry().getValue().getDouble()));
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+
+            Shuffleboard.getTab("Storage")
+                    .add("Storage Duration", 0.0)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 30.0, "max", 30.0)) // specify widget properties here
+                    .getEntry()
+                    .addListener(event -> {
+                        this.setStorageDuration((int) (event.getEntry().getValue().getDouble()));
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate); 
+
+                }
     }
 
     @Override
@@ -112,4 +141,16 @@ public class Storage extends SubsystemBase {
     public double getStoragePower() {
         return this.storage4.get();
     }
+
+    public void setStorageDelay(int delay) {
+        StorageConstants.INDEXING_FORWARD_DELAY = delay;
+    }
+    public void setStorageDuration(int duration) {
+        StorageConstants.INDEXING_BACKWARD_DURATION = duration;
+    }
+    public void setStorageDeafaultPower(double speed) {
+        StorageConstants.STORAGE_DEFAULT_SPEED = speed;
+    }
+
+    
 }
