@@ -438,7 +438,8 @@ public class RobotContainer {
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
         new WaitCommand(shotDelay),
         new ParallelCommandGroup(
-          new InstantCommand(()-> m_storage.disableStorage(), m_storage)));
+          new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+          new InstantCommand(()-> m_flywheel.stopFlywheel(), m_storage)));
   }
 
   private static double deadband(double value, double deadband) {
