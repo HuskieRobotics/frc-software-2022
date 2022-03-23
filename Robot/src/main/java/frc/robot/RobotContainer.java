@@ -400,11 +400,7 @@ public class RobotContainer {
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
             new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitForShotCommand(m_flywheel, m_storage),
-        new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-        new SetFlywheelVelocityCommand(m_flywheel, shotVelocity),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitForShotCommand(m_flywheel, m_storage),
+        new WaitForShotCommand(m_storage),
         new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
           new InstantCommand(()-> m_storage.disableStorage(), m_storage),

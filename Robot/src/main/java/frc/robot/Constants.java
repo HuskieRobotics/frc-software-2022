@@ -175,6 +175,7 @@ public final class Constants {
     public static final double STORAGE_DEFAULT_SPEED = 0.6;
     public static final int STORAGE_CAMERA_PORT = 0;
     public static final int TIMEOUT_MS = 30;
+    public static final int WAIT_FOR_SHOT_DELAY = 10; // FIXME: tune
   }
 
   public static class ElevatorConstants {
