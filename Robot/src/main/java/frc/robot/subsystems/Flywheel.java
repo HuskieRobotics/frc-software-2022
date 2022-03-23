@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.networktables.EntryListenerFlags;
 
-import static frc.robot.Constants.*;
 import static frc.robot.Constants.FlywheelConstants.*;
 
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -113,9 +112,10 @@ public class Flywheel extends SubsystemBase {
 
         this.velocitySetPoint = 0.0;
 
-        Shuffleboard.getTab("MAIN").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
+        //Shuffleboard.getTab("MAIN").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
         
-        if(COMMAND_LOGGING) {
+        //if(COMMAND_LOGGING) {
+            Shuffleboard.getTab("Shooter").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
             Shuffleboard.getTab("Shooter").add("shooter", this);
             Shuffleboard.getTab("Shooter").addNumber("FlywheelVelocity", this::getVelocity);
             Shuffleboard.getTab("Shooter").addNumber("FlywheelMinVelocity", this::getMinVelocity);
@@ -131,14 +131,14 @@ public class Flywheel extends SubsystemBase {
             Shuffleboard.getTab("Shooter").add("Wall Shot", new SetFlywheelVelocityCommand(this, WALL_SHOT_VELOCITY));
             Shuffleboard.getTab("Shooter").add("Fender Shot", new SetFlywheelVelocityCommand(this, FENDER_SHOT_VELOCITY));
             Shuffleboard.getTab("Shooter").add("Stop Flywheel", new SetFlywheelVelocityCommand(this, 0));
-        }
+        //}
 
         // Shuffleboard.getTab("Shooter").add("SpinFlywheelForFenderCommand",
         // new SpinFlywheelCommand(this, FENDER_VELOCITY));
         // Shuffleboard.getTab("Shooter").add("StopFlywheelCommand", new
         // InstantCommand(this::stopFlywheel, this));
 
-        if (TUNING) {
+        //if (TUNING) {
             // Each robot feature that requires PID tuning has its own Shuffleboard tab for
             // tuning (i.e., "Shooter")
             // Add indicators and controls to this Shuffleboard tab to assist with
@@ -204,7 +204,7 @@ public class Flywheel extends SubsystemBase {
                         this.rightFlywheelMotor.config_kD(SLOT_INDEX, event.getEntry().getValue().getDouble(),
                                 TIMEOUT_MS);
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-        }
+        //}
     }
 
     @Override

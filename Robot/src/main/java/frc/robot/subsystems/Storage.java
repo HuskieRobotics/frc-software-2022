@@ -8,7 +8,6 @@ import java.util.Map;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.commands.SortStorageCommand;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
@@ -48,7 +47,6 @@ public class Storage extends SubsystemBase {
             Shuffleboard.getTab("MAIN").addBoolean("Collector Unblocked", this::isCollectorSensorUnblocked);
             Shuffleboard.getTab("MAIN").addBoolean("Shooter Unblocked", this::isShooterSensorUnblocked);
             Shuffleboard.getTab("Storage").add("storage", this);
-            Shuffleboard.getTab("Storage").add("Sort Storage", new SortStorageCommand(this));
         }
 
         if (TUNING) {
