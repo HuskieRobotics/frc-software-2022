@@ -289,12 +289,14 @@ public class RobotContainer {
     operatorButtons[8].whenPressed(
         new SequentialCommandGroup(
             new RetractClimberFullCommand(m_elevator),
-            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism),
+            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
+            new WaitCommand(0.5), // wait for secondary arm to be positioned
             new ReachToNextRungCommand(m_elevator, m_secondMechanism),
             new ParallelCommandGroup(
                 new RetractClimberFullCommand(m_elevator),
-                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism)),
-            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism),
+                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism)),
+            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
+            new WaitCommand(0.5), // wait for secondary arm to be positioned
             new ReachToNextRungCommand(m_elevator, m_secondMechanism),
             new RetractClimberMinimumCommand(m_elevator)));
 
@@ -303,10 +305,9 @@ public class RobotContainer {
         new SequentialCommandGroup(
             new RetractClimberFullCommand(m_elevator),
             new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
+            new WaitCommand(0.5), // wait for secondary arm to be positioned
             new ReachToNextRungCommand(m_elevator, m_secondMechanism),
-            new ParallelCommandGroup(
-                new RetractClimberMinimumCommand(m_elevator),
-                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism))));
+            new RetractClimberMinimumCommand(m_elevator)));
 
     // configure climb to 2 rung climb sequence
     operatorButtons[1].whenPressed(
