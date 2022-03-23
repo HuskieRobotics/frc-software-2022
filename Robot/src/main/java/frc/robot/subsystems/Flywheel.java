@@ -6,6 +6,7 @@ import static frc.robot.Constants.FlywheelConstants.*;
 
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.SetFlywheelVelocityCommand;
 
@@ -130,7 +131,7 @@ public class Flywheel extends SubsystemBase {
 
             Shuffleboard.getTab("Shooter").add("Wall Shot", new SetFlywheelVelocityCommand(this, WALL_SHOT_VELOCITY));
             Shuffleboard.getTab("Shooter").add("Fender Shot", new SetFlywheelVelocityCommand(this, FENDER_SHOT_VELOCITY));
-            Shuffleboard.getTab("Shooter").add("Stop Flywheel", new SetFlywheelVelocityCommand(this, 0));
+            Shuffleboard.getTab("Shooter").add("Stop Flywheel", new InstantCommand(this::stopFlywheel, this));
         //}
 
         // Shuffleboard.getTab("Shooter").add("SpinFlywheelForFenderCommand",
@@ -258,6 +259,11 @@ public class Flywheel extends SubsystemBase {
         }
             return false;
         
+    }
+
+    public void startFlywheel() {
+        leftFlywheelMotor.set(TalonFXControlMode.PercentOutput, 1.0);
+        rightFlywheelMotor.set(TalonFXControlMode.PercentOutput, 1.0);
     }
 
     public void stopFlywheel() {
