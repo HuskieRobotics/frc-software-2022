@@ -126,10 +126,6 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
-    if(COMMAND_LOGGING) {
-      Shuffleboard.getTab("Storage").add("Sort Storage", new SortStorageCommand(m_storage, m_flywheel));
-  }
-
     // Configure default commands
 
     // Configure autonomous sendable chooser
@@ -224,11 +220,13 @@ public class RobotContainer {
         new ConditionalCommand(
             new ParallelCommandGroup(
                 new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-                new InstantCommand(() -> m_storage.disableStorage(), m_storage)),
+                new InstantCommand(() -> m_storage.disableStorage(), m_storage),
+                new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel)),
             new SequentialCommandGroup(
                 new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-                new SortStorageCommand(m_storage, m_flywheel),
-                new InstantCommand(() -> m_collector.disableCollector(), m_collector)),
+                new SortStorageCommand(m_storage),
+                new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+                new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.LAUNCH_PAD_VELOCITY)),
             m_collector::isEnabled));
 
     // unjam all
@@ -380,7 +378,7 @@ public class RobotContainer {
         new FollowPath(autoBlue31Path, thetaController, m_drivetrainSubsystem, true),
         createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 1),
         new ParallelCommandGroup(
-          new SortStorageCommand(m_storage, m_flywheel),
+          new SortStorageCommand(m_storage),
           new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem, false)),
         createAutoShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY, 5));
         //new InstantCommand(() -> m_collector.disableCollector(), m_collector),
