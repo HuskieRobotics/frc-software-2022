@@ -410,6 +410,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 return this.lastLimelightDistance;
         }
 
+        public double getVelocityFromLimelight() {
+                double velocity = this.lastLimelightDistance * 1; // FIXME: add equation from limelight distance to velocity
+                return velocity;
+        }
+
         public boolean isAtLaunchpadDistance() {
                 return Math.abs(LimelightConstants.HUB_LAUNCHPAD_DISTANCE - this.lastLimelightDistance) <= LimelightConstants.DISTANCE_TOLERANCE;
         }
