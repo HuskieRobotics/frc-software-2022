@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.PigeonIMU_StatusFrame;
+import com.ctre.phoenix.ErrorCode;
+import com.ctre.phoenix.sensors.CANCoder;
 //import com.ctre.phoenix.sensors.PigeonIMU;
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
@@ -88,10 +90,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
         private double gyroOffset;
 
         // These are our modules. We initialize them in the constructor.
-        private final SwerveModule m_frontLeftModule;
-        private final SwerveModule m_frontRightModule;
-        private final SwerveModule m_backLeftModule;
-        private final SwerveModule m_backRightModule;
+        private SwerveModule m_frontLeftModule;
+        private SwerveModule m_frontRightModule;
+        private SwerveModule m_backLeftModule;
+        private SwerveModule m_backRightModule;
         private boolean isFieldRelative;
         private boolean isXstance;
         // private Translation2d m_robotCenter;
@@ -100,6 +102,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
         private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(m_kinematics,
                         Rotation2d.fromDegrees(m_pigeon.getYaw()));
 
+		private boolean encodersInitialized;
+		private int encoderInitializationTries;
+		
         private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
         private SimpleMotorFeedforward feedForward;
@@ -112,10 +117,56 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 ShuffleboardTab tabMain = Shuffleboard.getTab("MAIN");
                 this.isFieldRelative = false;
                 this.isXstance = false;
+                this.encodersInitialized = false;
+    		this.encoderInitializationTries = 0;
                 // this.m_robotCenter = new Translation2d(0,0);
 
                 this.zeroGyroscope();
                 this.m_pigeon.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_6_SensorFusion, 255, TIMEOUT_MS);
+                
+                // verify that the encoders are initialized; if so, create the swerve modules
+    		this.verifyEncoderInitialization();
+
+                this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts,
+                                AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
+
+                tab.addBoolean("Encoders Init", () -> getEncoderInitialization());
+                tab.addNumber("Encoders Init Tries", () -> getEncoderInitializationTries());
+
+                tabMain.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
+                tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
+                tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
+                tabMain.addBoolean("Is Aimed", () -> isAimed());
+                tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
+                tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
+                tabMain.addBoolean("isXstance", this :: isXstance);
+                this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
+                                .add("FieldRelativeState", this.isFieldRelative)
+                                .getEntry();
+                
+                if(COMMAND_LOGGING) {
+                        tab.add("drivetrain", this);
+                        tab.addNumber("Limelight y Dist", () -> getLimelighty());
+                        tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
+                        tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
+                        tab.addNumber("Pose Rotation", () -> m_odometry.getPoseMeters().getRotation().getDegrees());
+                        tab.add("Enable XStance", new InstantCommand(() -> this.enableXstance()));
+                        tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
+                        tab.addNumber("CoG X", () -> this.centerGravity.getX());
+                        tab.addNumber("CoG Y", () -> this.centerGravity.getY());
+                        tab.add("align to target", new LimelightAlignToTargetCommand(this));
+                }
+
+                if (TUNING) {
+                        // Add indicators and controls to this Shuffleboard tab to assist with
+                        // interactively tuning the system.
+            
+                        
+                }
+        }
+
+        private void createSwerveModules() {
+                ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
                 // There are 4 methods you can call to create your swerve modules.
                 // The method you use depends on what motors you are using.
@@ -189,43 +240,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 BACK_RIGHT_MODULE_STEER_MOTOR,
                                 BACK_RIGHT_MODULE_STEER_ENCODER,
                                 BACK_RIGHT_MODULE_STEER_OFFSET);
-
-                this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts,
-                                AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
-
-                tabMain.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
-                tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
-                tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
-                tabMain.addBoolean("Is Aimed", () -> isAimed());
-                tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
-                tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
-                tabMain.addBoolean("isXstance", this :: isXstance);
-                this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
-                                .add("FieldRelativeState", this.isFieldRelative)
-                                .getEntry();
-                
-                if(COMMAND_LOGGING) {
-                        tab.add("drivetrain", this);
-                        tab.addNumber("Limelight y Dist", () -> getLimelighty());
-                        tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
-                        tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
-                        tab.addNumber("Pose Rotation", () -> m_odometry.getPoseMeters().getRotation().getDegrees());
-                        tab.add("Enable XStance", new InstantCommand(() -> this.enableXstance()));
-                        tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
-                        tab.addNumber("CoG X", () -> this.centerGravity.getX());
-                        tab.addNumber("CoG Y", () -> this.centerGravity.getY());
-                        tab.add("align to target", new LimelightAlignToTargetCommand(this));
-                }
-
-                if (TUNING) {
-                        // Add indicators and controls to this Shuffleboard tab to assist with
-                        // interactively tuning the system.
-            
-                        
-                }
-
-
-
         }
 
         /*
@@ -456,6 +470,62 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public boolean isXstance() {
                 return isXstance;
         }
+        
+        public boolean verifyEncoderInitialization() {
+
+        if (encodersInitialized) {
+            return true;
+        } else {
+            encoderInitializationTries++;
+
+            // Ensure that the CANcoder has sent a CAN frame with the absolute encoder value
+            // since power-on.
+            // It is also important that each CANcoder is configured to "Boot to Absolute"
+            // in Phoenix Tuner.
+            CANCoder frontLeftEncoder = new CANCoder(FRONT_LEFT_MODULE_STEER_ENCODER);
+            CANCoder frontRightEncoder = new CANCoder(FRONT_RIGHT_MODULE_STEER_ENCODER);
+            CANCoder backLeftEncoder = new CANCoder(BACK_LEFT_MODULE_STEER_ENCODER);
+            CANCoder backRightEncoder = new CANCoder(BACK_RIGHT_MODULE_STEER_ENCODER);
+            ErrorCode err = ErrorCode.OK;
+
+            frontLeftEncoder.getAbsolutePosition();
+            if (frontLeftEncoder.getLastError() != ErrorCode.OK) {
+                err = frontLeftEncoder.getLastError();
+            }
+
+            frontRightEncoder.getAbsolutePosition();
+            if (frontRightEncoder.getLastError() != ErrorCode.OK) {
+                err = frontRightEncoder.getLastError();
+            }
+
+            backLeftEncoder.getAbsolutePosition();
+            if (backLeftEncoder.getLastError() != ErrorCode.OK) {
+                err = backLeftEncoder.getLastError();
+            }
+
+            backRightEncoder.getAbsolutePosition();
+            if (backRightEncoder.getLastError() != ErrorCode.OK) {
+                err = backRightEncoder.getLastError();
+            }
+
+            if (err == ErrorCode.OK) {
+                encodersInitialized = true;
+
+                // if all encoders are initialized, create the swerve modules
+                createSwerveModules();
+            }
+
+            return encodersInitialized;
+        }
+    }
+
+    public int getEncoderInitializationTries() {
+        return this.encoderInitializationTries;
+    }
+
+    public boolean getEncoderInitialization() {
+        return this.encodersInitialized;
+    }
 
            
 

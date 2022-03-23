@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.StorageConstants;
+import frc.robot.subsystems.DrivetrainSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -25,6 +26,7 @@ public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
 
     private RobotContainer m_robotContainer;
+    private boolean drivetrainVerified;
     UsbCamera climbCam; 
     UsbCamera storageCam;
     VideoSink server;
@@ -39,6 +41,7 @@ public class Robot extends TimedRobot {
         // and put our
         // autonomous chooser on the dashboard.
         m_robotContainer = RobotContainer.getInstance();
+        drivetrainVerified = false;
 
         // climbCam = CameraServer.startAutomaticCapture(ElevatorConstants.CLIMBER_CAMERA_PORT);
         // climbCam.setResolution(320,240);
@@ -92,6 +95,13 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
+        // whenever the robot is disabled, verify that the swerve encoders are initialized properly; if not,
+        //  check again the next time disabledPeriodic is invoked
+        // we won't create the swerve modules until the encoders are initialized
+        if(!drivetrainVerified) {
+            DrivetrainSubsystem drivetrain = RobotContainer.getInstance().getDrivetrainSubsystem();
+            drivetrainVerified = drivetrain.verifyEncoderInitialization();
+        }
     }
 
     /**

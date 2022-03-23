@@ -462,6 +462,11 @@ public class RobotContainer {
 
     return value;
   }
+  
+  public DrivetrainSubsystem getDrivetrainSubsystem() {
+    return m_drivetrainSubsystem;
+  }
+
 
   public boolean isElevatorControlEnabled() {
     return m_elevator.isElevatorControlEnabled();
