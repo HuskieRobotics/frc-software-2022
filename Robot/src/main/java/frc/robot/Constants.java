@@ -184,7 +184,7 @@ public final class Constants {
     public static final double REACH_TO_NEXT_RUNG_HEIGHT = 283089; //    // FIXME: not sure if this is needed; use MAX_ELEVATOR_HEIGHT?
     public static final double REACH_TO_NEXT_RUNG_DELAY = 0;    // FIXME: tune
     public static final double PITCH_WHEN_BELOW_NEXT_RUNG = 0;    // FIXME: tune
-    public static final double PITCH_WHEN_BELOW_NEXT_RUNG_TOLERANCE = 0;    // FIXME: tune
+    public static final double PITCH_WHEN_BELOW_NEXT_RUNG_TOLERANCE = 0.25;    // FIXME: tune
     public static final int BELOW_NEXT_RUNG_DELAY = 5;
     public static final int ELEVATOR_POSITION_TOLERANCE = 500;
     public static final double ARBITRARY_FEED_FORWARD_EXTEND = .02;

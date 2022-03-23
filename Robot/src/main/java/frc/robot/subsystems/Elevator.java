@@ -45,7 +45,8 @@ public class Elevator extends SubsystemBase {
     private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
     private double encoderPositionSetpoint;
     private boolean isElevatorControlEnabled;
-    private double maxPitch;
+    private double prevPitches[] = new double[5];
+    private int prevPitchesIndex = 0;
     private double prevPitch;
     private double pitchCountBeforeExtension;
     private int isBelowRungCount;
@@ -141,6 +142,7 @@ public class Elevator extends SubsystemBase {
 
         this.prevPitch = Double.MIN_VALUE;
         this.maxPitch = Double.MIN_VALUE;
+        this.minPitch = Double.MAX_VALUE;
         this.pitchCountBeforeExtension = 0;
         this.isBelowRungCount = 0;
 
@@ -331,27 +333,35 @@ public class Elevator extends SubsystemBase {
     // returns true when the robot reaches the maximum positive amplitude
     //  (if this results in extending the elevator too late, make crossing zero the trigger)
     public boolean isTimeToExtend() {
-        double pitch = m_pigeon.getPitch();
+        return true;
+        // double pitch = m_pigeon.getPitch();
 
-        // if the robot starts swinging down from the positive side
-        if(pitch < -38.5) {
-            return true;
-        }
+        // // if the robot starts swinging down from the positive side
+        // if(pitch < -38.5) {
+        //     return true;
+        // }
         
-        return false;
+        // return false;
     }
 
     public boolean isContactingUnderRung() {
         double pitch = m_pigeon.getPitch();
 
-        if(Math.abs(pitch - PITCH_WHEN_BELOW_NEXT_RUNG) < PITCH_WHEN_BELOW_NEXT_RUNG_TOLERANCE) {
-            this.isBelowRungCount++;
-            if(this.isBelowRungCount >= BELOW_NEXT_RUNG_DELAY) {
-                return true;
-            }
+        this.prevPitches[this.prevPitchesIndex] = pitch;
+        this.prevPitchesIndex++;
+        if(this.prevPitchesIndex == this.prevPitches.length) {
+            this.prevPitchesIndex = 0;
         }
-        else {
-            this.isBelowRungCount = 0;
+
+        double max = Double.MIN_VALUE;
+        double min = Double.MAX_VALUE;
+        for(double val : this.prevPitches) {
+            if(val > max) max = pitch;
+            if(val < min) min = pitch;
+        }
+        
+        if(Math.abs(max - min) < PITCH_WHEN_BELOW_NEXT_RUNG_TOLERANCE) {
+            return true;
         }
 
         return false;
