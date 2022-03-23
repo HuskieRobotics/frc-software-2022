@@ -132,6 +132,8 @@ public class RobotContainer {
 
     configureAutoCommands();
 
+    Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(m_elevator, m_secondMechanism));
+
     if (COMMAND_LOGGING) {
       CommandScheduler.getInstance().onCommandInitialize(
           command -> Shuffleboard.addEventMarker("Command initialized",
