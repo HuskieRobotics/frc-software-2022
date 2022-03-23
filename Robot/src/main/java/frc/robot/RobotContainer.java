@@ -250,24 +250,6 @@ public class RobotContainer {
   }
 
   private void configureShooterButtons() {
-    //preset fender, don't need to turn base
-    operatorButtons[JoystickConstants.FENDER].whileHeld(
-      new SequentialCommandGroup(
-        new ParallelCommandGroup(
-          new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.FENDER_SHOT_VELOCITY),
-          new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem)),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitCommand(0.1),
-        new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-        new WaitCommand(0.3),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
-
-      operatorButtons[JoystickConstants.FENDER].whenReleased(
-        new ParallelCommandGroup(
-          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
-          new SortStorageCommand(m_storage),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
-
     //preset field wall
     operatorButtons[JoystickConstants.FIELD_WALL].whenPressed(
       createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY));
