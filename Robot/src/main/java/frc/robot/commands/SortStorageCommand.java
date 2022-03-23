@@ -11,11 +11,14 @@ import static frc.robot.Constants.*;
  */
 public class SortStorageCommand extends CommandBase {
     private Storage m_storage;
+    private Flywheel m_flywheel;
     private int indexingDelay;
 
-    public SortStorageCommand(Storage storage) {
+    public SortStorageCommand(Storage storage, Flywheel flywheel) {
         this.m_storage = storage;
+        this.m_flywheel = flywheel;
         this.addRequirements(this.m_storage);
+        this.addRequirements(this.m_flywheel);
     }
 
     // Called when the command is initially scheduled.
@@ -45,6 +48,11 @@ public class SortStorageCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         this.m_storage.disableStorage();
+
+        // if this command finishes, we are probably about to shoot; start the flywheel now
+        if(!interrupted) {
+            m_flywheel.setVelocity(FlywheelConstants.LAUNCH_PAD_VELOCITY);
+        }
 
     }
 
