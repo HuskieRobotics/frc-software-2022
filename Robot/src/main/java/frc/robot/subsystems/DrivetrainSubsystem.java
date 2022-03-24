@@ -194,6 +194,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
                 tabMain.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
+                tabMain.addNumber("Limelight Vel", () -> getVelocityFromLimelight());
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
                 tabMain.addBoolean("Is Aimed", () -> isAimed());
@@ -411,7 +412,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         public double getVelocityFromLimelight() {
-                double velocity = this.lastLimelightDistance * 1; // FIXME: add equation from limelight distance to velocity
+                double velocity = this.lastLimelightDistance; // FIXME: add equation mapping limelight distance to velocity
                 return velocity;
         }
 
