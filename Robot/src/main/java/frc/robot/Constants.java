@@ -171,11 +171,11 @@ public final class Constants {
     public static final int SHOOTER_SENSOR = 1;
     public static final int COLLECTOR_SENSOR = 0;
     public static final int STORAGE_MOTOR_ID = 4;
-    public static final double STORAGE_DEFAULT_SPEED = 0.6;   // FIXME: tune
+    public static final double STORAGE_DEFAULT_SPEED = 0.6;
     public static final int STORAGE_CAMERA_PORT = 0;
     public static final int TIMEOUT_MS = 30;
-    public static final int INDEXING_FORWARD_DELAY = 16;   // FIXME: tune
-    public static final int INDEXING_BACKWARD_DURATION = 2;   // FIXME: tune
+    public static final int INDEXING_FORWARD_DELAY = 16;
+    public static final int INDEXING_BACKWARD_DURATION = 2;
   }
 
   public static class ElevatorConstants {
