@@ -22,13 +22,15 @@ public class ReachToNextRungCommand extends CommandBase {
 
     @Override
     public void execute() {
-        if(m_elevator.isTimeToExtend()) {
-            m_elevator.setElevatorMotorPosition(269733, false);
-        }
+        m_elevator.setElevatorMotorPosition(ElevatorConstants.REACH_TO_NEXT_RUNG_HEIGHT, true);
 
         // if the robot has been transferred from the elevator to secondary arms, move the secondary arms in to dampen the swing
         if(m_elevator.hasTransferredToSecondary()) {
             m_secondMechanism.moveSecondaryArmIn();
+        }
+
+        if(m_elevator.isApproachingNextRung()) {
+            m_elevator.setElevatorMotorPosition(ElevatorConstants.REACH_TO_NEXT_RUNG_HEIGHT, false);
         }
     }
 
