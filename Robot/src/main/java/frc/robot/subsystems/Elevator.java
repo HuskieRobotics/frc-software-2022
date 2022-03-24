@@ -183,7 +183,7 @@ public class Elevator extends SubsystemBase {
                     .withProperties(Map.of("min", 0, "max", MAX_ELEVATOR_HEIGHT))
                     .getEntry();
             this.positionSetPointNT.addListener(event -> {
-                this.setElevatorMotorPosition(event.getEntry().getValue().getDouble());
+                this.setElevatorMotorPosition(event.getEntry().getValue().getDouble(), true);
             }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
             this.FConstantNT = Shuffleboard.getTab("Elevator")
