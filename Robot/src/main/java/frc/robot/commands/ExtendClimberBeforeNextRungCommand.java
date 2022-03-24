@@ -9,6 +9,7 @@ public class ExtendClimberBeforeNextRungCommand extends CommandBase {
     private final Elevator m_elevator;
     private final SecondaryArm m_secondMechanism;
 
+    // FIXME: delete is unused
     public ExtendClimberBeforeNextRungCommand(Elevator elevator, SecondaryArm secondaryArm) {
         m_elevator = elevator;
         m_secondMechanism = secondaryArm;
