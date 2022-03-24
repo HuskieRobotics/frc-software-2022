@@ -137,7 +137,9 @@ public class Elevator extends SubsystemBase {
         //if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Elevator").add("elevator", this);
             Shuffleboard.getTab("Elevator").addBoolean("Elevator At Setpoint", this::atSetpoint);
-            Shuffleboard.getTab("Elevator").addBoolean("Elevator Under Rung", this::isContactingUnderRung);
+            Shuffleboard.getTab("Elevator").addBoolean("Contact Under Rung", this::isContactingUnderRung);
+            Shuffleboard.getTab("Elevator").addBoolean("Transfer to Secondary", this::hasTransferredToSecondary);
+            Shuffleboard.getTab("Elevator").addBoolean("Approaching Next Rung", this::isApproachingNextRung);
             Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
             Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight);        
             //Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this::getSetpoint);
