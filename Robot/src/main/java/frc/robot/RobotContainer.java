@@ -285,7 +285,7 @@ public class RobotContainer {
 
   private void configureClimberButtons() {
 
-    // configure climb to fourth rung climb sequence
+    // configure climb to 4 (traverse) rung climb sequence
     operatorButtons[8].whenPressed(
         new SequentialCommandGroup(
             new RetractClimberFullCommand(m_elevator),
@@ -300,7 +300,7 @@ public class RobotContainer {
             new ReachToNextRungCommand(m_elevator, m_secondMechanism),
             new RetractClimberMinimumCommand(m_elevator)));
 
-    // configure climb to third rung climb sequence
+    // configure climb to 3 (high) rung climb sequence
     operatorButtons[7].whenPressed(
         new SequentialCommandGroup(
             new RetractClimberFullCommand(m_elevator),
@@ -309,9 +309,13 @@ public class RobotContainer {
             new ReachToNextRungCommand(m_elevator, m_secondMechanism),
             new RetractClimberMinimumCommand(m_elevator)));
 
-    // configure climb to 2 rung climb sequence
+    // configure climb to 2 (mid) rung climb sequence
     operatorButtons[1].whenPressed(
         new RetractClimberFullCommand(m_elevator));
+
+    // configure raise elevator before starting climb to 1 (low) rung; FIXME: confirm button
+    operatorButtons[11].whenPressed(
+        new ExtendClimberToLowRungCommand(m_elevator));
 
     // configure raise elevator before starting climb
     operatorButtons[2].whenPressed(
