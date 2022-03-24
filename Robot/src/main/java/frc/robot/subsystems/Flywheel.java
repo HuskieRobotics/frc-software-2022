@@ -130,7 +130,7 @@ public class Flywheel extends SubsystemBase {
             Shuffleboard.getTab("Shooter").addNumber("Right Power", this.rightFlywheelMotor::getMotorOutputPercent);
 
             Shuffleboard.getTab("Shooter").add("Wall Shot", new SetFlywheelVelocityCommand(this, WALL_SHOT_VELOCITY));
-            Shuffleboard.getTab("Shooter").add("Fender Shot", new SetFlywheelVelocityCommand(this, FENDER_SHOT_VELOCITY));
+            Shuffleboard.getTab("Shooter").add("Launchpad Shot", new SetFlywheelVelocityCommand(this, LAUNCH_PAD_VELOCITY));
             Shuffleboard.getTab("Shooter").add("Stop Flywheel", new InstantCommand(this::stopFlywheel, this));
         //}
 
