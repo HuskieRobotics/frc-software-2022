@@ -18,7 +18,7 @@ public class ExtendClimberBeforeNextRungCommand extends CommandBase {
 
     @Override
     public void execute() {
-        m_elevator.setElevatorMotorPosition(219680, true);
+        m_elevator.setElevatorMotorPosition(ElevatorConstants.REACH_JUST_BEFORE_NEXT_RUNG, true);
     }
 
     @Override
