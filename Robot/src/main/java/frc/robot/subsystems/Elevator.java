@@ -4,10 +4,8 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.sensors.Pigeon2;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.ExtendClimberToMidRungCommand;
-import frc.robot.commands.ReachToNextRungCommand;
 import frc.robot.commands.RetractClimberFullCommand;
 import frc.robot.commands.RetractClimberMinimumCommand;
-import frc.robot.commands.ExtendClimberBeforeNextRungCommand;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
@@ -45,13 +43,6 @@ public class Elevator extends SubsystemBase {
     private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
     private double encoderPositionSetpoint;
     private boolean isElevatorControlEnabled;
-    private double prevPitches[] = new double[5];
-    private int prevPitchesIndex = 0;
-    private double prevPitch;
-    private double pitchCountBeforeExtension;
-    private int isBelowRungCount;
-    private double maxPitch;
-    private double minPitch;
 
     public Elevator() {
 
@@ -142,16 +133,9 @@ public class Elevator extends SubsystemBase {
 		this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, kTimeoutMs);
         this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, kTimeoutMs);
 
-        this.prevPitch = Double.MIN_VALUE;
-        this.maxPitch = Double.MIN_VALUE;
-        this.minPitch = Double.MAX_VALUE;
-        this.pitchCountBeforeExtension = 0;
-        this.isBelowRungCount = 0;
-
         //if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Elevator").add("elevator", this);
             Shuffleboard.getTab("Elevator").addBoolean("Elevator At Setpoint", this::atSetpoint);
-            Shuffleboard.getTab("Elevator").addBoolean("Elevator Time to Extend", this::isTimeToExtend);
             Shuffleboard.getTab("Elevator").addBoolean("Elevator Under Rung", this::isContactingUnderRung);
             Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
             Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight);        
@@ -161,7 +145,6 @@ public class Elevator extends SubsystemBase {
             //Shuffleboard.getTab("Elevator").addNumber("Left Motor Power", this.leftElevatorMotor::getMotorOutputPercent);
             //Shuffleboard.getTab("Elevator").addNumber("Right Motor Power", this.rightElevatorMotor::getMotorOutputPercent);
             Shuffleboard.getTab("Elevator").add("Extend Climber to Mid", new ExtendClimberToMidRungCommand(this));
-            Shuffleboard.getTab("Elevator").add("Extend Before Next", new ExtendClimberBeforeNextRungCommand(this));
             Shuffleboard.getTab("Elevator").add("Retract Climber Full", new RetractClimberFullCommand(this));
             Shuffleboard.getTab("Elevator").add("Retract Climber Minimum", new RetractClimberMinimumCommand(this));
             Shuffleboard.getTab("Elevator").addBoolean("isElevatorControl Enabled", this :: isElevatorControlEnabled);
@@ -340,21 +323,10 @@ public class Elevator extends SubsystemBase {
         this.rightElevatorMotor.set(ControlMode.PercentOutput, 0.0);
     }
 
-    // returns true when the robot reaches the maximum positive amplitude
-    //  (if this results in extending the elevator too late, make crossing zero the trigger)
-    public boolean isTimeToExtend() {
-        return true;
-        // double pitch = m_pigeon.getPitch();
-
-        // // if the robot starts swinging down from the positive side
-        // if(pitch < -38.5) {
-        //     return true;
-        // }
-        
-        // return false;
-    }
-
     public boolean isContactingUnderRung() {
+
+        return true;
+        /*
         double pitch = m_pigeon.getPitch();
 
         this.prevPitches[this.prevPitchesIndex] = pitch;
@@ -384,10 +356,15 @@ public class Elevator extends SubsystemBase {
         }
 
         return false;
+        */
     }
 
     public boolean hasTransferredToSecondary() {
         return this.getElevatorEncoderHeight() > TRANSFER_TO_SECONDARY_HEIGHT;
+    }
+
+    public boolean isApproachingNextRung() {
+        return this.getElevatorEncoderHeight() > REACH_JUST_BEFORE_NEXT_RUNG;
     }
 
     public void elevatorPause(boolean isStartPressed) {
