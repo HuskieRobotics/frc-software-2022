@@ -43,6 +43,7 @@ public class Elevator extends SubsystemBase {
     private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
     private double encoderPositionSetpoint;
     private boolean isElevatorControlEnabled;
+    private double maxPitch;
 
     public Elevator() {
 
@@ -324,39 +325,22 @@ public class Elevator extends SubsystemBase {
     }
 
     public boolean isContactingUnderRung() {
-
-        return true;
-        /*
-        double pitch = m_pigeon.getPitch();
-
-        this.prevPitches[this.prevPitchesIndex] = pitch;
-        this.prevPitchesIndex++;
-        if(this.prevPitchesIndex == this.prevPitches.length) {
-            this.prevPitchesIndex = 0;
-        }
-
-        //System.out.println("pitch:" +pitch);
-        double max = this.prevPitches[0];
-        double min = this.prevPitches[0];
-        for(double val : this.prevPitches) {
-            //System.out.println("VALUE:"  +   val);
-            if(val > max) {
-                max = pitch;
-            }
-            if(val < min) {
-                min = pitch;
-            }
-        }
-
-        //System.out.println(max);
-        //System.out.println(min);
+        double pitch =  m_pigeon.getPitch();
         
-        if(Math.abs(max - min) < PITCH_WHEN_BELOW_NEXT_RUNG_TOLERANCE) {
-            return true;
+        // if the elevator has made contact with the next rung and isn't yet to the setpoint
+        if(getElevatorEncoderHeight() > NEXT_RUNG_HEIGHT && !atSetpoint()) {
+            if(pitch > this.maxPitch) {
+                this.maxPitch = pitch;
+            }
+        }
+        else if (atSetpoint()) {
+            return Math.abs(this.maxPitch - pitch) < PITCH_TOLERANCE;
+        }
+        else {
+            this.maxPitch = Double.NEGATIVE_INFINITY;
         }
 
         return false;
-        */
     }
 
     public boolean hasTransferredToSecondary() {

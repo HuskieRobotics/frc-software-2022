@@ -44,7 +44,10 @@ public class ReachToNextRungCommand extends CommandBase {
         if (!m_elevator.isElevatorControlEnabled()) {
             return true;
         }
-        return m_elevator.atSetpoint() && m_elevator.isContactingUnderRung();
+
+        // the order of these methods is critical in that the isContactingUnderRung method
+        //      must be invoked before the elevator reaches the set point
+        return m_elevator.isContactingUnderRung() && m_elevator.atSetpoint();
     }
 
 }
