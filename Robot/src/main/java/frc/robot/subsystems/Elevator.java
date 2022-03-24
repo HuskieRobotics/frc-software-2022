@@ -50,6 +50,8 @@ public class Elevator extends SubsystemBase {
     private double prevPitch;
     private double pitchCountBeforeExtension;
     private int isBelowRungCount;
+    private double maxPitch;
+    private double minPitch;
 
     public Elevator() {
 
@@ -163,6 +165,7 @@ public class Elevator extends SubsystemBase {
             Shuffleboard.getTab("Elevator").add("Retract Climber Full", new RetractClimberFullCommand(this));
             Shuffleboard.getTab("Elevator").add("Retract Climber Minimum", new RetractClimberMinimumCommand(this));
             Shuffleboard.getTab("Elevator").addBoolean("isElevatorControl Enabled", this :: isElevatorControlEnabled);
+            
         //}
 
         if (TUNING) {
@@ -360,12 +363,21 @@ public class Elevator extends SubsystemBase {
             this.prevPitchesIndex = 0;
         }
 
-        double max = Double.MIN_VALUE;
-        double min = Double.MAX_VALUE;
+        //System.out.println("pitch:" +pitch);
+        double max = this.prevPitches[0];
+        double min = this.prevPitches[0];
         for(double val : this.prevPitches) {
-            if(val > max) max = pitch;
-            if(val < min) min = pitch;
+            //System.out.println("VALUE:"  +   val);
+            if(val > max) {
+                max = pitch;
+            }
+            if(val < min) {
+                min = pitch;
+            }
         }
+
+        //System.out.println(max);
+        //System.out.println(min);
         
         if(Math.abs(max - min) < PITCH_WHEN_BELOW_NEXT_RUNG_TOLERANCE) {
             return true;
