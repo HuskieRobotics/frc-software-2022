@@ -133,6 +133,8 @@ public class RobotContainer {
     configureAutoCommands();
 
     Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(m_elevator, m_secondMechanism));
+    Shuffleboard.getTab("Elevator").add("Extend Before Next", new ExtendClimberBeforeNextRungCommand(m_elevator, m_secondMechanism));
+            
 
     if (COMMAND_LOGGING) {
       CommandScheduler.getInstance().onCommandInitialize(
@@ -309,9 +311,11 @@ public class RobotContainer {
             new ReachToNextRungCommand(m_elevator, m_secondMechanism),
             new RetractClimberMinimumCommand(m_elevator)));
 
-    // configure climb to 2 (mid) rung climb sequence
+    // configure climb to 1/2 (low/mid) rung climb sequence
     operatorButtons[1].whenPressed(
-        new RetractClimberFullCommand(m_elevator));
+        new SequentialCommandGroup(
+          new RetractClimberFullCommand(m_elevator),
+          new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism)));
 
     // configure raise elevator before starting climb to 1 (low) rung; FIXME: confirm button
     operatorButtons[11].whenPressed(
