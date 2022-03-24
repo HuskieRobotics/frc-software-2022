@@ -56,7 +56,7 @@ public class Storage extends SubsystemBase {
             // tuning (i.e., "ShooterTuning")
             // Add indicators and controls to this Shuffleboard tab to assist with
             // interactively tuning the system.
-
+            /*
             Shuffleboard.getTab("Storage")
                     .add("Storage Power", 0.0)
                     .withWidget(BuiltInWidgets.kNumberSlider)
@@ -65,6 +65,35 @@ public class Storage extends SubsystemBase {
                     .addListener(event -> {
                         this.setStoragePower(event.getEntry().getValue().getDouble());
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+                
+                
+            Shuffleboard.getTab("Storage")
+                    .add("Storage Power Constant", 0.0)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0.0, "max", 1.0)) // specify widget properties here
+                    .getEntry()
+                    .addListener(event -> {
+                        StorageConstants.STORAGE_DEFAULT_SPEED = event.getEntry().getValue().getDouble();
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+
+            Shuffleboard.getTab("Storage")
+                    .add("Storage Delay", 0.0)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0.0, "max", 20.0)) // specify widget properties here
+                    .getEntry()
+                    .addListener(event -> {
+                        StorageConstants.INDEXING_FORWARD_DELAY = (int) (event.getEntry().getValue().getDouble());
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+
+            Shuffleboard.getTab("Storage")
+                    .add("Storage Duration", 0.0)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 30.0, "max", 30.0)) // specify widget properties here
+                    .getEntry()
+                    .addListener(event -> {
+                        StorageConstants.INDEXING_BACKWARD_DURATION = (int) (event.getEntry().getValue().getDouble());
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate); 
+            */
         }
     }
 

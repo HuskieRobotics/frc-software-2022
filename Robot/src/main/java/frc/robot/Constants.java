@@ -176,6 +176,8 @@ public final class Constants {
     public static final int STORAGE_CAMERA_PORT = 0;
     public static final int TIMEOUT_MS = 30;
     public static final int WAIT_FOR_SHOT_DELAY = 10; // FIXME: tune
+    public static final int INDEXING_FORWARD_DELAY = 16;
+    public static final int INDEXING_BACKWARD_DURATION = 2;
   }
 
   public static class ElevatorConstants {
