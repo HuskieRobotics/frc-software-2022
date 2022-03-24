@@ -183,7 +183,7 @@ public final class Constants {
     public static final double MID_RUNG_HEIGHT = 277129;
     public static final double NEXT_RUNG_HEIGHT = 244706; // FIXME: tune
     public static final double REACH_TO_NEXT_RUNG_HEIGHT = 269733; //    // FIXME: not sure if this is needed; use MAX_ELEVATOR_HEIGHT?
-    public static final double MIN_DETACH_ENCODER_HEIGHT = 270000; // FIXME: set back to 0 or determine appropriate value after climber rebuild
+    public static final double MIN_DETACH_ENCODER_HEIGHT = 260000; // FIXME: set back to 0 or determine appropriate value after climber rebuild
     public static final double MAX_ELEVATOR_HEIGHT = 283089;
     
     public static final double PITCH_TOLERANCE = 0.25;  // FIXME: tune
