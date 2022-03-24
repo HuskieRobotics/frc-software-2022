@@ -18,7 +18,7 @@ public class RetractClimberFullCommand extends CommandBase {
 
     @Override
     public void execute() {
-        m_elevator.setElevatorMotorPosition(ElevatorConstants.MIN_ELEVATOR_ENCODER_HEIGHT);
+        m_elevator.setElevatorMotorPosition(ElevatorConstants.MIN_ELEVATOR_ENCODER_HEIGHT, true);
     }
 
     @Override

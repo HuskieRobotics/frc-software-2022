@@ -292,8 +292,15 @@ public class Elevator extends SubsystemBase {
         }
     }
 
-    public void setElevatorMotorPosition(double desiredEncoderPosition) {
+    public void setElevatorMotorPosition(double desiredEncoderPosition, boolean isFast) {
         if (isElevatorControlEnabled()) {
+
+            if(isFast) {
+                this.rightElevatorMotor.configClosedLoopPeakOutput(kSlotIdx, GAINS_POSITION.kPeakOutput);
+            }
+            else {
+                this.rightElevatorMotor.configClosedLoopPeakOutput(kSlotIdx, SLOW_PEAK_OUTPUT);
+            }
 
             // the feedforward term will be different depending if the elevator is going up
             // or down

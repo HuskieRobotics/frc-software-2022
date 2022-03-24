@@ -196,6 +196,7 @@ public final class Constants {
     public static final int kTimeoutMs = 30;
     public static final Gains GAINS_POSITION = new Gains(0.4 /* kP */, 0 /* kI */, 0 /* kD */, 0 /* kF */,
         0 /* kIZone */, 1.00 /* max output */);
+    public static final double SLOW_PEAK_OUTPUT = 0.3; // FIXME: tune this
     public static final double MAX_ELEVATOR_VELOCITY = 20000; // theoretical maximum 21305
     public static final double ELEVATOR_ACCELERATION = MAX_ELEVATOR_VELOCITY * 10;
     public static final int SCURVE_STRENGTH = 0;
