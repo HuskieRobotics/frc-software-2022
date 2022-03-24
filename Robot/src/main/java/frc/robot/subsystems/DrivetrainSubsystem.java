@@ -119,7 +119,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 // this.m_robotCenter = new Translation2d(0,0);
 
                 this.zeroGyroscope();
-                this.m_pigeon.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_6_SensorFusion, 255, TIMEOUT_MS);
+                //this.m_pigeon.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_6_SensorFusion, 255, TIMEOUT_MS);
 
                 // There are 4 methods you can call to create your swerve modules.
                 // The method you use depends on what motors you are using.
