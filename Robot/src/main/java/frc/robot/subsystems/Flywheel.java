@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.networktables.EntryListenerFlags;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.FlywheelConstants.*;
@@ -8,6 +9,7 @@ import static frc.robot.Constants.FlywheelConstants.*;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.LimelightVelocity;
 import frc.robot.commands.SetFlywheelVelocityCommand;
 
 import java.util.Map;
@@ -114,6 +116,7 @@ public class Flywheel extends SubsystemBase {
         this.velocitySetPoint = 0.0;
 
         Shuffleboard.getTab("MAIN").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
+        
         
         if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Shooter").add("shooter", this);
@@ -270,4 +273,5 @@ public class Flywheel extends SubsystemBase {
         rightFlywheelMotor.set(TalonFXControlMode.PercentOutput, REVERSE_POWER);
     }
 
+    
 }

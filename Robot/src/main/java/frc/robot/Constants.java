@@ -118,6 +118,8 @@ public final class Constants {
     public static final int SHOOT_SLOW_VELOCITY = 4000; // FIXME tune this
     public static final int SHOT_VELOCITY_DIP = 500;  // FIXME: tune this
     public static final double REVERSE_POWER = -0.2; // FIXME: tune this
+    public static final double SLOPE = 16.22;
+    public static final double YINTERCEPT = 5154.43;
 
 
   }
