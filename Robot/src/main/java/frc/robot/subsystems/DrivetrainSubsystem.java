@@ -408,11 +408,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.lastLimelightDistance = (LimelightConstants.HUB_H - LimelightConstants.ROBOT_H)
                         / (Math.tan(Math.toRadians(LimelightConstants.LIMELIGHT_MOUNT_ANGLE +LimelightConstants.LIMELIGHT_ANGLE_OFFSET + ty)));
                 
+                // FIXME: add linear equation mapping limelight distance to actual distance
+
                 return this.lastLimelightDistance;
         }
 
         public double getVelocityFromLimelight() {
-                double velocity = this.lastLimelightDistance; // FIXME: add equation mapping limelight distance to velocity
+                // FIXME: add equation mapping actual distance to velocity
+                double velocity = this.getLimelightDistanceIn(); 
                 return velocity;
         }
 
