@@ -2,11 +2,11 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.networktables.EntryListenerFlags;
 
-import static frc.robot.Constants.*;
 import static frc.robot.Constants.FlywheelConstants.*;
 
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.SetFlywheelVelocityCommand;
 
@@ -113,9 +113,10 @@ public class Flywheel extends SubsystemBase {
 
         this.velocitySetPoint = 0.0;
 
-        Shuffleboard.getTab("MAIN").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
+        //Shuffleboard.getTab("MAIN").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
         
         if(COMMAND_LOGGING) {
+            Shuffleboard.getTab("Shooter").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
             Shuffleboard.getTab("Shooter").add("shooter", this);
             Shuffleboard.getTab("Shooter").addNumber("FlywheelVelocity", this::getVelocity);
             Shuffleboard.getTab("Shooter").addNumber("FlywheelMinVelocity", this::getMinVelocity);
@@ -129,8 +130,8 @@ public class Flywheel extends SubsystemBase {
             Shuffleboard.getTab("Shooter").addNumber("Right Power", this.rightFlywheelMotor::getMotorOutputPercent);
 
             Shuffleboard.getTab("Shooter").add("Wall Shot", new SetFlywheelVelocityCommand(this, WALL_SHOT_VELOCITY));
-            Shuffleboard.getTab("Shooter").add("Fender Shot", new SetFlywheelVelocityCommand(this, FENDER_SHOT_VELOCITY));
-            Shuffleboard.getTab("Shooter").add("Stop Flywheel", new SetFlywheelVelocityCommand(this, 0));
+            Shuffleboard.getTab("Shooter").add("Launchpad Shot", new SetFlywheelVelocityCommand(this, LAUNCH_PAD_VELOCITY));
+            Shuffleboard.getTab("Shooter").add("Stop Flywheel", new InstantCommand(this::stopFlywheel, this));
         }
 
         // Shuffleboard.getTab("Shooter").add("SpinFlywheelForFenderCommand",
@@ -248,7 +249,7 @@ public class Flywheel extends SubsystemBase {
     public boolean isAtSetpoint() {
         if(Math.abs(this.getVelocity() - this.velocitySetPoint) < VELOCITY_TOLERANCE) {
             setPointCount++;
-            if(setPointCount >= 10) {
+            if(setPointCount >= SETPOINTCOUNT) {
                 minVelocityAfterShot = this.getVelocity();
                 return true;
             }
