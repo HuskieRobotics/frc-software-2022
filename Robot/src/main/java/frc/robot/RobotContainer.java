@@ -192,8 +192,7 @@ public class RobotContainer {
       new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
           new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem),
-          new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav())));
+          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
 
     // Reset Gyro
     xboxButtons[BUTTON_Y].whenPressed(
@@ -406,8 +405,7 @@ public class RobotContainer {
         new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
           new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem),
-          new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav())));
+          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
   }
 
   private Command createAutoShootCommandSequence(int shotVelocity, double shotDelay) {
