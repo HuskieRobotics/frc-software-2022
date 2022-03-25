@@ -45,10 +45,10 @@ public class Storage extends SubsystemBase {
 
         
         if(COMMAND_LOGGING) {
+            Shuffleboard.getTab("Storage").add("Sort Storage", new SortStorageCommand(this));
             Shuffleboard.getTab("MAIN").addBoolean("Collector Unblocked", this::isCollectorSensorUnblocked);
             Shuffleboard.getTab("MAIN").addBoolean("Shooter Unblocked", this::isShooterSensorUnblocked);
             Shuffleboard.getTab("Storage").add("storage", this);
-            Shuffleboard.getTab("Storage").add("Sort Storage", new SortStorageCommand(this));
         }
 
         if (TUNING) {

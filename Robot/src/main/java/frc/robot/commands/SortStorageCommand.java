@@ -45,7 +45,6 @@ public class SortStorageCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         this.m_storage.disableStorage();
-
     }
 
     // Returns true when the command should end.

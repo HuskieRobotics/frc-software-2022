@@ -109,15 +109,19 @@ public final class Constants {
     public static final int VELOCITY_TOLERANCE = 300; 
     public static final int LEFT_FLYWHEELMOTOR_CANID = 1;
     public static final int RIGHT_FLYWHEELMOTOR_CANID = 2;
-    public final static Gains GAINS_VELOCITY = new Gains(0.5 /* kP */, 0 /* kI */, 0 /* kD */, .0438 /* kF */,
+    public final static Gains GAINS_VELOCITY = new Gains(0.75 /* kP */, 0 /* kI */, 0 /* kD */, .0513 /* kF */,
         0 /* kIzone */, 1.00 /* kPeakOutput */);
-    public final static int MAX_FLYWHEEL_VELOCITY = 17500;
-    public static final int WALL_SHOT_VELOCITY = 7782; // FIXME tune this
+        //kp:0.5
+        //kf: .0438
+    public final static int MAX_FLYWHEEL_VELOCITY = 18650;
+    public static final int WALL_SHOT_VELOCITY = 7182; // FIXME tune this
     public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
-    public static final int LAUNCH_PAD_VELOCITY = 8447; // FIXME tune this
+    public static final int LAUNCH_PAD_VELOCITY = 7982; // FIXME tune this
     public static final int SHOOT_SLOW_VELOCITY = 4000; // FIXME tune this
     public static final int SHOT_VELOCITY_DIP = 500;  // FIXME: tune this
     public static final double REVERSE_POWER = -0.2; // FIXME: tune this
+    public static final int FULL_POWER_DELAY =0; // FIXME: tune this
+    public static final int SETPOINTCOUNT = 5;
 
 
   }
@@ -151,8 +155,8 @@ public final class Constants {
     public static final double Flywheel_Radius_IN = 2;
     public static final double Velocity_Multiplier = 2;
     public static final double Ticks_Per_One_Rotation = 2048;
-    public static final int LIMELIGHT_ANGLE_OFFSET = 0;
-    public static final int LIMELIGHT_MOUNT_ANGLE = 40; 
+    public static final int LIMELIGHT_ANGLE_OFFSET = -2;
+    public static final int LIMELIGHT_MOUNT_ANGLE = 44; 
     public static final int D2_D1_OFFSET_IN = 24;
     public static final int H2_H1_OFFSET_IN = -24;
     public static final int DISTANCE_TOLERANCE = 12;
@@ -171,9 +175,10 @@ public final class Constants {
     public static final int SHOOTER_SENSOR = 1;
     public static final int COLLECTOR_SENSOR = 0;
     public static final int STORAGE_MOTOR_ID = 4;
-    public static final double STORAGE_DEFAULT_SPEED = 0.6;
+    public static final double STORAGE_DEFAULT_SPEED = 0.7;
     public static final int STORAGE_CAMERA_PORT = 0;
     public static final int TIMEOUT_MS = 30;
+    public static final int WAIT_FOR_SHOT_DELAY = 10; // FIXME: tune
     public static final int INDEXING_FORWARD_DELAY = 16;
     public static final int INDEXING_BACKWARD_DURATION = 2;
   }
