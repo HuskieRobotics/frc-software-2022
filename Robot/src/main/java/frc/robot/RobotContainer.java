@@ -132,13 +132,6 @@ public class RobotContainer {
 
     configureAutoCommands();
 
-    // FIXME: delete after tuning
-    Shuffleboard.getTab("Shooter").add("Cont Intake",
-        new SequentialCommandGroup(
-          new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-          new InstantCommand(() -> m_storage.enableStorage(), m_storage)
-          ));
-
     if (COMMAND_LOGGING) {
       CommandScheduler.getInstance().onCommandInitialize(
           command -> Shuffleboard.addEventMarker("Command initialized",

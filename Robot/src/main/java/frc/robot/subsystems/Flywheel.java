@@ -115,7 +115,7 @@ public class Flywheel extends SubsystemBase {
 
         //Shuffleboard.getTab("MAIN").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
         
-        //if(COMMAND_LOGGING) {
+        if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Shooter").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
             Shuffleboard.getTab("Shooter").add("shooter", this);
             Shuffleboard.getTab("Shooter").addNumber("FlywheelVelocity", this::getVelocity);
@@ -132,14 +132,14 @@ public class Flywheel extends SubsystemBase {
             Shuffleboard.getTab("Shooter").add("Wall Shot", new SetFlywheelVelocityCommand(this, WALL_SHOT_VELOCITY));
             Shuffleboard.getTab("Shooter").add("Launchpad Shot", new SetFlywheelVelocityCommand(this, LAUNCH_PAD_VELOCITY));
             Shuffleboard.getTab("Shooter").add("Stop Flywheel", new InstantCommand(this::stopFlywheel, this));
-        //}
+        }
 
         // Shuffleboard.getTab("Shooter").add("SpinFlywheelForFenderCommand",
         // new SpinFlywheelCommand(this, FENDER_VELOCITY));
         // Shuffleboard.getTab("Shooter").add("StopFlywheelCommand", new
         // InstantCommand(this::stopFlywheel, this));
 
-        //if (TUNING) {
+        if (TUNING) {
             // Each robot feature that requires PID tuning has its own Shuffleboard tab for
             // tuning (i.e., "Shooter")
             // Add indicators and controls to this Shuffleboard tab to assist with
@@ -205,7 +205,7 @@ public class Flywheel extends SubsystemBase {
                         this.rightFlywheelMotor.config_kD(SLOT_INDEX, event.getEntry().getValue().getDouble(),
                                 TIMEOUT_MS);
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-        //}
+        }
     }
 
     @Override
