@@ -44,6 +44,8 @@ public class Elevator extends SubsystemBase {
     private double encoderPositionSetpoint;
     private boolean isElevatorControlEnabled;
     private double maxPitch;
+    private double runningAverage;
+    private int runningAverageSamples;
 
     public Elevator() {
 
@@ -141,6 +143,7 @@ public class Elevator extends SubsystemBase {
             Shuffleboard.getTab("Elevator").addBoolean("Transfer to Secondary", this::hasTransferredToSecondary);
             Shuffleboard.getTab("Elevator").addBoolean("Approaching Next Rung", this::isApproachingNextRung);
             Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
+            Shuffleboard.getTab("Elevator").addNumber("Pitch Value", this::getRunningAverage);
             Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight);        
             //Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this::getSetpoint);
             //Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error", this.rightElevatorMotor::getClosedLoopError);
@@ -243,6 +246,17 @@ public class Elevator extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
+        double height = this.getElevatorEncoderHeight();
+        if(height > TRANSFER_TO_SECONDARY_HEIGHT && height < NEXT_RUNG_HEIGHT) {
+            double average = this.runningAverage * this.runningAverageSamples;
+            average += m_pigeon.getPitch();
+            this.runningAverageSamples++;
+            this.runningAverage /= this.runningAverageSamples;
+        }
+        else {
+            this.resetRunningAverage();
+        }
+        
         if (TUNING) {
             this.isElevatorControlEnabled = true;
             // // when tuning, we first set motor power and check the resulting velocity
@@ -259,6 +273,15 @@ public class Elevator extends SubsystemBase {
     public void simulationPeriodic() {
         // This method will be called once per scheduler run when in simulation
 
+    }
+
+    public double getRunningAverage() {
+        return this.runningAverage;
+    }
+
+    public void resetRunningAverage() {
+        this.runningAverage = 0.0;
+        this.runningAverageSamples = 0;
     }
 
     // Put methods for controlling this subsystem
