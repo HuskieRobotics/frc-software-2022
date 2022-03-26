@@ -292,6 +292,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 states[3].angle.getRadians());
         }}
 
+        public void stop() {
+                m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+                SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds, centerGravity);
+                setSwerveModuleStates(states);
+        }
+
         @Override
         public void periodic() {
                 m_odometry.update(this.getGyroscopeRotation(),
