@@ -376,11 +376,13 @@ public class RobotContainer {
         new ParallelCommandGroup(
           new InstantCommand(() -> m_collector.enableCollector(), m_collector),
           new InstantCommand(() -> m_flywheel.startFlywheel(), m_flywheel)),
+        new WaitCommand(.5),
         new FollowPath(autoBlue31Path, thetaController, m_drivetrainSubsystem, true),
-        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 1),
+        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 2),
         new ParallelCommandGroup(
           new SortStorageCommand(m_storage),
           new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem, false)),
+        new InstantCommand(() -> m_drivetrainSubsystem.drive(0,0,0), m_drivetrainSubsystem),
         createAutoShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY, 5));
         //new InstantCommand(() -> m_collector.disableCollector(), m_collector),
         //new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
@@ -413,6 +415,8 @@ public class RobotContainer {
         new ParallelCommandGroup(
           new SetFlywheelVelocityCommand(m_flywheel, shotVelocity),
           new LimelightAlignToTargetCommand(m_drivetrainSubsystem)),
+        new WaitCommand(5),
+        new InstantCommand(() -> m_drivetrainSubsystem.drive(0,0,0), m_drivetrainSubsystem),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
         new WaitCommand(shotDelay),
         new ParallelCommandGroup(
