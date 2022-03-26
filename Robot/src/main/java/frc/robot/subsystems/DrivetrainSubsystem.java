@@ -107,6 +107,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
         private int aimSetpointCount;
         private double lastLimelightDistance;
 
+        private boolean stackTraceLogging;
+
         public DrivetrainSubsystem() {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
                 ShuffleboardTab tabMain = Shuffleboard.getTab("MAIN");
@@ -276,7 +278,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                         translationYSupplier,
                                         rotationSupplier);
                 }
+
                 SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds, centerGravity);
+
+                logStates(states);
                 m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[0].angle.getRadians());
                 m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
@@ -301,6 +306,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         public void setSwerveModuleStates(SwerveModuleState[] states) {
+                logStates(states);
+
                 m_frontLeftModule.set(this.calculateFeedforwardVoltage(states[0].speedMetersPerSecond),
                                 states[0].angle.getRadians());
                 m_frontRightModule.set(this.calculateFeedforwardVoltage(states[1].speedMetersPerSecond),
@@ -309,6 +316,23 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 states[2].angle.getRadians());
                 m_backRightModule.set(this.calculateFeedforwardVoltage(states[3].speedMetersPerSecond),
                                 states[3].angle.getRadians());
+        }
+
+        public void enableStackTraceLogging(boolean enable) {
+                this.stackTraceLogging = enable;
+        }
+
+        private void logStates(SwerveModuleState[] states) {
+                if(stackTraceLogging) {
+                        StackTraceElement[] stack = new Exception().getStackTrace();
+                        for(StackTraceElement method : stack) {
+                                System.out.println(method);
+                        }
+
+                        for(SwerveModuleState state : states) {
+                                System.out.println("speed: " + state.speedMetersPerSecond + "; angle: " + state.angle.getRadians());
+                        }
+                }
         }
 
         private double calculateFeedforwardVoltage(double velocity) {

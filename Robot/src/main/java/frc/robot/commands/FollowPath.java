@@ -33,6 +33,8 @@ public class FollowPath extends PPSwerveControllerCommand {
     public void initialize() {
         super.initialize();
 
+        this.drivetrainSubsystem.enableStackTraceLogging(false);
+
         if(initialPath) {
             this.drivetrainSubsystem.setGyroOffset(this.trajectory.getInitialState().holonomicRotation.getDegrees());
 
@@ -46,5 +48,11 @@ public class FollowPath extends PPSwerveControllerCommand {
 
         
 
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        this.drivetrainSubsystem.enableStackTraceLogging(true);
+        super.end(interrupted);
     }
 }
