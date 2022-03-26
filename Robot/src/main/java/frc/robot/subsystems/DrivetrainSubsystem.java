@@ -450,11 +450,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
-                // FIXME: add deadband to avoid adding feed forward when no rotation is necessary?
                 if (rotationSupplier > 0) {     // clockwise
                         rotationSupplier += LIMELIGHT_F;
                 }
-                else {  // counterclockwise
+                else if (rotationSupplier < 0) {  // counterclockwise
                         rotationSupplier -= LIMELIGHT_F;
                 }
 
