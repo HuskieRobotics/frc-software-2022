@@ -329,14 +329,16 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         private void logStates(SwerveModuleState[] states) {
-                if(stackTraceLogging) {
-                        StackTraceElement[] stack = new Exception().getStackTrace();
-                        for(StackTraceElement method : stack) {
-                                System.out.println(method);
-                        }
+                if(COMMAND_LOGGING) {
+                        if(stackTraceLogging) {
+                                StackTraceElement[] stack = new Exception().getStackTrace();
+                                for(StackTraceElement method : stack) {
+                                        System.out.println(method);
+                                }
 
-                        for(SwerveModuleState state : states) {
-                                System.out.println("speed: " + state.speedMetersPerSecond + "; angle: " + state.angle.getRadians());
+                                for(SwerveModuleState state : states) {
+                                        System.out.println("speed: " + state.speedMetersPerSecond + "; angle: " + state.angle.getRadians());
+                                }
                         }
                 }
         }
