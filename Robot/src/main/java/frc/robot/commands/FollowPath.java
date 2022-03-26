@@ -53,6 +53,7 @@ public class FollowPath extends PPSwerveControllerCommand {
     @Override
     public void end(boolean interrupted) {
         this.drivetrainSubsystem.enableStackTraceLogging(true);
+        this.drivetrainSubsystem.drive(0.0, 0.0, 0.0);
         super.end(interrupted);
     }
 }
