@@ -29,10 +29,10 @@ public class SortStorageCommand extends CommandBase {
     public void execute() {
         if (!this.m_storage.isShooterSensorUnblocked()) {
             indexingDelay++;
-            if(indexingDelay == 8) {
+            if(indexingDelay == StorageConstants.INDEXING_FORWARD_DELAY) {
                 this.m_storage.setStoragePower(StorageConstants.OUTTAKE_POWER);
             }
-            else if(indexingDelay > 8) {
+            else if(indexingDelay > StorageConstants.INDEXING_FORWARD_DELAY + StorageConstants.INDEXING_BACKWARD_DURATION) {
                 this.m_storage.disableStorage();
             }
         } else if (!this.m_storage.isCollectorSensorUnblocked() & this.m_storage.isShooterSensorUnblocked()) {
@@ -45,12 +45,13 @@ public class SortStorageCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         this.m_storage.disableStorage();
-
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return !this.m_storage.isCollectorSensorUnblocked() && !this.m_storage.isShooterSensorUnblocked();
+        return !this.m_storage.isCollectorSensorUnblocked() &&
+                !this.m_storage.isShooterSensorUnblocked() && 
+                indexingDelay > StorageConstants.INDEXING_FORWARD_DELAY + StorageConstants.INDEXING_BACKWARD_DURATION;
     }
 }
