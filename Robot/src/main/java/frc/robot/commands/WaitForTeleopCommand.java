@@ -25,7 +25,6 @@ public class WaitForTeleopCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        drivetrainSubsystem.disableXstance();
         storage.disableStorage();
         flywheel.stopFlywheel();
         collector.disableCollector();

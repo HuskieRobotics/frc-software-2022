@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -337,6 +338,13 @@ public class RobotContainer {
     return m_chooser.getSelected();
   }
 
+  // always start teleop in a known state and ready to drive
+  public void teleopInit() {
+    m_storage.disableStorage();
+    m_flywheel.stopFlywheel();
+    m_collector.disableCollector();
+  }
+
   private void configureAutoCommands() {
     ProfiledPIDController thetaController = new ProfiledPIDController(
         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
@@ -375,16 +383,15 @@ public class RobotContainer {
       autoBlue3 = new SequentialCommandGroup(
         new ParallelCommandGroup(
           new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-          new InstantCommand(() -> m_flywheel.startFlywheel(), m_flywheel)),
+          new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.WALL_SHOT_VELOCITY), m_flywheel)),
         new WaitCommand(0.5),
         new FollowPath(autoBlue31Path, thetaController, m_drivetrainSubsystem, true),
         createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 2),
-        new ParallelCommandGroup(
-          new SortStorageCommand(m_storage),
-          new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem, false)),
+        new ParallelDeadlineGroup(
+          new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem, false),
+          new SortStorageCommand(m_storage)),
         createAutoShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY, 5));
-        //new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-        //new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
+        new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
     ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
     m_chooser.addOption("Blue Forward", autoBlueForward);
