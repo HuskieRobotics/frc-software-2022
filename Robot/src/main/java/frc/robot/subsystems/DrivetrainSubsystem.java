@@ -451,7 +451,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 return Math.abs(LimelightConstants.HUB_WALL_DISTANCE - this.lastLimelightDistance) <= LimelightConstants.DISTANCE_TOLERANCE;
         }
 
+        // The aim method is only invoked by the LimelightAlignToTargetCommand. The units for the rotationSupplier variables
+        //      are radians/second. This method should, but currently does not, clamp the output to
+        //      MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND.
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
+                // FIXME: tune the feed forward to be in units of radian/sec; It should be multiplied by 2.8414942696
                 if (rotationSupplier > 0) {     // clockwise
                         rotationSupplier += LIMELIGHT_F;
                 }
