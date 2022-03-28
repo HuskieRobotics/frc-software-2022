@@ -354,8 +354,7 @@ public class RobotContainer {
         AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     autoBlueForward = new SequentialCommandGroup(
       new FollowPath(autoBlueForwardPath, thetaController, m_drivetrainSubsystem, true),
-      createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 5),
-      new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
+      createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 15));
 
       PathPlannerTrajectory autoBlue1Path = PathPlanner.loadPath("Blue1(1)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
@@ -363,8 +362,7 @@ public class RobotContainer {
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
         new FollowPath(autoBlue1Path, thetaController, m_drivetrainSubsystem, true),
         new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 5),
-        new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
+        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 15));
 
       PathPlannerTrajectory autoBlue2Path = PathPlanner.loadPath("Blue2(1)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
@@ -372,8 +370,7 @@ public class RobotContainer {
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
         new FollowPath(autoBlue2Path, thetaController, m_drivetrainSubsystem, true),
         new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 5),
-        new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
+        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 15));
 
       PathPlannerTrajectory autoBlue31Path = PathPlanner.loadPath("Blue3(1)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
@@ -390,8 +387,7 @@ public class RobotContainer {
         new ParallelDeadlineGroup(
           new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem, false),
           new SortStorageCommand(m_storage)),
-        createAutoShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY, 5));
-        new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
+        createAutoShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY, 15));
 
     ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
     m_chooser.addOption("Blue Forward", autoBlueForward);
