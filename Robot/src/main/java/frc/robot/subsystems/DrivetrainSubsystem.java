@@ -401,6 +401,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 return NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
            }
 
+        public boolean isLimelightTargetVisible() {
+                return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0) == 1;
+        }
+
         public double getLimelightDistanceIn() {
                 double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0.0);
 
@@ -419,11 +423,20 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
+                // LIMELIGHT_F is specified as fraction of MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
                 if (rotationSupplier > 0) {     // clockwise
-                        rotationSupplier += LIMELIGHT_F;
+                        rotationSupplier += LIMELIGHT_F * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
                 else {  // counterclockwise
-                        rotationSupplier -= LIMELIGHT_F;
+                        rotationSupplier -= LIMELIGHT_F * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+                }
+
+                // clamp the rotation to MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+                if(rotationSupplier > MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND) {
+                        rotationSupplier = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+                }
+                else if(rotationSupplier < MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND) {
+                        rotationSupplier = -MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
 
                 drive(translationXSupplier, translationYSupplier, rotationSupplier);
@@ -431,7 +444,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         public boolean isAimed() {
-                if(Math.abs(0.0 - getLimelightX()) < LIMELIGHT_ALIGNMENT_TOLERANCE){
+                if(isLimelightTargetVisible() && Math.abs(0.0 - getLimelightX()) < LIMELIGHT_ALIGNMENT_TOLERANCE){
                         aimSetpointCount++;
                         if(aimSetpointCount >= 5){
                                 return true;
