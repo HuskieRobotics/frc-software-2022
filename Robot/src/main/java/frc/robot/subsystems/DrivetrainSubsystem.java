@@ -444,6 +444,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         public boolean isAimed() {
+                // Always return false if no target is visible to the Limelight. If this happens, the driver has to cancel the aim
+                //      and move to a new location, or the operator has to manually enable the storage to shoot.
                 if(isLimelightTargetVisible() && Math.abs(0.0 - getLimelightX()) < LIMELIGHT_ALIGNMENT_TOLERANCE){
                         aimSetpointCount++;
                         if(aimSetpointCount >= 5){
