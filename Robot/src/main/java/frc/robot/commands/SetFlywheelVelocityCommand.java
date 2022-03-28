@@ -2,12 +2,10 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Flywheel;
-import static frc.robot.Constants.*;
 
 public class SetFlywheelVelocityCommand extends CommandBase {
     private Flywheel flywheel;
     private double velocity;
-    private int iterations;
 
     // public SetFlywheelVelocityCommand(Flywheel flywheel, LimelightMath limelight) {
     //     this.flywheel = flywheel;
@@ -25,23 +23,10 @@ public class SetFlywheelVelocityCommand extends CommandBase {
         addRequirements(this.flywheel);
     }
 
-    // Called when the command is initially scheduled.
-    @Override
-    public void initialize() {
-        iterations = 0;
-    }
-
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        if(iterations < FlywheelConstants.FULL_POWER_DELAY) {
-            flywheel.startFlywheel();
-        }
-        else {
-            flywheel.setVelocity(this.velocity);
-        }
-        
-        iterations++;
+        flywheel.setVelocity(this.velocity);
     }
 
     // Called once the command ends or is interrupted.

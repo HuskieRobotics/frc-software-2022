@@ -120,7 +120,6 @@ public final class Constants {
     public static final int SHOOT_SLOW_VELOCITY = 4000; // FIXME tune this
     public static final int SHOT_VELOCITY_DIP = 500;  // FIXME: tune this
     public static final double REVERSE_POWER = -0.2; // FIXME: tune this
-    public static final int FULL_POWER_DELAY =0; // FIXME: tune this
     public static final int SETPOINTCOUNT = 5;
 
 
