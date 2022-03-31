@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.commands.SetFlywheelVelocityCommand;
 
 import java.util.Map;
@@ -45,13 +46,15 @@ public class Flywheel extends SubsystemBase {
         /* Config sensor used for Primary PID [Velocity] */
         TalonFXConfiguration _rightConfig = new TalonFXConfiguration();
 
+       
+
         /* Disable all motors */
         this.rightFlywheelMotor.set(TalonFXControlMode.PercentOutput, 0);
         this.leftFlywheelMotor.set(TalonFXControlMode.PercentOutput, 0);
 
         /* Set neutral modes */
-        this.leftFlywheelMotor.setNeutralMode(NeutralMode.Coast);
-        this.rightFlywheelMotor.setNeutralMode(NeutralMode.Coast);
+        this.leftFlywheelMotor.setNeutralMode(NeutralMode.Brake);
+        this.rightFlywheelMotor.setNeutralMode(NeutralMode.Brake);
 
         this.leftFlywheelMotor.follow(this.rightFlywheelMotor);
 
@@ -116,7 +119,7 @@ public class Flywheel extends SubsystemBase {
 
         //Shuffleboard.getTab("MAIN").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
         
-        if(COMMAND_LOGGING) {
+        if(Constants.COMMAND_LOGGING) {
             Shuffleboard.getTab("Shooter").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
             Shuffleboard.getTab("Shooter").add("shooter", this);
             Shuffleboard.getTab("Shooter").addNumber("FlywheelVelocity", this::getVelocity);
@@ -140,7 +143,7 @@ public class Flywheel extends SubsystemBase {
         // Shuffleboard.getTab("Shooter").add("StopFlywheelCommand", new
         // InstantCommand(this::stopFlywheel, this));
 
-        if (TUNING) {
+        if (Constants.TUNING) {
             // Each robot feature that requires PID tuning has its own Shuffleboard tab for
             // tuning (i.e., "Shooter")
             // Add indicators and controls to this Shuffleboard tab to assist with
