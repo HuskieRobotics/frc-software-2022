@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
 import static frc.robot.Constants.*;
@@ -12,21 +13,26 @@ import static frc.robot.Constants.*;
 public class SortStorageCommand extends CommandBase {
     private Storage m_storage;
     private int indexingDelay;
+    boolean isActive;
 
     public SortStorageCommand(Storage storage) {
         this.m_storage = storage;
         this.addRequirements(this.m_storage);
+        this.isActive = false;
+        Shuffleboard.getTab("MAIN").addBoolean("Sort Storage Exec", () -> this.isActive);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
         indexingDelay = 0;
+        this.isActive = false;
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+        this.isActive = true;
         if (!this.m_storage.isShooterSensorUnblocked()) {
             indexingDelay++;
             if(indexingDelay == StorageConstants.INDEXING_FORWARD_DELAY) {
@@ -44,6 +50,7 @@ public class SortStorageCommand extends CommandBase {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
+        this.isActive = false;
         this.m_storage.disableStorage();
     }
 
