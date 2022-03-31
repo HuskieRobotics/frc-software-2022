@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.networktables.EntryListenerFlags;
 
+import static frc.robot.Constants.*;
 import static frc.robot.Constants.FlywheelConstants.*;
 
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -259,11 +260,6 @@ public class Flywheel extends SubsystemBase {
         }
             return false;
         
-    }
-
-    public void startFlywheel() {
-        leftFlywheelMotor.set(TalonFXControlMode.PercentOutput, 1.0);
-        rightFlywheelMotor.set(TalonFXControlMode.PercentOutput, 1.0);
     }
 
     public void stopFlywheel() {
