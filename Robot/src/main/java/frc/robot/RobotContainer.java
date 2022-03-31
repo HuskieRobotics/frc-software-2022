@@ -374,8 +374,9 @@ public class RobotContainer {
 
       PathPlannerTrajectory autoBlue31Path = PathPlanner.loadPath("Blue3(1)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-      // change to Blue3(23) after testing Blue3(2)
-      PathPlannerTrajectory autoBlue32Path = PathPlanner.loadPath("Blue3(23)",
+      PathPlannerTrajectory autoBlue32Path = PathPlanner.loadPath("Blue3(2)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+      PathPlannerTrajectory autoBlue33Path = PathPlanner.loadPath("Blue3(3)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       autoBlue3 = new SequentialCommandGroup(
         new ParallelCommandGroup(
@@ -387,7 +388,11 @@ public class RobotContainer {
         new ParallelDeadlineGroup(
           new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem, false),
           new SortStorageCommand(m_storage)),
-        createAutoShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY, 15));
+        new ParallelCommandGroup(
+            new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.LAUNCH_PAD_VELOCITY), m_flywheel),
+            new FollowPath(autoBlue33Path, thetaController, m_drivetrainSubsystem, false)),
+        createAutoShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY, 15),
+        new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
 
     ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
     m_chooser.addOption("Blue Forward", autoBlueForward);
