@@ -126,6 +126,7 @@ public class Robot extends TimedRobot {
         }
 
         server.setSource(storageCam);
+        m_robotContainer.teleopInit();
 
     }
 
