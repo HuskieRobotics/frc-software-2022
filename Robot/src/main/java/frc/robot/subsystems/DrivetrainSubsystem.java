@@ -205,7 +205,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
-                tabMain.add("align to target", new LimelightAlignToTargetCommand(this));
                 
                 if(COMMAND_LOGGING) {
                         tab.add("drivetrain", this);
@@ -217,6 +216,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
                         tab.addNumber("CoG X", () -> this.centerGravity.getX());
                         tab.addNumber("CoG Y", () -> this.centerGravity.getY());
+                        tabMain.add("align to target", new LimelightAlignToTargetCommand(this));
                         
                 }
 

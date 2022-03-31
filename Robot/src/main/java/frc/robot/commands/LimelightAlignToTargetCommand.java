@@ -28,7 +28,6 @@ public class LimelightAlignToTargetCommand extends PIDCommand {
     public void end(boolean interrupted) {
         drivetrainSubsystem.resetCenterGrav();
         drivetrainSubsystem.stop();
-        System.out.println("***************************ALIGNED*********************************8");
         super.end(interrupted);
     }
 
