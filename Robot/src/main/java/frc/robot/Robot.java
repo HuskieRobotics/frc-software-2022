@@ -11,7 +11,11 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.StringLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.Constants.StorageConstants;
+import static frc.robot.Constants.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -54,6 +58,23 @@ public class Robot extends TimedRobot {
 
         server = CameraServer.getServer();
 
+        // Starts recording to data log
+        DataLogManager.start();
+
+        // Set up custom log entries
+        DataLog log = DataLogManager.getLog();
+        StringLogEntry myCommandLog = new StringLogEntry(log, "/my/commands");
+
+        if (COMMAND_LOGGING) {
+            CommandScheduler.getInstance().onCommandInitialize(
+                command -> myCommandLog.append("Command initialized: " + command.getClass().getName()));
+        
+            CommandScheduler.getInstance().onCommandInterrupt(
+                command -> myCommandLog.append("Command interrupted: " + command.getClass().getName()));
+        
+            CommandScheduler.getInstance().onCommandFinish(
+                command -> myCommandLog.append("Command finished: " + command.getClass().getName()));
+        }
     
 
         HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);

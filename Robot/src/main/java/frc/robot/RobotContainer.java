@@ -11,12 +11,10 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -132,23 +130,6 @@ public class RobotContainer {
     // Configure autonomous sendable chooser
 
     configureAutoCommands();
-
-    if (COMMAND_LOGGING) {
-      CommandScheduler.getInstance().onCommandInitialize(
-          command -> Shuffleboard.addEventMarker("Command initialized",
-              command.getClass().getName().substring(command.getClass().getName().lastIndexOf('.') + 1),
-              EventImportance.kNormal));
-
-      CommandScheduler.getInstance().onCommandInterrupt(
-          command -> Shuffleboard.addEventMarker("Command interrupted",
-              command.getClass().getName().substring(command.getClass().getName().lastIndexOf('.') + 1),
-              EventImportance.kNormal));
-
-      CommandScheduler.getInstance().onCommandFinish(
-          command -> Shuffleboard.addEventMarker("Command finished",
-              command.getClass().getName().substring(command.getClass().getName().lastIndexOf('.') + 1),
-              EventImportance.kNormal));
-    }
   }
 
   public static RobotContainer getInstance() {
