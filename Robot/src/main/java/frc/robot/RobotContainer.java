@@ -391,8 +391,7 @@ public class RobotContainer {
         new ParallelCommandGroup(
             new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.LAUNCH_PAD_VELOCITY), m_flywheel),
             new FollowPath(autoBlue33Path, thetaController, m_drivetrainSubsystem, false)),
-        createAutoShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY, 15),
-        new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
+        createAutoShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY, 15));
 
     ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
     m_chooser.addOption("Blue Forward", autoBlueForward);
