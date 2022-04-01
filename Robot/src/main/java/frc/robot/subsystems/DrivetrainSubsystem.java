@@ -431,7 +431,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public double getLimelightX(){
                 return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
            }
-           public double getLimelighty(){
+        public double getLimelighty(){
                 return NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
            }
 
@@ -447,8 +447,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         public double getVelocityFromLimelight() {
-                double velocity = 16.22 * this.getLimelightDistanceIn() + 5154.43;
-                //double velocity = this.getLimelightDistanceIn(); 
+                double velocity = LIMELIGHT_SLOPE * this.getLimelightDistanceIn() + LIMELIGHT_Y_COMPONENT;
                 return velocity;
         }
 

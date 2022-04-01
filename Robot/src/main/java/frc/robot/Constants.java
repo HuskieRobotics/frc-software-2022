@@ -69,6 +69,8 @@ public final class Constants {
     public static final double LIMELIGHT_P = 0.12;
     public static final double LIMELIGHT_I = 0.0;
     public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = .8;
+    public static final double LIMELIGHT_SLOPE = 16.22;
+    public static final double LIMELIGHT_Y_COMPONENT = 5154.43;
   }
 
   public static final class CollectorConstants {
@@ -226,7 +228,7 @@ public final class Constants {
     public static final int FIELD_WALL = 6;
     public static final int LAUNCHPAD = 5;
     public static final int TARMAC = 4;
-    public static final int SHOOT = 3;
+    public static final int SHOOT_LIMELIGHT = 3;
     public static final int SHOOT_SLOW = 10;
     public static final int UNASSIGNED = 11;
     public static final int CLIMB_CAM = 12;
