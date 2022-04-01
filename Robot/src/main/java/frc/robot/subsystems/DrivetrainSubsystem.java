@@ -447,8 +447,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         public double getVelocityFromLimelight() {
-                // FIXME: add equation mapping actual distance to velocity
-                double velocity = this.getLimelightDistanceIn(); 
+                double velocity = 16.22 * this.getLimelightDistanceIn() + 5154.43;
+                //double velocity = this.getLimelightDistanceIn(); 
                 return velocity;
         }
 
