@@ -224,10 +224,14 @@ public class RobotContainer {
                 new InstantCommand(() -> m_storage.disableStorage(), m_storage),
                 new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel)),
             new SequentialCommandGroup(
-                new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-                new SortStorageCommand(m_storage),
-                new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-                new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.LAUNCH_PAD_VELOCITY)),
+              new ParallelCommandGroup(
+                new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
+                new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+                new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)),
+              new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+              new SortStorageCommand(m_storage),
+              new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+              new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.LAUNCH_PAD_VELOCITY)),
             m_collector::isEnabled));
 
     // unjam all
