@@ -4,16 +4,21 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.Flywheel;
 
-public class SetFlywheelVelocityCommand extends CommandBase {
+public class LimelightSetFlywheelVelocity extends CommandBase {
     private Flywheel flywheel;
     private DrivetrainSubsystem drivetrain;
     private double velocity;
 
 
-    public SetFlywheelVelocityCommand(Flywheel flywheel, double velocity) {
+    public LimelightSetFlywheelVelocity(Flywheel flywheel, DrivetrainSubsystem drivetrainSubsystem) {
         this.flywheel = flywheel;
-        this.velocity = velocity;
+        this.drivetrain = drivetrainSubsystem;
         addRequirements(this.flywheel);
+    }
+
+    @Override
+    public void initialize(){
+        this.velocity = this.drivetrain.getVelocityFromLimelight();
     }
 
     // Called every time the scheduler runs while the command is scheduled.

@@ -69,8 +69,8 @@ public final class Constants {
     public static final double LIMELIGHT_P = 0.12;
     public static final double LIMELIGHT_I = 0.0;
     public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = .8;
-    public static final double LIMELIGHT_SLOPE = 16.22;
-    public static final double LIMELIGHT_Y_COMPONENT = 5154.43;
+    public static final double LIMELIGHT_SLOPE = 23.08;
+    public static final double LIMELIGHT_Y_COMPONENT = 4596.34;
   }
 
   public static final class CollectorConstants {
