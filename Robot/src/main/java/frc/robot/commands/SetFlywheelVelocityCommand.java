@@ -1,12 +1,10 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.Flywheel;
 
 public class SetFlywheelVelocityCommand extends CommandBase {
     private Flywheel flywheel;
-    private DrivetrainSubsystem drivetrain;
     private double velocity;
 
 
