@@ -14,7 +14,9 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 
 /**
  *
@@ -24,11 +26,15 @@ public class Collector extends SubsystemBase {
     private Solenoid collectorPiston;
     private boolean isEnabled;
     private NetworkTableEntry collectorMotorPowerNT;
+    private PowerDistribution powerDistribution;
 
     /**
     *
     */
     public Collector() {
+
+        this.powerDistribution = new PowerDistribution(PDH_CAN_ID, ModuleType.kRev);
+        
         isEnabled = false;
         collector5 = new WPI_TalonSRX(CollectorConstants.COLLECTOR_MOTOR_ID);
         collector5.setInverted(true);
@@ -45,6 +51,7 @@ public class Collector extends SubsystemBase {
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .getEntry();
 
+        Shuffleboard.getTab("MAIN").addNumber("Collector (A)", () -> this.getMotorCurrent());
         if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Collector").add("collector", this);
             Shuffleboard.getTab("Collector").add("deployCollector", new InstantCommand(this::deployCollectorPiston, this));
@@ -57,11 +64,21 @@ public class Collector extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
+
+        // if the current limit is triggered; something is very wrong; stop the collector
+        if (this.getMotorCurrent() >= CURRENT_LIMIT) {
+            this.collector5.set(ControlMode.PercentOutput, 0.0);
+        }
+
         if (TUNING) {
             double collectorPower = this.collectorMotorPowerNT.getDouble(0.0);
             this.setCollectorPower(collectorPower);
         }
 
+    }
+
+    private double getMotorCurrent() {
+        return powerDistribution.getCurrent(COLLECTOR_MOTOR_PDH_CHANNEL);
     }
 
     public void setCollectorPower(double power) {

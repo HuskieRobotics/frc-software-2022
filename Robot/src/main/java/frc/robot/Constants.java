@@ -18,6 +18,7 @@ public final class Constants {
   public static final boolean TUNING = false;
   public static final boolean COMMAND_LOGGING = false;
   public static final double BROWNOUT_VOLTAGE_LIMIT = 7.0; // volts; FIXME: tune this as this may be too high, 6.5?
+  public static final int PDH_CAN_ID = 21;
 
   /* DRIVETRAIN CONSTANTS */
 
@@ -84,6 +85,11 @@ public final class Constants {
     public static final double COLLECTOR_DEFUALT_SPEED = 0.9; // FIX_ME change this to desired speed; was 0.7
     public static final int TIMEOUT_MS = 30;
 
+    public static final double CURRENT_LIMIT = 50.0; // amps; FIXME: tune this
+
+    // PDH Channel
+    public static final int COLLECTOR_MOTOR_PDH_CHANNEL = 14;
+
   }
 
   public static final class AutoConstants {
@@ -126,6 +132,12 @@ public final class Constants {
     public static final int SHOT_VELOCITY_DIP = 500;  // FIXME: tune this
     public static final double REVERSE_POWER = -0.2; // FIXME: tune this
     public static final int SETPOINTCOUNT = 5;
+
+    public static final double CURRENT_LIMIT = 50.0; // amps; FIXME: tune this
+
+    // PDH Channels
+    public static final int LEFT_FLYWHEELMOTOR_PDH_CHANNEL = 9;
+    public static final int RIGHT_FLYWHEELMOTOR_PDH_CHANNEL = 10;
 
 
   }
@@ -185,6 +197,11 @@ public final class Constants {
     public static final int WAIT_FOR_SHOT_DELAY = 10; // FIXME: tune
     public static final int INDEXING_FORWARD_DELAY = 16;
     public static final int INDEXING_BACKWARD_DURATION = 2;
+
+    public static final double CURRENT_LIMIT = 50.0; // amps; FIXME: tune this
+
+    // PDH Channel
+    public static final int STORAGE_MOTOR_PDH_CHANNEL = 15;
   }
 
   public static class ElevatorConstants {
@@ -200,6 +217,7 @@ public final class Constants {
     public static final double ARBITRARY_FEED_FORWARD_EXTEND = .02;
     public static final double ARBITRARY_FEED_FORWARD_RETRACT = -0.07;
     public static final double DEFAULT_MOTOR_POWER = 0.5; //FIXME TUNE
+    public static final double CURRENT_LIMIT = 50.0; // amps; FIXME: tune this
 
     public static final int kSlotIdx = 0;
     public static final int kPIDLoopIdx = 0;
@@ -215,6 +233,10 @@ public final class Constants {
     public static final int LEFT_ELEVATOR_MOTOR_CAN_ID = 22;
     public static final int RIGHT_ELEVATOR_MOTOR_CAN_ID = 19;
     public static final int CLIMBER_CAMERA_PORT = 0;
+
+    // PDH Channels
+    public static final int LEFT_ELEVATOR_MOTOR_PDH_CHANNEL = 12;
+    public static final int RIGHT_ELEVATOR_MOTOR_PDH_CHANNEL = 13;
   }
 
   public class SecondMechanismConstants {

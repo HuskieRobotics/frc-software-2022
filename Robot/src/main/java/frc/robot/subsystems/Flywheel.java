@@ -5,6 +5,8 @@ import edu.wpi.first.networktables.EntryListenerFlags;
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.FlywheelConstants.*;
 
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -31,11 +33,15 @@ public class Flywheel extends SubsystemBase {
     private double velocitySetPoint;
     private int setPointCount;
     private double minVelocityAfterShot;
+    private PowerDistribution powerDistribution;
 
     /**
     *
     */
     public Flywheel() {
+
+        this.powerDistribution = new PowerDistribution(PDH_CAN_ID, ModuleType.kRev);
+        
         leftFlywheelMotor = new WPI_TalonFX(LEFT_FLYWHEELMOTOR_CANID);
         rightFlywheelMotor = new WPI_TalonFX(RIGHT_FLYWHEELMOTOR_CANID);
 
@@ -118,6 +124,8 @@ public class Flywheel extends SubsystemBase {
         this.velocitySetPoint = 0.0;
 
         //Shuffleboard.getTab("MAIN").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
+
+        Shuffleboard.getTab("MAIN").addNumber("Flywheel (A)", () -> this.getMotorCurrent());
         
         if(Constants.COMMAND_LOGGING) {
             Shuffleboard.getTab("Shooter").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
@@ -216,6 +224,17 @@ public class Flywheel extends SubsystemBase {
     public void periodic() {
         // This method will be called once per scheduler run
 
+        // if the current limit is triggered; something is very wrong; stop the flywheel
+        if (this.getMotorCurrent() >= CURRENT_LIMIT) {
+            this.leftFlywheelMotor.set(TalonFXControlMode.PercentOutput, 0.0);
+            this.rightFlywheelMotor.set(TalonFXControlMode.PercentOutput, 0.0);
+        }
+
+    }
+
+    private double getMotorCurrent() {
+        return Math.max(powerDistribution.getCurrent(LEFT_FLYWHEELMOTOR_PDH_CHANNEL),
+                powerDistribution.getCurrent(RIGHT_FLYWHEELMOTOR_PDH_CHANNEL));
     }
 
     @Override

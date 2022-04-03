@@ -121,7 +121,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.isXstance = false;
                 // this.m_robotCenter = new Translation2d(0,0);
 
-                this.powerDistribution = new PowerDistribution(21, ModuleType.kRev);
+                this.powerDistribution = new PowerDistribution(PDH_CAN_ID, ModuleType.kRev);
                 this.limitCurrentDraw = false;
 
                 this.zeroGyroscope();

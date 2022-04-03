@@ -16,6 +16,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 
 /**
  *
@@ -25,12 +27,15 @@ public class Storage extends SubsystemBase {
     private DigitalInput collectorSensor0;
     private DigitalInput shooterSensor1;
     private boolean isStorageEnabled;
+    private PowerDistribution powerDistribution;
 
     
     /**
     *
     */
     public Storage() {
+        this.powerDistribution = new PowerDistribution(PDH_CAN_ID, ModuleType.kRev);
+
         this.isStorageEnabled = false;
         storage4 = new WPI_TalonSRX(StorageConstants.STORAGE_MOTOR_ID);
 
@@ -43,7 +48,8 @@ public class Storage extends SubsystemBase {
         shooterSensor1 = new DigitalInput(StorageConstants.SHOOTER_SENSOR);
         addChild("Shooter Sensor 1", shooterSensor1);
 
-        
+        Shuffleboard.getTab("MAIN").addNumber("Storage (A)", () -> this.getMotorCurrent());
+
         if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Storage").add("Sort Storage", new SortStorageCommand(this));
             Shuffleboard.getTab("MAIN").addBoolean("Collector Unblocked", this::isCollectorSensorUnblocked);
@@ -101,6 +107,15 @@ public class Storage extends SubsystemBase {
     public void periodic() {
         // This method will be called once per scheduler run
 
+        // if the current limit is triggered; something is very wrong; stop the storage
+        if (this.getMotorCurrent() >= CURRENT_LIMIT) {
+            this.storage4.set(ControlMode.PercentOutput, 0.0);
+        }
+
+    }
+
+    private double getMotorCurrent() {
+        return powerDistribution.getCurrent(STORAGE_MOTOR_PDH_CHANNEL);
     }
 
     @Override

@@ -19,6 +19,9 @@ import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.ElevatorConstants.*;
+
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
@@ -44,8 +47,11 @@ public class Elevator extends SubsystemBase {
     private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
     private double encoderPositionSetpoint;
     private boolean isElevatorControlEnabled;
+    private PowerDistribution powerDistribution;
 
     public Elevator() {
+        
+        this.powerDistribution = new PowerDistribution(PDH_CAN_ID, ModuleType.kRev);
 
         this.leftElevatorMotor = new WPI_TalonFX(LEFT_ELEVATOR_MOTOR_CAN_ID);
         this.rightElevatorMotor = new WPI_TalonFX(RIGHT_ELEVATOR_MOTOR_CAN_ID);
@@ -135,6 +141,8 @@ public class Elevator extends SubsystemBase {
         this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, kTimeoutMs);
 
         Shuffleboard.getTab("MAIN").addBoolean("Elevator At Setpoint", this::atSetpoint);
+
+        Shuffleboard.getTab("MAIN").addNumber("Elevator (A)", () -> this.getMotorCurrent());
         
         if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Elevator").add("elevator", this);
@@ -240,6 +248,13 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
+
+        // if the current limit is triggered; something is very wrong; stop the elevator
+        if (this.getMotorCurrent() >= CURRENT_LIMIT) {
+            this.leftElevatorMotor.set(ControlMode.PercentOutput, 0.0);
+            this.rightElevatorMotor.set(ControlMode.PercentOutput, 0.0);
+        }
+
         // This method will be called once per scheduler run
         if (TUNING) {
             this.isElevatorControlEnabled = true;
@@ -251,6 +266,11 @@ public class Elevator extends SubsystemBase {
             this.setElevatorMotorPower(motorPower);
 
         }
+    }
+
+    private double getMotorCurrent() {
+        return Math.max(powerDistribution.getCurrent(LEFT_ELEVATOR_MOTOR_PDH_CHANNEL),
+                powerDistribution.getCurrent(RIGHT_ELEVATOR_MOTOR_PDH_CHANNEL));
     }
 
     @Override
