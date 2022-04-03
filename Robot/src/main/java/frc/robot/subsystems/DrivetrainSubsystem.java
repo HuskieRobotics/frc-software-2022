@@ -195,7 +195,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts,
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
-                tabMain.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
+                tabMain.addNumber("Limelight Vel", () -> getVelocityFromLimelight());
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
                 tabMain.addBoolean("Is Aimed", () -> isAimed());
@@ -207,6 +207,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 .getEntry();
                 
                 if(COMMAND_LOGGING) {
+                        Shuffleboard.getTab("Shooter").addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                         tab.add("drivetrain", this);
                         tab.addNumber("Limelight y Dist", () -> getLimelighty());
                         tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
@@ -430,7 +431,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public double getLimelightX(){
                 return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
            }
-           public double getLimelighty(){
+        public double getLimelighty(){
                 return NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
            }
 
@@ -440,7 +441,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.lastLimelightDistance = (LimelightConstants.HUB_H - LimelightConstants.ROBOT_H)
                         / (Math.tan(Math.toRadians(LimelightConstants.LIMELIGHT_MOUNT_ANGLE +LimelightConstants.LIMELIGHT_ANGLE_OFFSET + ty)));
                 
+                // FIXME: add linear equation mapping limelight distance to actual distance
+
                 return this.lastLimelightDistance;
+        }
+
+        public double getVelocityFromLimelight() {
+                double velocity = LIMELIGHT_SLOPE * this.getLimelightDistanceIn() + LIMELIGHT_Y_COMPONENT;
+                return velocity;
         }
 
         public boolean isAtLaunchpadDistance() {

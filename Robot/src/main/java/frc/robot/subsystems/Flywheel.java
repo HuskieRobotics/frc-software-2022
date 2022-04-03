@@ -143,7 +143,7 @@ public class Flywheel extends SubsystemBase {
         // Shuffleboard.getTab("Shooter").add("StopFlywheelCommand", new
         // InstantCommand(this::stopFlywheel, this));
 
-        if (Constants.TUNING) {
+        //if (Constants.TUNING) {
             // Each robot feature that requires PID tuning has its own Shuffleboard tab for
             // tuning (i.e., "Shooter")
             // Add indicators and controls to this Shuffleboard tab to assist with
@@ -209,7 +209,7 @@ public class Flywheel extends SubsystemBase {
                         this.rightFlywheelMotor.config_kD(SLOT_INDEX, event.getEntry().getValue().getDouble(),
                                 TIMEOUT_MS);
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-        }
+        //}
     }
 
     @Override
