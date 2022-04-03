@@ -195,7 +195,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts,
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
-                Shuffleboard.getTab("Shooter").addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                 tabMain.addNumber("Limelight Vel", () -> getVelocityFromLimelight());
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
@@ -208,6 +207,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 .getEntry();
                 
                 if(COMMAND_LOGGING) {
+                        Shuffleboard.getTab("Shooter").addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                         tab.add("drivetrain", this);
                         tab.addNumber("Limelight y Dist", () -> getLimelighty());
                         tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
