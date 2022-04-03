@@ -267,7 +267,7 @@ public class RobotContainer {
     operatorButtons[JoystickConstants.SHOOT_LIMELIGHT].whenPressed(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
-          new LimelightSetFlywheelVelocity(m_flywheel, m_drivetrainSubsystem),
+          new LimelightSetFlywheelVelocityCommand(m_flywheel, m_drivetrainSubsystem),
           new SequentialCommandGroup (
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
             new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
