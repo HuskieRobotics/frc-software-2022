@@ -203,6 +203,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts,
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
+                tabMain.addBoolean("Current Limiting", () -> this.limitCurrentDraw);
                 tabMain.addNumber("Limelight Vel", () -> getVelocityFromLimelight());
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
