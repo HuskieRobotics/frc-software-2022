@@ -224,10 +224,6 @@ public class RobotContainer {
                 new InstantCommand(() -> m_storage.disableStorage(), m_storage),
                 new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel)),
             new SequentialCommandGroup(
-              new ParallelCommandGroup(
-                new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
-                new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-                new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)),
               new InstantCommand(() -> m_collector.enableCollector(), m_collector),
               new SortStorageCommand(m_storage),
               new InstantCommand(() -> m_collector.disableCollector(), m_collector),
