@@ -135,8 +135,6 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopPeriodic() {
-        m_robotContainer.teleopPeriodic();
-
         // if(this.m_robotContainer.isElevatorControlEnabled()){
         //     server.setSource(climbCam);
         // }

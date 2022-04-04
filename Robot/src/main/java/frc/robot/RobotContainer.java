@@ -437,19 +437,6 @@ public class RobotContainer {
           new InstantCommand(()-> m_storage.disableStorage(), m_storage)));
   }
 
-  public void teleopPeriodic() {
-    // allow a significant joystick movement to override scheduled commands (i.e., shooting) and start driving
-    if(m_drivetrainSubsystem.isXstance() &&
-        (Math.abs(modifyAxis(joystick0.getY())) > 0 || Math.abs(modifyAxis(joystick0.getX())) > 0)) {
-      CommandScheduler.getInstance().schedule(
-        new ParallelCommandGroup(
-          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
-          new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-          new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
-    }
-  }
-
   private static double deadband(double value, double deadband) {
     if (Math.abs(value) > deadband) {
       if (value > 0.0) {
