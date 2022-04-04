@@ -248,7 +248,7 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         // This method will be called once per scheduler run
         double height = this.getElevatorEncoderHeight();
-        if(height > TRANSFER_TO_SECONDARY_HEIGHT && height < NEXT_RUNG_HEIGHT) {
+        if(height > TRANSFER_TO_SECONDARY_HEIGHT && height < REACH_TO_NEXT_RUNG_HEIGHT) {
             double average = this.runningAverage * this.runningAverageSamples;
             average += m_pigeon.getPitch();
             this.runningAverageSamples++;
