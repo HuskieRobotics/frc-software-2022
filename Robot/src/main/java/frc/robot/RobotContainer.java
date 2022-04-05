@@ -133,6 +133,12 @@ public class RobotContainer {
 
     configureAutoCommands();
 
+    if(TUNING) {
+      Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(m_elevator, m_secondMechanism));
+      Shuffleboard.getTab("Elevator").add("Extend Before Next", new ExtendClimberBeforeNextRungCommand(m_elevator, m_secondMechanism));
+    }
+            
+
     if (COMMAND_LOGGING) {
       CommandScheduler.getInstance().onCommandInitialize(
           command -> Shuffleboard.addEventMarker("Command initialized",
@@ -289,32 +295,39 @@ public class RobotContainer {
 
   private void configureClimberButtons() {
 
-    // configure climb to fourth rung climb sequence
+    // configure climb to 4 (traverse) rung climb sequence
     operatorButtons[8].whenPressed(
         new SequentialCommandGroup(
             new RetractClimberFullCommand(m_elevator),
-            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism),
-            new ReachToNextRungCommand(m_elevator),
+            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
+            new WaitCommand(0.5), // wait for secondary arm to be positioned
+            new ReachToNextRungCommand(m_elevator, m_secondMechanism),
             new ParallelCommandGroup(
-                new RetractClimberFullCommand(m_elevator),
-                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism)),
-            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism),
-            new ReachToNextRungCommand(m_elevator),
-            new RetractClimberMinimumCommand(m_elevator)));
+                new RetractClimberMinimumCommand(m_elevator),
+                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism)),
+            new RetractClimberFullCommand(m_elevator),
+            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
+            new WaitCommand(0.5), // wait for secondary arm to be positioned
+            new ReachBeforeNextRungCommand(m_elevator, m_secondMechanism)));
 
-    // configure climb to third rung climb sequence
+    // configure climb to 3 (high) rung climb sequence
     operatorButtons[7].whenPressed(
         new SequentialCommandGroup(
             new RetractClimberFullCommand(m_elevator),
             new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
-            new ReachToNextRungCommand(m_elevator),
-            new ParallelCommandGroup(
-                new RetractClimberMinimumCommand(m_elevator),
-                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism))));
+            new WaitCommand(0.5), // wait for secondary arm to be positioned
+            new ReachToNextRungCommand(m_elevator, m_secondMechanism),
+            new RetractClimberMinimumCommand(m_elevator)));
 
-    // configure climb to 2 rung climb sequence
+    // configure climb to 1/2 (low/mid) rung climb sequence
     operatorButtons[1].whenPressed(
-        new RetractClimberFullCommand(m_elevator));
+        new SequentialCommandGroup(
+          new RetractClimberFullCommand(m_elevator),
+          new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism)));
+
+    // configure raise elevator before starting climb to 1 (low) rung; FIXME: confirm button
+    operatorButtons[11].whenPressed(
+        new ExtendClimberToLowRungCommand(m_elevator));
 
     // configure raise elevator before starting climb
     operatorButtons[2].whenPressed(
@@ -342,7 +355,7 @@ public class RobotContainer {
 
     //pause elevator
     xboxButtons[JoystickConstants.BUTTON_START].whenPressed(new InstantCommand(() ->
-    m_elevator.elevatorPause(xboxButtons[JoystickConstants.BUTTON_BACK].get()), m_elevator));
+        m_elevator.elevatorPause(xboxButtons[JoystickConstants.BUTTON_BACK].get()), m_elevator));
 
     operatorButtons[12].toggleWhenPressed(
         new ConditionalCommand(

@@ -4,7 +4,6 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.sensors.Pigeon2;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.ExtendClimberToMidRungCommand;
-import frc.robot.commands.ReachToNextRungCommand;
 import frc.robot.commands.RetractClimberFullCommand;
 import frc.robot.commands.RetractClimberMinimumCommand;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -44,6 +43,9 @@ public class Elevator extends SubsystemBase {
     private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
     private double encoderPositionSetpoint;
     private boolean isElevatorControlEnabled;
+    private double maxPitch;
+    private double runningAverage;
+    private int runningAverageSamples;
 
     public Elevator() {
 
@@ -134,22 +136,26 @@ public class Elevator extends SubsystemBase {
 		this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, kTimeoutMs);
         this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, kTimeoutMs);
 
-        Shuffleboard.getTab("MAIN").addBoolean("Elevator At Setpoint", this::atSetpoint);
-        
         if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Elevator").add("elevator", this);
-            Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight);
+            Shuffleboard.getTab("Elevator").addBoolean("Elevator At Setpoint", this::atSetpoint);
+            Shuffleboard.getTab("Elevator").addBoolean("Contact Under Rung", this::isContactingUnderRung);
+            Shuffleboard.getTab("Elevator").addBoolean("Transfer to Secondary", this::hasTransferredToSecondary);
+            Shuffleboard.getTab("Elevator").addBoolean("Approaching Next Rung", this::isApproachingNextRung);
             Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
-            Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this::getSetpoint);
-            Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error", this.rightElevatorMotor::getClosedLoopError);
-            Shuffleboard.getTab("Elevator").addNumber("Velocity", this.rightElevatorMotor::getSelectedSensorVelocity);
-            Shuffleboard.getTab("Elevator").addNumber("Left Motor Power", this.leftElevatorMotor::getMotorOutputPercent);
-            Shuffleboard.getTab("Elevator").addNumber("Right Motor Power", this.rightElevatorMotor::getMotorOutputPercent);
+            Shuffleboard.getTab("Elevator").addNumber("Running Average", this::getRunningAverage);
+            Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight); 
+            Shuffleboard.getTab("Elevator").addNumber("Max Pitch", () -> this.maxPitch);       
+            //Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this::getSetpoint);
+            //Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error", this.rightElevatorMotor::getClosedLoopError);
+            //Shuffleboard.getTab("Elevator").addNumber("Velocity", this.rightElevatorMotor::getSelectedSensorVelocity);
+            //Shuffleboard.getTab("Elevator").addNumber("Left Motor Power", this.leftElevatorMotor::getMotorOutputPercent);
+            //Shuffleboard.getTab("Elevator").addNumber("Right Motor Power", this.rightElevatorMotor::getMotorOutputPercent);
             Shuffleboard.getTab("Elevator").add("Extend Climber to Mid", new ExtendClimberToMidRungCommand(this));
-            Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(this));
             Shuffleboard.getTab("Elevator").add("Retract Climber Full", new RetractClimberFullCommand(this));
             Shuffleboard.getTab("Elevator").add("Retract Climber Minimum", new RetractClimberMinimumCommand(this));
             Shuffleboard.getTab("Elevator").addBoolean("isElevatorControl Enabled", this :: isElevatorControlEnabled);
+            
         }
 
         if (TUNING) {
@@ -167,7 +173,7 @@ public class Elevator extends SubsystemBase {
                     .withProperties(Map.of("min", 0, "max", MAX_ELEVATOR_HEIGHT))
                     .getEntry();
             this.positionSetPointNT.addListener(event -> {
-                this.setElevatorMotorPosition(event.getEntry().getValue().getDouble());
+                this.setElevatorMotorPosition(event.getEntry().getValue().getDouble(), true);
             }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
             this.FConstantNT = Shuffleboard.getTab("Elevator")
@@ -241,6 +247,17 @@ public class Elevator extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
+        double height = this.getElevatorEncoderHeight();
+        if(height > TRANSFER_TO_SECONDARY_HEIGHT && height < REACH_TO_NEXT_RUNG_HEIGHT) {
+            double average = this.runningAverage * this.runningAverageSamples;
+            average += m_pigeon.getPitch();
+            this.runningAverageSamples++;
+            this.runningAverage /= this.runningAverageSamples;
+        }
+        else {
+            this.resetRunningAverage();
+        }
+        
         if (TUNING) {
             this.isElevatorControlEnabled = true;
             // // when tuning, we first set motor power and check the resulting velocity
@@ -257,6 +274,15 @@ public class Elevator extends SubsystemBase {
     public void simulationPeriodic() {
         // This method will be called once per scheduler run when in simulation
 
+    }
+
+    public double getRunningAverage() {
+        return this.runningAverage;
+    }
+
+    public void resetRunningAverage() {
+        this.runningAverage = 0.0;
+        this.runningAverageSamples = 0;
     }
 
     // Put methods for controlling this subsystem
@@ -279,8 +305,15 @@ public class Elevator extends SubsystemBase {
         }
     }
 
-    public void setElevatorMotorPosition(double desiredEncoderPosition) {
+    public void setElevatorMotorPosition(double desiredEncoderPosition, boolean isFast) {
         if (isElevatorControlEnabled()) {
+
+            if(isFast) {
+                this.rightElevatorMotor.configClosedLoopPeakOutput(kSlotIdx, GAINS_POSITION.kPeakOutput);
+            }
+            else {
+                this.rightElevatorMotor.configClosedLoopPeakOutput(kSlotIdx, SLOW_PEAK_OUTPUT);
+            }
 
             // the feedforward term will be different depending if the elevator is going up
             // or down
@@ -317,8 +350,31 @@ public class Elevator extends SubsystemBase {
         this.rightElevatorMotor.set(ControlMode.PercentOutput, 0.0);
     }
 
-    public boolean atPitch() {
-        return Math.abs(m_pigeon.getPitch() - PITCH_SETPOINT) < PITCH_TOLERANCE;
+    public boolean isContactingUnderRung() {
+        double pitch =  m_pigeon.getPitch();
+        
+        // if the elevator has made contact with the next rung and isn't yet to the setpoint
+        if(getElevatorEncoderHeight() > NEXT_RUNG_HEIGHT && !atSetpoint()) {
+            if(pitch > this.maxPitch) {
+                this.maxPitch = pitch;
+            }
+        }
+        else if (atSetpoint()) {
+            return Math.abs(this.maxPitch - pitch) < PITCH_TOLERANCE;
+        }
+        else {
+            this.maxPitch = Double.NEGATIVE_INFINITY;
+        }
+
+        return false;
+    }
+
+    public boolean hasTransferredToSecondary() {
+        return this.getElevatorEncoderHeight() > TRANSFER_TO_SECONDARY_HEIGHT;
+    }
+
+    public boolean isApproachingNextRung() {
+        return this.getElevatorEncoderHeight() > REACH_JUST_BEFORE_NEXT_RUNG;
     }
 
     public void elevatorPause(boolean isStartPressed) {

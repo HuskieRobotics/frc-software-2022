@@ -24,9 +24,9 @@ public class SecondaryArm extends SubsystemBase {
         addChild("Secondary Mechanism", this.secondaryMechanism);
 
         if(COMMAND_LOGGING) {
-            Shuffleboard.getTab("Secondary Arm").add("Second Arm Out", new InstantCommand(this::moveSecondaryArmOut));
-            Shuffleboard.getTab("Secondary Arm").add("Second Arm In", new InstantCommand(this::moveSecondaryArmIn));
-            Shuffleboard.getTab("Secondary Arm").addBoolean("Second Arm In?", this::isIn);
+            Shuffleboard.getTab("Elevator").add("Second Arm Out", new InstantCommand(this::moveSecondaryArmOut));
+            Shuffleboard.getTab("Elevator").add("Second Arm In", new InstantCommand(this::moveSecondaryArmIn));
+            Shuffleboard.getTab("Elevator").addBoolean("Second Arm In?", this::isIn);
         }
     }
 
