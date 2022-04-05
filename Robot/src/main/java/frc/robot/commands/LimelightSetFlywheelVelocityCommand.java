@@ -4,13 +4,13 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.Flywheel;
 
-public class LimelightSetFlywheelVelocity extends CommandBase {
+public class LimelightSetFlywheelVelocityCommand extends CommandBase {
     private Flywheel flywheel;
     private DrivetrainSubsystem drivetrain;
     private double velocity;
 
 
-    public LimelightSetFlywheelVelocity(Flywheel flywheel, DrivetrainSubsystem drivetrainSubsystem) {
+    public LimelightSetFlywheelVelocityCommand(Flywheel flywheel, DrivetrainSubsystem drivetrainSubsystem) {
         this.flywheel = flywheel;
         this.drivetrain = drivetrainSubsystem;
         addRequirements(this.flywheel);

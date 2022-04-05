@@ -69,8 +69,8 @@ public final class Constants {
     public static final double LIMELIGHT_P = 0.12;
     public static final double LIMELIGHT_I = 0.0;
     public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = .8;
-    public static final double LIMELIGHT_SLOPE = 23.08;
-    public static final double LIMELIGHT_Y_COMPONENT = 4596.34;
+    public static final double LIMELIGHT_SLOPE = 25.08;
+    public static final double LIMELIGHT_Y_COMPONENT = 4596.34;//4596.34
   }
 
   public static final class CollectorConstants {
@@ -118,7 +118,7 @@ public final class Constants {
     public final static int MAX_FLYWHEEL_VELOCITY = 18650;
     public static final int WALL_SHOT_VELOCITY = 7382; // FIXME tune this
     public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
-    public static final int LAUNCH_PAD_VELOCITY = 7982; // FIXME tune this
+    public static final int LAUNCH_PAD_VELOCITY = 8182; // FIXME tune this
     public static final int SHOOT_SLOW_VELOCITY = 4000; // FIXME tune this
     public static final int SHOT_VELOCITY_DIP = 500;  // FIXME: tune this
     public static final double REVERSE_POWER = -0.2; // FIXME: tune this

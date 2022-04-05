@@ -434,6 +434,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 return NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
            }
 
+        public boolean isLimelightTargetVisible() {
+                return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0) == 1;
+        }
+
         public double getLimelightDistanceIn() {
                 double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0.0);
 
@@ -462,20 +466,34 @@ public class DrivetrainSubsystem extends SubsystemBase {
         //      are radians/second. This method should, but currently does not, clamp the output to
         //      MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND.
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
-                // FIXME: tune the feed forward to be in units of radian/sec; It should be multiplied by 2.8414942696
+                // LIMELIGHT_F is specified in units of radians/second
+                // FIXME: try new feed forward values now that clamping code is fixed
                 if (rotationSupplier > 0) {     // clockwise
-                        rotationSupplier += LIMELIGHT_F;
+                        rotationSupplier += LIMELIGHT_F; // * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
                 }
                 else if (rotationSupplier < 0) {  // counterclockwise
-                        rotationSupplier -= LIMELIGHT_F;
+                        rotationSupplier -= LIMELIGHT_F; // * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
+
+                // clamp the rotation to MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+                // FIXME: enable clamping after testing in controlled environment
+                /*
+                if(rotationSupplier > MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND) {
+                        rotationSupplier = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+                }
+                else if(rotationSupplier < -MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND) {
+                        rotationSupplier = -MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+                }
+                */
 
                 drive(translationXSupplier, translationYSupplier, rotationSupplier);
 
         }
 
         public boolean isAimed() {
-                if(Math.abs(0.0 - getLimelightX()) < LIMELIGHT_ALIGNMENT_TOLERANCE){
+                // Always return false if no target is visible to the Limelight. If this happens, the driver has to cancel the aim
+                //      and move to a new location, or the operator has to manually enable the storage to shoot.
+                if(isLimelightTargetVisible() && Math.abs(0.0 - getLimelightX()) < LIMELIGHT_ALIGNMENT_TOLERANCE){
                         aimSetpointCount++;
                         if(aimSetpointCount >= 5){
                                 return true;
