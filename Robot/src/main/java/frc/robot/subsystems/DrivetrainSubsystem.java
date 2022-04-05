@@ -459,21 +459,25 @@ public class DrivetrainSubsystem extends SubsystemBase {
         //      are radians/second. This method should, but currently does not, clamp the output to
         //      MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND.
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
-                // LIMELIGHT_F is specified as fraction of MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+                // LIMELIGHT_F is specified in units of radians/second
+                // FIXME: try new feed forward values now that clamping code is fixed
                 if (rotationSupplier > 0) {     // clockwise
-                        rotationSupplier += LIMELIGHT_F;
+                        rotationSupplier += LIMELIGHT_F; // * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
                 }
                 else if (rotationSupplier < 0) {  // counterclockwise
-                        rotationSupplier -= LIMELIGHT_F;
+                        rotationSupplier -= LIMELIGHT_F; // * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
 
                 // clamp the rotation to MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+                // FIXME: enable clamping after testing in controlled environment
+                /*
                 if(rotationSupplier > MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND) {
                         rotationSupplier = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
-                else if(rotationSupplier < MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND) {
+                else if(rotationSupplier < -MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND) {
                         rotationSupplier = -MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
+                */
 
                 drive(translationXSupplier, translationYSupplier, rotationSupplier);
 
