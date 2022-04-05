@@ -43,7 +43,6 @@ public class Elevator extends SubsystemBase {
     private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
     private double encoderPositionSetpoint;
     private boolean isElevatorControlEnabled;
-    private double maxPitch;
     private double runningAverage;
     private int runningAverageSamples;
 
@@ -139,7 +138,6 @@ public class Elevator extends SubsystemBase {
         //if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Elevator").add("elevator", this);
             Shuffleboard.getTab("Elevator").addBoolean("Elevator At Setpoint", this::atSetpoint);
-            Shuffleboard.getTab("Elevator").addBoolean("Contact Under Rung", this::isContactingUnderRung);
             Shuffleboard.getTab("Elevator").addBoolean("Transfer to Secondary", this::hasTransferredToSecondary);
             Shuffleboard.getTab("Elevator").addBoolean("Approaching Next Rung", this::isApproachingNextRung);
             Shuffleboard.getTab("Elevator").addBoolean("Above Next Rung", this::isAboveNextRung);
@@ -147,7 +145,6 @@ public class Elevator extends SubsystemBase {
             Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
             Shuffleboard.getTab("Elevator").addNumber("Running Average", this::getRunningAverage);
             Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight); 
-            Shuffleboard.getTab("Elevator").addNumber("Max Pitch", () -> this.maxPitch);       
             //Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this::getSetpoint);
             //Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error", this.rightElevatorMotor::getClosedLoopError);
             //Shuffleboard.getTab("Elevator").addNumber("Velocity", this.rightElevatorMotor::getSelectedSensorVelocity);
@@ -350,25 +347,6 @@ public class Elevator extends SubsystemBase {
     public void stopElevator() {
         this.leftElevatorMotor.set(ControlMode.PercentOutput, 0.0);
         this.rightElevatorMotor.set(ControlMode.PercentOutput, 0.0);
-    }
-
-    public boolean isContactingUnderRung() {
-        double pitch =  m_pigeon.getPitch();
-        
-        // if the elevator has made contact with the next rung and isn't yet to the setpoint
-        if(getElevatorEncoderHeight() > NEXT_RUNG_HEIGHT && !atSetpoint()) {
-            if(pitch > this.maxPitch) {
-                this.maxPitch = pitch;
-            }
-        }
-        else if (atSetpoint()) {
-            return Math.abs(this.maxPitch - pitch) < PITCH_TOLERANCE;
-        }
-        else {
-            this.maxPitch = Double.NEGATIVE_INFINITY;
-        }
-
-        return false;
     }
 
     public boolean isBelowNextRung() {
