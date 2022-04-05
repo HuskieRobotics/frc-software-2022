@@ -8,6 +8,7 @@ import frc.robot.subsystems.SecondaryArm;
 public class ReachToNextRungWithPitchCommand extends CommandBase {
     private final Elevator m_elevator;
     private final SecondaryArm m_secondMechanism;
+    private boolean startedFinalExtension;
 
     public ReachToNextRungWithPitchCommand(Elevator elevator, SecondaryArm secondaryArm) {
         m_elevator = elevator;
@@ -18,6 +19,7 @@ public class ReachToNextRungWithPitchCommand extends CommandBase {
 
     @Override
     public void initialize() {
+        this.startedFinalExtension = false;
     }
 
     @Override
@@ -30,10 +32,11 @@ public class ReachToNextRungWithPitchCommand extends CommandBase {
         }
 
         if(m_elevator.isApproachingNextRung()) {
-            if(m_elevator.isBelowNextRung()) {
+            if(m_elevator.isNearLocalMinimum()) {
+                this.startedFinalExtension = true;
                 m_elevator.setElevatorMotorPosition(ElevatorConstants.REACH_TO_NEXT_RUNG_HEIGHT, true);
             }
-            else {
+            else if(!this.startedFinalExtension) {
                 m_elevator.stopElevator();
             }
         }

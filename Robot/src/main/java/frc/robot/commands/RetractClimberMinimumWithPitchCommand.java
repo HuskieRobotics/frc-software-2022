@@ -19,11 +19,8 @@ public class RetractClimberMinimumWithPitchCommand extends CommandBase {
 
     @Override
     public void execute() {
-        if(m_elevator.isAboveNextRung()) {
+        if(m_elevator.isNearLocalMaximum()) {
             m_elevator.setElevatorMotorPosition(ElevatorConstants.MIN_DETACH_ENCODER_HEIGHT, true);
-        }
-        else {
-            m_elevator.stopElevator();
         }
     }
 
