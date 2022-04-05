@@ -295,7 +295,7 @@ public class RobotContainer {
             new ParallelCommandGroup(
                 new RetractClimberMinimumCommand(m_elevator),
                 new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism)),
-            new WaitCommand(5),
+            new WaitCommand(0),
             new RetractClimberFullCommand(m_elevator),
             new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
             new WaitCommand(0.5), // wait for secondary arm to be positioned
