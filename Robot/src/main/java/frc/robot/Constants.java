@@ -72,8 +72,8 @@ public final class Constants {
     public static final double LIMELIGHT_P = 0.12;
     public static final double LIMELIGHT_I = 0.0;
     public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = .8;
-    public static final double LIMELIGHT_SLOPE = 23.08;
-    public static final double LIMELIGHT_Y_COMPONENT = 4596.34;
+    public static final double LIMELIGHT_SLOPE = 25.08;
+    public static final double LIMELIGHT_Y_COMPONENT = 4596.34;//4596.34
   }
 
   public static final class CollectorConstants {
@@ -121,7 +121,7 @@ public final class Constants {
     public final static int MAX_FLYWHEEL_VELOCITY = 18650;
     public static final int WALL_SHOT_VELOCITY = 7382; // FIXME tune this
     public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
-    public static final int LAUNCH_PAD_VELOCITY = 7982; // FIXME tune this
+    public static final int LAUNCH_PAD_VELOCITY = 8182; // FIXME tune this
     public static final int SHOOT_SLOW_VELOCITY = 4000; // FIXME tune this
     public static final int SHOT_VELOCITY_DIP = 500;  // FIXME: tune this
     public static final double REVERSE_POWER = -0.2; // FIXME: tune this
@@ -189,13 +189,20 @@ public final class Constants {
 
   public static class ElevatorConstants {
 
-    public static final double MAX_ELEVATOR_HEIGHT = 283089;
-    public static final double MIN_DETACH_ENCODER_HEIGHT = 270000; // FIXME: set back to 0 or determine appropriate value after climber rebuild
     public static final double MIN_ELEVATOR_ENCODER_HEIGHT = 0;
+    public static final double TRANSFER_TO_SECONDARY_HEIGHT = 25150;
+    public static final double LOW_RUNG_HEIGHT = 150786;
+    public static final double REACH_JUST_BEFORE_NEXT_RUNG = 219680;
     public static final double MID_RUNG_HEIGHT = 277129;
-    public static final double REACH_TO_NEXT_RUNG_HEIGHT = 0; //    // FIXME: not sure if this is needed; use MAX_ELEVATOR_HEIGHT?
-    public static final double PITCH_SETPOINT = 0;    // FIXME
-    public static final double PITCH_TOLERANCE = 0;   // FIXME
+    public static final double NEXT_RUNG_HEIGHT = 227499; 
+    public static final double REACH_TO_NEXT_RUNG_HEIGHT = 279733;//269733; // 284066; //   // FIXME: not sure if this is needed; use MAX_ELEVATOR_HEIGHT?
+    public static final double MIN_DETACH_ENCODER_HEIGHT = 220000; // FIXME: set back to 0 or determine appropriate value after climber rebuild
+    public static final double MAX_ELEVATOR_HEIGHT = 284089;
+    
+    public static final double PITCH_TOLERANCE = 0.25;  // FIXME: tune
+    public static final double PITCH_WHEN_BELOW_NEXT_RUNG = 0;    // FIXME: tune
+    public static final double PITCH_WHEN_BELOW_NEXT_RUNG_TOLERANCE = 0.25;    // FIXME: tune
+    
     public static final int ELEVATOR_POSITION_TOLERANCE = 500;
     public static final double ARBITRARY_FEED_FORWARD_EXTEND = .02;
     public static final double ARBITRARY_FEED_FORWARD_RETRACT = -0.07;
@@ -206,6 +213,7 @@ public final class Constants {
     public static final int kTimeoutMs = 30;
     public static final Gains GAINS_POSITION = new Gains(0.4 /* kP */, 0 /* kI */, 0 /* kD */, 0 /* kF */,
         0 /* kIZone */, 1.00 /* max output */);
+    public static final double SLOW_PEAK_OUTPUT = 0.15; // FIXME: tune this
     public static final double MAX_ELEVATOR_VELOCITY = 20000; // theoretical maximum 21305
     public static final double ELEVATOR_ACCELERATION = MAX_ELEVATOR_VELOCITY * 10;
     public static final int SCURVE_STRENGTH = 0;
