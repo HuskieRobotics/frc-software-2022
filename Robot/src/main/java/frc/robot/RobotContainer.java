@@ -133,8 +133,10 @@ public class RobotContainer {
 
     configureAutoCommands();
 
-    Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(m_elevator, m_secondMechanism));
-    Shuffleboard.getTab("Elevator").add("Extend Before Next", new ExtendClimberBeforeNextRungCommand(m_elevator, m_secondMechanism));
+    if(TUNING) {
+      Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(m_elevator, m_secondMechanism));
+      Shuffleboard.getTab("Elevator").add("Extend Before Next", new ExtendClimberBeforeNextRungCommand(m_elevator, m_secondMechanism));
+    }
             
 
     if (COMMAND_LOGGING) {
@@ -303,7 +305,6 @@ public class RobotContainer {
             new ParallelCommandGroup(
                 new RetractClimberMinimumCommand(m_elevator),
                 new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism)),
-            new WaitCommand(0),
             new RetractClimberFullCommand(m_elevator),
             new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
             new WaitCommand(0.5), // wait for secondary arm to be positioned
