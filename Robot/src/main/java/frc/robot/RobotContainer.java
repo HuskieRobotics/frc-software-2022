@@ -277,7 +277,7 @@ public class RobotContainer {
 
         operatorButtons[JoystickConstants.SHOOT_SLOW].whenReleased(
           new ParallelCommandGroup(
-            new SortStorageCommand(m_storage),
+            new InstantCommand(()-> m_storage.disableStorage(), m_storage),
             new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel)
             ));
     
