@@ -48,6 +48,7 @@ public class Elevator extends SubsystemBase {
     private double prevPitch;
     private double[] latestPitches;
     private int latestPitchesIndex;
+    private int SAMPLE_WINDOW_WIDTH = 10;   // FIXME: make a constant after tuning
 
     public Elevator() {
 
@@ -150,6 +151,8 @@ public class Elevator extends SubsystemBase {
             Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
             Shuffleboard.getTab("Elevator").addNumber("Running Average", this::getPitchRunningAverage);
             Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight); 
+            Shuffleboard.getTab("Elevator").addBoolean("Near Local Min", this::isNearLocalMinimum);
+            Shuffleboard.getTab("Elevator").addBoolean("Near Local Max", this::isNearLocalMaximum);
             //Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this::getSetpoint);
             //Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error", this.rightElevatorMotor::getClosedLoopError);
             //Shuffleboard.getTab("Elevator").addNumber("Velocity", this.rightElevatorMotor::getSelectedSensorVelocity);
@@ -161,6 +164,15 @@ public class Elevator extends SubsystemBase {
             Shuffleboard.getTab("Elevator").addBoolean("isElevatorControl Enabled", this :: isElevatorControlEnabled);
             
         //}
+
+        Shuffleboard.getTab("Elevator")
+                    .add("sample window", this.SAMPLE_WINDOW_WIDTH)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 50)) // specify widget properties here
+                    .getEntry()
+                    .addListener(event -> {
+                        this.SAMPLE_WINDOW_WIDTH = (int)(event.getEntry().getValue().getDouble());
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
         if (TUNING) {
             this.isElevatorControlEnabled = true;
@@ -381,6 +393,63 @@ public class Elevator extends SubsystemBase {
         }
 
         return false;
+    }
+
+    public boolean isNearLocalMinimum() {
+        // check for a local minimum 2/3 through the sample window
+        //  (latestPitchesIndex is the index where the *next* pitch will be stored)
+        int potentialLocalMinIndex = (this.latestPitchesIndex - 1) - (SAMPLE_WINDOW_WIDTH / 3);
+
+        // there is a potential to end up with a negative index; wrap around as necessary
+        potentialLocalMinIndex = (potentialLocalMinIndex + this.latestPitches.length) % this.latestPitches.length;
+
+        // check if all of the samples before and after the potential local min are greater than the potential local min
+
+        double potentialLocalMin = this.latestPitches[potentialLocalMinIndex];
+
+        int minIndex = this.latestPitchesIndex - SAMPLE_WINDOW_WIDTH;
+        minIndex = (minIndex + this.latestPitches.length) % this.latestPitches.length; // handle wrap around
+
+        boolean isLocalMin = true;
+        for(int i = 0; i < SAMPLE_WINDOW_WIDTH; i++) {
+            int index = minIndex + i;
+            index = (index + this.latestPitches.length) % this.latestPitches.length; // handle wrap around
+            
+            if(this.latestPitches[index] < potentialLocalMin) {
+                isLocalMin = false;
+            }
+        }
+
+        return isLocalMin;
+    }
+
+    public boolean isNearLocalMaximum() {
+        // check for a local minimum 2/3 through the sample window
+        //  (latestPitchesIndex is the index where the *next* pitch will be stored)
+        int potentialLocalMaxIndex = (this.latestPitchesIndex - 1) - (SAMPLE_WINDOW_WIDTH / 3);
+
+        // there is a potential to end up with a negative index; wrap around as necessary
+        potentialLocalMaxIndex = (potentialLocalMaxIndex + this.latestPitches.length) % this.latestPitches.length;
+
+        // check if all of the samples before and after the potential local min are greater than the potential local min
+
+        double potentialLocalMax = this.latestPitches[potentialLocalMaxIndex];
+
+        int minIndex = this.latestPitchesIndex - SAMPLE_WINDOW_WIDTH;
+        minIndex = (minIndex + this.latestPitches.length) % this.latestPitches.length; // handle wrap around
+
+        boolean isLocalMax = true;
+        for(int i = 0; i < SAMPLE_WINDOW_WIDTH; i++) {
+            int index = minIndex + i;
+            index = (index + this.latestPitches.length) % this.latestPitches.length; // handle wrap around
+            
+            if(this.latestPitches[index] > potentialLocalMax) {
+                isLocalMax = false;
+            }
+        }
+
+        return isLocalMax;
+
     }
 
     public boolean hasTransferredToSecondary() {
