@@ -461,10 +461,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
                 // LIMELIGHT_F is specified as fraction of MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
                 if (rotationSupplier > 0) {     // clockwise
-                        rotationSupplier += LIMELIGHT_F * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+                        rotationSupplier += LIMELIGHT_F;
                 }
                 else if (rotationSupplier < 0) {  // counterclockwise
-                        rotationSupplier -= LIMELIGHT_F * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+                        rotationSupplier -= LIMELIGHT_F;
                 }
 
                 // clamp the rotation to MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
