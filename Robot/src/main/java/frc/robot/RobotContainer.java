@@ -193,6 +193,7 @@ public class RobotContainer {
       new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
           new InstantCommand(()-> m_storage.disableStorage(), m_storage),
+          new InstantCommand(() -> m_collector.disableCollector(), m_collector),
           new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
 
     // Reset Gyro
@@ -223,10 +224,10 @@ public class RobotContainer {
                 new InstantCommand(() -> m_storage.disableStorage(), m_storage),
                 new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel)),
             new SequentialCommandGroup(
-                new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-                new SortStorageCommand(m_storage),
-                new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-                new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.LAUNCH_PAD_VELOCITY)),
+              new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+              new SortStorageCommand(m_storage),
+              new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+              new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.LAUNCH_PAD_VELOCITY)),
             m_collector::isEnabled));
 
     // unjam all
@@ -262,21 +263,28 @@ public class RobotContainer {
         
     //shoot slow
     operatorButtons[JoystickConstants.SHOOT_SLOW].whenPressed(
-      createShootCommandSequence(FlywheelConstants.SHOOT_SLOW_VELOCITY));
+      new SequentialCommandGroup(
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+          new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.SHOOT_SLOW_VELOCITY)),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
+
+        operatorButtons[JoystickConstants.SHOOT_SLOW].whenReleased(
+          new ParallelCommandGroup(
+            new SortStorageCommand(m_storage),
+            new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel)
+            ));
     
     operatorButtons[JoystickConstants.SHOOT_LIMELIGHT].whenPressed(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
+          new InstantCommand(() -> m_collector.disableCollector(), m_collector),
           new LimelightSetFlywheelVelocityCommand(m_flywheel, m_drivetrainSubsystem),
           new SequentialCommandGroup (
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
             new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitForShotCommand(m_storage),
-        new ParallelCommandGroup(
-          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
-          new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem))));
+        new WaitForShotCommand(m_storage, m_flywheel, m_drivetrainSubsystem)));
   }
 
   private void configureClimberButtons() {
@@ -418,16 +426,13 @@ public class RobotContainer {
   private Command createShootCommandSequence(int shotVelocity) {
     return new SequentialCommandGroup(
         new ParallelCommandGroup(
+          new InstantCommand(() -> m_collector.disableCollector(), m_collector),
           new SetFlywheelVelocityCommand(m_flywheel, shotVelocity),
           new SequentialCommandGroup (
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
             new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitForShotCommand(m_storage),
-        new ParallelCommandGroup(
-          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
-          new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
+        new WaitForShotCommand(m_storage, m_flywheel, m_drivetrainSubsystem));
   }
 
   private Command createAutoShootCommandSequence(int shotVelocity, double shotDelay) {
