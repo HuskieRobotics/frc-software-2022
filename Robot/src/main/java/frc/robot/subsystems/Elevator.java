@@ -49,6 +49,7 @@ public class Elevator extends SubsystemBase {
     private double[] latestPitches;
     private int latestPitchesIndex;
     private int SAMPLE_WINDOW_WIDTH = 10;   // FIXME: make a constant after tuning
+    private double EPSILON = 0.001; // FIXME: make a constant after tuning
 
     public Elevator() {
 
@@ -415,7 +416,7 @@ public class Elevator extends SubsystemBase {
             int index = minIndex + i;
             index = (index + this.latestPitches.length) % this.latestPitches.length; // handle wrap around
             
-            if(this.latestPitches[index] < potentialLocalMin) {
+            if(this.latestPitches[index] + EPSILON < potentialLocalMin) {
                 isLocalMin = false;
             }
         }
@@ -443,7 +444,7 @@ public class Elevator extends SubsystemBase {
             int index = minIndex + i;
             index = (index + this.latestPitches.length) % this.latestPitches.length; // handle wrap around
             
-            if(this.latestPitches[index] > potentialLocalMax) {
+            if(this.latestPitches[index] - EPSILON > potentialLocalMax) {
                 isLocalMax = false;
             }
         }
