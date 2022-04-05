@@ -136,12 +136,14 @@ public class Elevator extends SubsystemBase {
 		this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, kTimeoutMs);
         this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, kTimeoutMs);
 
-        if(COMMAND_LOGGING) {
+        //if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Elevator").add("elevator", this);
             Shuffleboard.getTab("Elevator").addBoolean("Elevator At Setpoint", this::atSetpoint);
             Shuffleboard.getTab("Elevator").addBoolean("Contact Under Rung", this::isContactingUnderRung);
             Shuffleboard.getTab("Elevator").addBoolean("Transfer to Secondary", this::hasTransferredToSecondary);
             Shuffleboard.getTab("Elevator").addBoolean("Approaching Next Rung", this::isApproachingNextRung);
+            Shuffleboard.getTab("Elevator").addBoolean("Above Next Rung", this::isAboveNextRung);
+            Shuffleboard.getTab("Elevator").addBoolean("Below Next Rung", this::isBelowNextRung);
             Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
             Shuffleboard.getTab("Elevator").addNumber("Running Average", this::getRunningAverage);
             Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight); 
@@ -156,7 +158,7 @@ public class Elevator extends SubsystemBase {
             Shuffleboard.getTab("Elevator").add("Retract Climber Minimum", new RetractClimberMinimumCommand(this));
             Shuffleboard.getTab("Elevator").addBoolean("isElevatorControl Enabled", this :: isElevatorControlEnabled);
             
-        }
+        //}
 
         if (TUNING) {
             this.isElevatorControlEnabled = true;
@@ -364,6 +366,24 @@ public class Elevator extends SubsystemBase {
         }
         else {
             this.maxPitch = Double.NEGATIVE_INFINITY;
+        }
+
+        return false;
+    }
+
+    public boolean isBelowNextRung() {
+        double pitch =  m_pigeon.getPitch();
+        if(pitch < this.getRunningAverage()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean isAboveNextRung() {
+        double pitch =  m_pigeon.getPitch();
+        if(pitch > this.getRunningAverage()) {
+            return true;
         }
 
         return false;
