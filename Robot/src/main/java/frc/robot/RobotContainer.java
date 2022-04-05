@@ -279,7 +279,7 @@ public class RobotContainer {
       new SequentialCommandGroup(
         new ParallelCommandGroup(
           new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-          new LimelightSetFlywheelVelocity(m_flywheel, m_drivetrainSubsystem),
+          new LimelightSetFlywheelVelocityCommand(m_flywheel, m_drivetrainSubsystem),
           new SequentialCommandGroup (
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
             new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
