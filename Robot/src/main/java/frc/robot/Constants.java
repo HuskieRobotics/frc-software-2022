@@ -17,7 +17,8 @@ public final class Constants {
 
   public static final boolean TUNING = false;
   public static final boolean COMMAND_LOGGING = false;
-  public static final double BROWNOUT_VOLTAGE_LIMIT = 7.0; // volts; FIXME: tune this as this may be too high, 6.5?
+  public static final double BROWNOUT_VOLTAGE_LIMIT = 7.5; // volts; FIXME: tune this as this may be too high, 6.5?
+  public static final int LIMIT_CURRENT_DRAW_PERIOD = 50; // FIXME: tune
 
   /* DRIVETRAIN CONSTANTS */
 

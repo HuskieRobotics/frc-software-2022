@@ -110,6 +110,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         private PowerDistribution powerDistribution;
         private boolean limitCurrentDraw;
+        private int limitCurrentDrawCount;
 
         private boolean stackTraceLogging;
 
@@ -122,6 +123,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
                 this.powerDistribution = new PowerDistribution(21, ModuleType.kRev);
                 this.limitCurrentDraw = false;
+                this.limitCurrentDrawCount = LIMIT_CURRENT_DRAW_PERIOD;
 
                 this.zeroGyroscope();
                 //this.m_pigeon.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_6_SensorFusion, 255, TIMEOUT_MS);
@@ -329,6 +331,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 // a better approach may be to monitor the current draw of all 8 motors and trigger the limit based on that
                 if(powerDistribution.getVoltage() <= BROWNOUT_VOLTAGE_LIMIT) {
                         this.limitCurrentDraw = true;
+                        this.limitCurrentDrawCount = 0;
+                }
+                else if(this.limitCurrentDrawCount < LIMIT_CURRENT_DRAW_PERIOD) {
+                        this.limitCurrentDrawCount++;
                 }
                 else {
                         this.limitCurrentDraw = false;
