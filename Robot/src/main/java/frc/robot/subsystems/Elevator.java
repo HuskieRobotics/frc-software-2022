@@ -43,8 +43,9 @@ public class Elevator extends SubsystemBase {
     private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
     private double encoderPositionSetpoint;
     private boolean isElevatorControlEnabled;
-    private double runningAverage;
-    private int runningAverageSamples;
+    private double pitchRunningAverage;
+    private int pitchRunningAverageSamples;
+    private double prevPitch;
 
     public Elevator() {
 
@@ -143,7 +144,7 @@ public class Elevator extends SubsystemBase {
             Shuffleboard.getTab("Elevator").addBoolean("Above Next Rung", this::isAboveNextRung);
             Shuffleboard.getTab("Elevator").addBoolean("Below Next Rung", this::isBelowNextRung);
             Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
-            Shuffleboard.getTab("Elevator").addNumber("Running Average", this::getRunningAverage);
+            Shuffleboard.getTab("Elevator").addNumber("Running Average", this::getPitchRunningAverage);
             Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight); 
             //Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this::getSetpoint);
             //Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error", this.rightElevatorMotor::getClosedLoopError);
@@ -247,14 +248,14 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         // This method will be called once per scheduler run
         double height = this.getElevatorEncoderHeight();
-        if(height > TRANSFER_TO_SECONDARY_HEIGHT && height < REACH_TO_NEXT_RUNG_HEIGHT) {
-            double average = this.runningAverage * this.runningAverageSamples;
+        if(height > TRANSFER_TO_SECONDARY_HEIGHT && height < REACH_JUST_BEFORE_NEXT_RUNG) {
+            double average = this.pitchRunningAverage * this.pitchRunningAverageSamples;
             average += m_pigeon.getPitch();
-            this.runningAverageSamples++;
-            this.runningAverage /= this.runningAverageSamples;
+            this.pitchRunningAverageSamples++;
+            this.pitchRunningAverage /= this.pitchRunningAverageSamples;
         }
         else {
-            this.resetRunningAverage();
+            this.resetPitchRunningAverage();
         }
         
         if (TUNING) {
@@ -275,13 +276,13 @@ public class Elevator extends SubsystemBase {
 
     }
 
-    public double getRunningAverage() {
-        return this.runningAverage;
+    public double getPitchRunningAverage() {
+        return this.pitchRunningAverage;
     }
 
-    public void resetRunningAverage() {
-        this.runningAverage = 0.0;
-        this.runningAverageSamples = 0;
+    public void resetPitchRunningAverage() {
+        this.pitchRunningAverage = 0.0;
+        this.pitchRunningAverageSamples = 0;
     }
 
     // Put methods for controlling this subsystem
@@ -351,7 +352,7 @@ public class Elevator extends SubsystemBase {
 
     public boolean isBelowNextRung() {
         double pitch =  m_pigeon.getPitch();
-        if(pitch < this.getRunningAverage()) {
+        if(pitch < this.getPitchRunningAverage()) {
             return true;
         }
 
@@ -360,7 +361,7 @@ public class Elevator extends SubsystemBase {
 
     public boolean isAboveNextRung() {
         double pitch =  m_pigeon.getPitch();
-        if(pitch > this.getRunningAverage()) {
+        if(pitch > this.getPitchRunningAverage()) {
             return true;
         }
 
