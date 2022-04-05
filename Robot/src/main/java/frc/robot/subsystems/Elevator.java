@@ -46,8 +46,12 @@ public class Elevator extends SubsystemBase {
     private double pitchRunningAverage;
     private int pitchRunningAverageSamples;
     private double prevPitch;
+    private double[] latestPitches;
+    private int latestPitchesIndex;
 
     public Elevator() {
+
+        this.latestPitches = new double[100];
 
         this.leftElevatorMotor = new WPI_TalonFX(LEFT_ELEVATOR_MOTOR_CAN_ID);
         this.rightElevatorMotor = new WPI_TalonFX(RIGHT_ELEVATOR_MOTOR_CAN_ID);
@@ -247,10 +251,21 @@ public class Elevator extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
+        double pitch = m_pigeon.getPitch();
+        
+        // keep the last 100 unique pitches (2 seconds of data)
+        if(pitch != this.prevPitch) {
+            this.prevPitch = pitch;
+            this.latestPitches[this.latestPitchesIndex] = pitch;
+            this.latestPitchesIndex++;
+            this.latestPitchesIndex %= this.latestPitches.length;
+        }
+
+        // keep a running average while approaching the next rung
         double height = this.getElevatorEncoderHeight();
         if(height > TRANSFER_TO_SECONDARY_HEIGHT && height < REACH_JUST_BEFORE_NEXT_RUNG) {
             double average = this.pitchRunningAverage * this.pitchRunningAverageSamples;
-            average += m_pigeon.getPitch();
+            average += pitch;
             this.pitchRunningAverageSamples++;
             this.pitchRunningAverage /= this.pitchRunningAverageSamples;
         }
