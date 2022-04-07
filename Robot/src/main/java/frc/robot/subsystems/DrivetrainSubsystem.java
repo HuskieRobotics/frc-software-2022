@@ -215,6 +215,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
+                Shuffleboard.getTab("MAIN").addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                 
                 if(COMMAND_LOGGING) {
                         Shuffleboard.getTab("Shooter").addNumber("Limelight Dist", () -> getLimelightDistanceIn());
