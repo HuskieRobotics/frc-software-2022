@@ -359,7 +359,15 @@ public class RobotContainer {
             new InstantCommand(() -> m_elevator.disableElevatorControl(), m_elevator),
             new InstantCommand(() -> m_elevator.enableElevatorControl(), m_elevator),
             m_elevator::isElevatorControlEnabled));
+  
+    operatorButtons[JoystickConstants.SECONDARY].toggleWhenPressed(
+        new ConditionalCommand(
+          new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut()),
+          new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
+          m_secondMechanism::isIn));
+        
   }
+
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.

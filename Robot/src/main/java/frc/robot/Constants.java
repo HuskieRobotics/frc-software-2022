@@ -239,7 +239,7 @@ public final class Constants {
     public static final int FENDER = 9;
     public static final int FIELD_WALL = 6;
     public static final int LAUNCHPAD = 5;
-    public static final int TARMAC = 4;
+    public static final int SECONDARY = 4;
     public static final int SHOOT_LIMELIGHT = 3;
     public static final int SHOOT_SLOW = 10;
     public static final int UNASSIGNED = 11;
