@@ -48,7 +48,7 @@ public class Elevator extends SubsystemBase {
     private double prevPitch;
     private double[] latestPitches;
     private int latestPitchesIndex;
-    private int SAMPLE_WINDOW_WIDTH = 10;   // FIXME: make a constant after tuning
+    private int SAMPLE_WINDOW_WIDTH = 6;   // FIXME: make a constant after tuning
     private double EPSILON = 0.001; // FIXME: make a constant after tuning
 
     public Elevator() {
