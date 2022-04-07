@@ -142,7 +142,7 @@ public class Elevator extends SubsystemBase {
 		this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, kTimeoutMs);
         this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, kTimeoutMs);
 
-        //if(COMMAND_LOGGING) {
+        if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Elevator").add("elevator", this);
             Shuffleboard.getTab("Elevator").addBoolean("Elevator At Setpoint", this::atSetpoint);
             Shuffleboard.getTab("Elevator").addBoolean("Transfer to Secondary", this::hasTransferredToSecondary);
@@ -164,8 +164,8 @@ public class Elevator extends SubsystemBase {
             Shuffleboard.getTab("Elevator").add("Retract Climber Minimum", new RetractClimberMinimumCommand(this));
             Shuffleboard.getTab("Elevator").addBoolean("isElevatorControl Enabled", this :: isElevatorControlEnabled);
             
-        //}
-
+        }
+/*
         Shuffleboard.getTab("Elevator")
                     .add("sample window", this.SAMPLE_WINDOW_WIDTH)
                     .withWidget(BuiltInWidgets.kNumberSlider)
@@ -174,7 +174,7 @@ public class Elevator extends SubsystemBase {
                     .addListener(event -> {
                         this.SAMPLE_WINDOW_WIDTH = (int)(event.getEntry().getValue().getDouble());
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-
+*/
         if (TUNING) {
             this.isElevatorControlEnabled = true;
 

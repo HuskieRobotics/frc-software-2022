@@ -21,8 +21,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -108,10 +106,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
         private int aimSetpointCount;
         private double lastLimelightDistance;
 
-        private PowerDistribution powerDistribution;
-        private boolean limitCurrentDraw;
-        private int limitCurrentDrawCount;
-
         private boolean stackTraceLogging;
 
         public DrivetrainSubsystem() {
@@ -120,10 +114,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.isFieldRelative = false;
                 this.isXstance = false;
                 // this.m_robotCenter = new Translation2d(0,0);
-
-                this.powerDistribution = new PowerDistribution(21, ModuleType.kRev);
-                this.limitCurrentDraw = false;
-                this.limitCurrentDrawCount = LIMIT_CURRENT_DRAW_PERIOD;
 
                 this.zeroGyroscope();
                 //this.m_pigeon.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_6_SensorFusion, 255, TIMEOUT_MS);
@@ -204,7 +194,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts,
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
-                tabMain.addBoolean("Current Limiting", () -> this.limitCurrentDraw);
                 tabMain.addNumber("Limelight Vel", () -> getVelocityFromLimelight());
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
@@ -215,7 +204,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
-                Shuffleboard.getTab("MAIN").addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                 
                 if(COMMAND_LOGGING) {
                         Shuffleboard.getTab("Shooter").addNumber("Limelight Dist", () -> getLimelightDistanceIn());
@@ -294,20 +282,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds, centerGravity);
 
                 logStates(states);
-
-                // if the robot is close to a brownout condition, limit the motor power
-                double maxVoltage = MAX_VOLTAGE;
-                if(this.limitCurrentDraw) {
-                        maxVoltage *= CURRENT_LIMIT_FACTOR;
-                }
-
-                m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * maxVoltage,
+                m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[0].angle.getRadians());
-                m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * maxVoltage,
+                m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[1].angle.getRadians());
-                m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * maxVoltage,
+                m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[2].angle.getRadians());
-                m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * maxVoltage,
+                m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[3].angle.getRadians());
         }}
 
@@ -328,18 +309,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                                 new Rotation2d(m_backLeftModule.getSteerAngle())),
                                 new SwerveModuleState(m_backRightModule.getDriveVelocity(),
                                                 new Rotation2d(m_backRightModule.getSteerAngle())));
-
-                // a better approach may be to monitor the current draw of all 8 motors and trigger the limit based on that
-                if(powerDistribution.getVoltage() <= BROWNOUT_VOLTAGE_LIMIT) {
-                        this.limitCurrentDraw = true;
-                        this.limitCurrentDrawCount = 0;
-                }
-                else if(this.limitCurrentDrawCount < LIMIT_CURRENT_DRAW_PERIOD) {
-                        this.limitCurrentDrawCount++;
-                }
-                else {
-                        this.limitCurrentDraw = false;
-                }
         }
 
         public void setSwerveModuleStates(SwerveModuleState[] states) {
