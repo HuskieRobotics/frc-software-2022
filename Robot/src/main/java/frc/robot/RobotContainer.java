@@ -274,13 +274,8 @@ public class RobotContainer {
         new ParallelCommandGroup(
           new InstantCommand(() -> m_collector.disableCollector(), m_collector),
           new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.SHOOT_SLOW_VELOCITY)),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
-
-        operatorButtons[JoystickConstants.SHOOT_SLOW].whenReleased(
-          new ParallelCommandGroup(
-            new SortStorageCommand(m_storage),
-            new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel)
-            ));
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitForShotCommand(m_storage, m_flywheel, m_drivetrainSubsystem)));
     
     operatorButtons[JoystickConstants.SHOOT_LIMELIGHT].whenPressed(
       new SequentialCommandGroup(
