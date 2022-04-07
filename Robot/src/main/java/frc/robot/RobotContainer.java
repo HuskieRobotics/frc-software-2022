@@ -304,7 +304,8 @@ public class RobotContainer {
             new RetractClimberFullCommand(m_elevator),
             new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
             new WaitCommand(0.5), // wait for secondary arm to be positioned
-            new ReachBeforeNextRungCommand(m_elevator, m_secondMechanism)));
+            new ReachToNextRungWithPitchCommand(m_elevator, m_secondMechanism),
+            new RetractClimberMinimumWithPitchCommand(m_elevator)));
 
     // configure climb to 3 (high) rung climb sequence
     operatorButtons[7].whenPressed(

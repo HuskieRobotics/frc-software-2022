@@ -43,11 +43,17 @@ public class Elevator extends SubsystemBase {
     private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
     private double encoderPositionSetpoint;
     private boolean isElevatorControlEnabled;
-    private double maxPitch;
-    private double runningAverage;
-    private int runningAverageSamples;
+    private double pitchRunningAverage;
+    private int pitchRunningAverageSamples;
+    private double prevPitch;
+    private double[] latestPitches;
+    private int latestPitchesIndex;
+    private int SAMPLE_WINDOW_WIDTH = 10;   // FIXME: make a constant after tuning
+    private double EPSILON = 0.001; // FIXME: make a constant after tuning
 
     public Elevator() {
+
+        this.latestPitches = new double[100];
 
         this.leftElevatorMotor = new WPI_TalonFX(LEFT_ELEVATOR_MOTOR_CAN_ID);
         this.rightElevatorMotor = new WPI_TalonFX(RIGHT_ELEVATOR_MOTOR_CAN_ID);
@@ -136,16 +142,18 @@ public class Elevator extends SubsystemBase {
 		this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, kTimeoutMs);
         this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, kTimeoutMs);
 
-        if(COMMAND_LOGGING) {
+        //if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Elevator").add("elevator", this);
             Shuffleboard.getTab("Elevator").addBoolean("Elevator At Setpoint", this::atSetpoint);
-            Shuffleboard.getTab("Elevator").addBoolean("Contact Under Rung", this::isContactingUnderRung);
             Shuffleboard.getTab("Elevator").addBoolean("Transfer to Secondary", this::hasTransferredToSecondary);
             Shuffleboard.getTab("Elevator").addBoolean("Approaching Next Rung", this::isApproachingNextRung);
+            Shuffleboard.getTab("Elevator").addBoolean("Above Next Rung", this::isAboveNextRung);
+            Shuffleboard.getTab("Elevator").addBoolean("Below Next Rung", this::isBelowNextRung);
             Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
-            Shuffleboard.getTab("Elevator").addNumber("Running Average", this::getRunningAverage);
+            Shuffleboard.getTab("Elevator").addNumber("Running Average", this::getPitchRunningAverage);
             Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight); 
-            Shuffleboard.getTab("Elevator").addNumber("Max Pitch", () -> this.maxPitch);       
+            Shuffleboard.getTab("Elevator").addBoolean("Near Local Min", this::isNearLocalMinimum);
+            Shuffleboard.getTab("Elevator").addBoolean("Near Local Max", this::isNearLocalMaximum);
             //Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this::getSetpoint);
             //Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error", this.rightElevatorMotor::getClosedLoopError);
             //Shuffleboard.getTab("Elevator").addNumber("Velocity", this.rightElevatorMotor::getSelectedSensorVelocity);
@@ -156,7 +164,16 @@ public class Elevator extends SubsystemBase {
             Shuffleboard.getTab("Elevator").add("Retract Climber Minimum", new RetractClimberMinimumCommand(this));
             Shuffleboard.getTab("Elevator").addBoolean("isElevatorControl Enabled", this :: isElevatorControlEnabled);
             
-        }
+        //}
+
+        Shuffleboard.getTab("Elevator")
+                    .add("sample window", this.SAMPLE_WINDOW_WIDTH)
+                    .withWidget(BuiltInWidgets.kNumberSlider)
+                    .withProperties(Map.of("min", 0, "max", 50)) // specify widget properties here
+                    .getEntry()
+                    .addListener(event -> {
+                        this.SAMPLE_WINDOW_WIDTH = (int)(event.getEntry().getValue().getDouble());
+                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
         if (TUNING) {
             this.isElevatorControlEnabled = true;
@@ -247,15 +264,26 @@ public class Elevator extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
+        double pitch = m_pigeon.getPitch();
+        
+        // keep the last 100 unique pitches (2 seconds of data)
+        if(pitch != this.prevPitch) {
+            this.prevPitch = pitch;
+            this.latestPitches[this.latestPitchesIndex] = pitch;
+            this.latestPitchesIndex++;
+            this.latestPitchesIndex %= this.latestPitches.length;
+        }
+
+        // keep a running average while approaching the next rung
         double height = this.getElevatorEncoderHeight();
-        if(height > TRANSFER_TO_SECONDARY_HEIGHT && height < REACH_TO_NEXT_RUNG_HEIGHT) {
-            double average = this.runningAverage * this.runningAverageSamples;
-            average += m_pigeon.getPitch();
-            this.runningAverageSamples++;
-            this.runningAverage /= this.runningAverageSamples;
+        if(height > TRANSFER_TO_SECONDARY_HEIGHT && height < REACH_JUST_BEFORE_NEXT_RUNG) {
+            double average = this.pitchRunningAverage * this.pitchRunningAverageSamples;
+            average += pitch;
+            this.pitchRunningAverageSamples++;
+            this.pitchRunningAverage /= this.pitchRunningAverageSamples;
         }
         else {
-            this.resetRunningAverage();
+            this.resetPitchRunningAverage();
         }
         
         if (TUNING) {
@@ -276,13 +304,13 @@ public class Elevator extends SubsystemBase {
 
     }
 
-    public double getRunningAverage() {
-        return this.runningAverage;
+    public double getPitchRunningAverage() {
+        return this.pitchRunningAverage;
     }
 
-    public void resetRunningAverage() {
-        this.runningAverage = 0.0;
-        this.runningAverageSamples = 0;
+    public void resetPitchRunningAverage() {
+        this.pitchRunningAverage = 0.0;
+        this.pitchRunningAverageSamples = 0;
     }
 
     // Put methods for controlling this subsystem
@@ -350,23 +378,79 @@ public class Elevator extends SubsystemBase {
         this.rightElevatorMotor.set(ControlMode.PercentOutput, 0.0);
     }
 
-    public boolean isContactingUnderRung() {
+    public boolean isBelowNextRung() {
         double pitch =  m_pigeon.getPitch();
-        
-        // if the elevator has made contact with the next rung and isn't yet to the setpoint
-        if(getElevatorEncoderHeight() > NEXT_RUNG_HEIGHT && !atSetpoint()) {
-            if(pitch > this.maxPitch) {
-                this.maxPitch = pitch;
-            }
-        }
-        else if (atSetpoint()) {
-            return Math.abs(this.maxPitch - pitch) < PITCH_TOLERANCE;
-        }
-        else {
-            this.maxPitch = Double.NEGATIVE_INFINITY;
+        if(pitch < this.getPitchRunningAverage()) {
+            return true;
         }
 
         return false;
+    }
+
+    public boolean isAboveNextRung() {
+        double pitch =  m_pigeon.getPitch();
+        if(pitch > this.getPitchRunningAverage()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean isNearLocalMinimum() {
+        // check for a local minimum 2/3 through the sample window
+        //  (latestPitchesIndex is the index where the *next* pitch will be stored)
+        int potentialLocalMinIndex = (this.latestPitchesIndex - 1) - (SAMPLE_WINDOW_WIDTH / 3);
+
+        // there is a potential to end up with a negative index; wrap around as necessary
+        potentialLocalMinIndex = (potentialLocalMinIndex + this.latestPitches.length) % this.latestPitches.length;
+
+        // check if all of the samples before and after the potential local min are greater than the potential local min
+
+        double potentialLocalMin = this.latestPitches[potentialLocalMinIndex];
+
+        int minIndex = this.latestPitchesIndex - SAMPLE_WINDOW_WIDTH;
+        minIndex = (minIndex + this.latestPitches.length) % this.latestPitches.length; // handle wrap around
+
+        boolean isLocalMin = true;
+        for(int i = 0; i < SAMPLE_WINDOW_WIDTH; i++) {
+            int index = minIndex + i;
+            index = (index + this.latestPitches.length) % this.latestPitches.length; // handle wrap around
+            
+            if(this.latestPitches[index] + EPSILON < potentialLocalMin) {
+                isLocalMin = false;
+            }
+        }
+
+        return isLocalMin;
+    }
+
+    public boolean isNearLocalMaximum() {
+        // check for a local minimum 2/3 through the sample window
+        //  (latestPitchesIndex is the index where the *next* pitch will be stored)
+        int potentialLocalMaxIndex = (this.latestPitchesIndex - 1) - (SAMPLE_WINDOW_WIDTH / 3);
+
+        // there is a potential to end up with a negative index; wrap around as necessary
+        potentialLocalMaxIndex = (potentialLocalMaxIndex + this.latestPitches.length) % this.latestPitches.length;
+
+        // check if all of the samples before and after the potential local min are greater than the potential local min
+
+        double potentialLocalMax = this.latestPitches[potentialLocalMaxIndex];
+
+        int minIndex = this.latestPitchesIndex - SAMPLE_WINDOW_WIDTH;
+        minIndex = (minIndex + this.latestPitches.length) % this.latestPitches.length; // handle wrap around
+
+        boolean isLocalMax = true;
+        for(int i = 0; i < SAMPLE_WINDOW_WIDTH; i++) {
+            int index = minIndex + i;
+            index = (index + this.latestPitches.length) % this.latestPitches.length; // handle wrap around
+            
+            if(this.latestPitches[index] - EPSILON > potentialLocalMax) {
+                isLocalMax = false;
+            }
+        }
+
+        return isLocalMax;
+
     }
 
     public boolean hasTransferredToSecondary() {
