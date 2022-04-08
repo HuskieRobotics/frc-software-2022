@@ -69,11 +69,11 @@ public final class Constants {
     public static final double CURRENT_LIMIT_FACTOR = 0.5;  // FIXME: this is extreme; tune it
 
     /* Limelight */
-    public static final double LIMELIGHT_F = 0.475;
-    public static final double LIMELIGHT_P = 0.12;
+    public static final double LIMELIGHT_F = 0.05;
+    public static final double LIMELIGHT_P = 0.1;
     public static final double LIMELIGHT_I = 0.0;
     public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = .8;
-    public static final double LIMELIGHT_SLOPE = 25.08;
+    public static final double LIMELIGHT_SLOPE = 23.08;
     public static final double LIMELIGHT_Y_COMPONENT = 4596.34;//4596.34
   }
 
@@ -115,12 +115,12 @@ public final class Constants {
     public static final int VELOCITY_TOLERANCE = 300; 
     public static final int LEFT_FLYWHEELMOTOR_CANID = 1;
     public static final int RIGHT_FLYWHEELMOTOR_CANID = 2;
-    public final static Gains GAINS_VELOCITY = new Gains(0.75 /* kP */, 0 /* kI */, 0 /* kD */, .0513 /* kF */,
+    public final static Gains GAINS_VELOCITY = new Gains(0.18 /* kP */, 0 /* kI */, 0 /* kD */, .0513 /* kF */,
         0 /* kIzone */, 1.00 /* kPeakOutput */);
         //kp:0.5
         //kf: .0438
     public final static int MAX_FLYWHEEL_VELOCITY = 18650;
-    public static final int WALL_SHOT_VELOCITY = 7382; // FIXME tune this
+    public static final int WALL_SHOT_VELOCITY = 7182; // 7382 FIXME tune this
     public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
     public static final int LAUNCH_PAD_VELOCITY = 8182; // FIXME tune this
     public static final int SHOOT_SLOW_VELOCITY = 4000; // FIXME tune this
@@ -204,7 +204,7 @@ public final class Constants {
     public static final double PITCH_WHEN_BELOW_NEXT_RUNG = 0;    // FIXME: tune
     public static final double PITCH_WHEN_BELOW_NEXT_RUNG_TOLERANCE = 0.25;    // FIXME: tune
     
-    public static final int ELEVATOR_POSITION_TOLERANCE = 500;
+    public static final int ELEVATOR_POSITION_TOLERANCE = 1000;
     public static final double ARBITRARY_FEED_FORWARD_EXTEND = .02;
     public static final double ARBITRARY_FEED_FORWARD_RETRACT = -0.07;
     public static final double DEFAULT_MOTOR_POWER = 0.5; //FIXME TUNE

@@ -348,7 +348,7 @@ public class Elevator extends SubsystemBase {
             // and if it under load or not; use the desiredEncoderPosition to determine the
             // corresponding feed forward term
             if (desiredEncoderPosition > this.getElevatorEncoderHeight()) { // extending unloaded
-                if (this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 5000) {
+                if (this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 2500) {
                     this.stopElevator();
                 } else {
                     this.leftElevatorMotor.follow(this.rightElevatorMotor);
@@ -356,7 +356,7 @@ public class Elevator extends SubsystemBase {
                             DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_EXTEND);
                 }
             } else { // retracting loaded
-                if (this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 5000) {
+                if (this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 2500) {
                     this.stopElevator();
                 } else {
                     this.leftElevatorMotor.follow(this.rightElevatorMotor);

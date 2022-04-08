@@ -469,22 +469,22 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 // LIMELIGHT_F is specified in units of radians/second
                 // FIXME: try new feed forward values now that clamping code is fixed
                 if (rotationSupplier > 0) {     // clockwise
-                        rotationSupplier += LIMELIGHT_F; // * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+                        rotationSupplier += LIMELIGHT_F * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
                 else if (rotationSupplier < 0) {  // counterclockwise
-                        rotationSupplier -= LIMELIGHT_F; // * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+                        rotationSupplier -= LIMELIGHT_F * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
 
                 // clamp the rotation to MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
                 // FIXME: enable clamping after testing in controlled environment
-                /*
+                
                 if(rotationSupplier > MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND) {
                         rotationSupplier = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
                 else if(rotationSupplier < -MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND) {
                         rotationSupplier = -MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
-                */
+                
 
                 drive(translationXSupplier, translationYSupplier, rotationSupplier);
 
@@ -493,7 +493,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public boolean isAimed() {
                 // Always return false if no target is visible to the Limelight. If this happens, the driver has to cancel the aim
                 //      and move to a new location, or the operator has to manually enable the storage to shoot.
-                if(isLimelightTargetVisible() && Math.abs(0.0 - getLimelightX()) < LIMELIGHT_ALIGNMENT_TOLERANCE){
+                if(Math.abs(0.0 - getLimelightX()) < LIMELIGHT_ALIGNMENT_TOLERANCE){
                         aimSetpointCount++;
                         if(aimSetpointCount >= 5){
                                 return true;
