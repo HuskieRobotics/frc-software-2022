@@ -105,6 +105,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         private int aimSetpointCount;
         private double lastLimelightDistance;
+        private boolean limelightAimEnabled;
 
         private boolean stackTraceLogging;
 
@@ -113,6 +114,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 ShuffleboardTab tabMain = Shuffleboard.getTab("MAIN");
                 this.isFieldRelative = false;
                 this.isXstance = false;
+                this.limelightAimEnabled = true;
                 // this.m_robotCenter = new Translation2d(0,0);
 
                 this.zeroGyroscope();
@@ -201,6 +203,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
                 tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
                 tabMain.addBoolean("isXstance", this :: isXstance);
+                tabMain.addBoolean("aim enabled", this :: isLimelightAimEnabled);
                 this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
@@ -491,6 +494,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         public boolean isAimed() {
+
+                // check if limelight aiming is enabled
+                if(!this.limelightAimEnabled) {
+                        return true;
+                }
+
                 // Always return false if no target is visible to the Limelight. If this happens, the driver has to cancel the aim
                 //      and move to a new location, or the operator has to manually enable the storage to shoot.
                 if(Math.abs(0.0 - getLimelightX()) < LIMELIGHT_ALIGNMENT_TOLERANCE){
@@ -505,6 +514,18 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 }
                 return false;
 
+        }
+
+        public void enableLimelightAim() {
+                this.limelightAimEnabled = true;
+        }
+        
+        public void disableLimelightAim() {
+                this.limelightAimEnabled = false;
+        }
+
+        public boolean isLimelightAimEnabled() {
+                return this.limelightAimEnabled;
         }
 
         public void enableXstance() {

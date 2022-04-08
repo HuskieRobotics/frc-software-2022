@@ -260,6 +260,14 @@ public class RobotContainer {
   }
 
   private void configureShooterButtons() {
+
+    // enable/disable limelight aiming
+    operatorButtons[JoystickConstants.LIMELIGHT_AIM_TOGGLE].toggleWhenPressed( 
+        new ConditionalCommand(
+            new InstantCommand(() -> m_drivetrainSubsystem.disableLimelightAim(), m_drivetrainSubsystem),
+            new InstantCommand(() -> m_drivetrainSubsystem.enableLimelightAim(), m_drivetrainSubsystem),
+            m_drivetrainSubsystem::isLimelightAimEnabled));
+
     //preset field wall
     operatorButtons[JoystickConstants.FIELD_WALL].whenPressed(
       createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY));
