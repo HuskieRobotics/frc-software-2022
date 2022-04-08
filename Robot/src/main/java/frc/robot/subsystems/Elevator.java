@@ -141,7 +141,7 @@ public class Elevator extends SubsystemBase {
 
 		this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, kTimeoutMs);
         this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, kTimeoutMs);
-
+        Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight);
         if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Elevator").add("elevator", this);
             Shuffleboard.getTab("Elevator").addBoolean("Elevator At Setpoint", this::atSetpoint);
@@ -151,7 +151,7 @@ public class Elevator extends SubsystemBase {
             Shuffleboard.getTab("Elevator").addBoolean("Below Next Rung", this::isBelowNextRung);
             Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
             Shuffleboard.getTab("Elevator").addNumber("Running Average", this::getPitchRunningAverage);
-            Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight); 
+            //Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight); 
             Shuffleboard.getTab("Elevator").addBoolean("Near Local Min", this::isNearLocalMinimum);
             Shuffleboard.getTab("Elevator").addBoolean("Near Local Max", this::isNearLocalMaximum);
             //Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this::getSetpoint);
