@@ -6,9 +6,10 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 
 public class LimelightAlignToTargetCommand extends PIDCommand {
 
+    private double tolerance;
     private DrivetrainSubsystem drivetrainSubsystem;
 
-    public LimelightAlignToTargetCommand(DrivetrainSubsystem subsystem){
+    public LimelightAlignToTargetCommand(double aimTolerance, DrivetrainSubsystem subsystem){
         super(
             new PIDController(DrivetrainConstants.LIMELIGHT_P,DrivetrainConstants.LIMELIGHT_I,0),
             subsystem :: getLimelightX,
@@ -17,6 +18,7 @@ public class LimelightAlignToTargetCommand extends PIDCommand {
             subsystem
         );
 
+        this.tolerance = aimTolerance;
         drivetrainSubsystem = subsystem;
     }
 
@@ -32,7 +34,7 @@ public class LimelightAlignToTargetCommand extends PIDCommand {
     }
 
     public boolean isFinished() {
-        return drivetrainSubsystem.isAimed();
+        return drivetrainSubsystem.isAimed(this.tolerance);
     }
     
 }

@@ -199,7 +199,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 tabMain.addNumber("Limelight Vel", () -> getVelocityFromLimelight());
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
-                tabMain.addBoolean("Is Aimed", () -> isAimed());
+                tabMain.addBoolean("Is Aimed", () -> isAimed(LIMELIGHT_ALIGNMENT_TOLERANCE));
                 tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
                 tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
                 tabMain.addBoolean("isXstance", this :: isXstance);
@@ -219,7 +219,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
                         tab.addNumber("CoG X", () -> this.centerGravity.getX());
                         tab.addNumber("CoG Y", () -> this.centerGravity.getY());
-                        tabMain.add("align to target", new LimelightAlignToTargetCommand(this));
+                        tabMain.add("align to target", new LimelightAlignToTargetCommand(LIMELIGHT_ALIGNMENT_TOLERANCE, this));
                         
                 }
 
@@ -493,7 +493,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         }
 
-        public boolean isAimed() {
+        public boolean isAimed(double tolerance) {
 
                 // check if limelight aiming is enabled
                 if(!this.limelightAimEnabled) {
@@ -502,7 +502,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
                 // Always return false if no target is visible to the Limelight. If this happens, the driver has to cancel the aim
                 //      and move to a new location, or the operator has to manually enable the storage to shoot.
-                if(Math.abs(0.0 - getLimelightX()) < LIMELIGHT_ALIGNMENT_TOLERANCE){
+                if(Math.abs(0.0 - getLimelightX()) < tolerance){
                         aimSetpointCount++;
                         if(aimSetpointCount >= 5){
                                 return true;
