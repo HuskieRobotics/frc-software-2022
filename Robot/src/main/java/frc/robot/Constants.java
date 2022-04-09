@@ -42,7 +42,7 @@ public final class Constants {
     public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 16;//7;
     public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 15;//6;
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 17;//8;
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(149.5020);
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(40.3335);//149.5020);
     // 117.333984
 
     /**
@@ -186,7 +186,7 @@ public final class Constants {
     public static final int TIMEOUT_MS = 30;
     public static final int WAIT_FOR_SHOT_DELAY = 10; // FIXME: tune
     public static final int INDEXING_FORWARD_DELAY = 16;
-    public static final int INDEXING_BACKWARD_DURATION = 2;
+    public static final int INDEXING_BACKWARD_DURATION = 3;
   }
 
   public static class ElevatorConstants {
