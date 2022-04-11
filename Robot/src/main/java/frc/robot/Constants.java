@@ -73,6 +73,7 @@ public final class Constants {
     public static final double LIMELIGHT_P = 0.1;
     public static final double LIMELIGHT_I = 0.0;
     public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = .8;
+    public static final double LIMELIGHT_LAUNCHPAD_ALIGNMENT_TOLERANCE = .6;
     public static final double LIMELIGHT_SLOPE = 23.08;
     public static final double LIMELIGHT_Y_COMPONENT = 4596.34;//4596.34
   }
@@ -194,11 +195,11 @@ public final class Constants {
     public static final double TRANSFER_TO_SECONDARY_HEIGHT = 25150;
     public static final double LOW_RUNG_HEIGHT = 150786;
     public static final double REACH_JUST_BEFORE_NEXT_RUNG = 219680;
-    public static final double MID_RUNG_HEIGHT = 277129;
+    public static final double MID_RUNG_HEIGHT = 269560;//277129;
     public static final double NEXT_RUNG_HEIGHT = 227499; 
     public static final double REACH_TO_NEXT_RUNG_HEIGHT = 279733;//269733; // 284066; //   // FIXME: not sure if this is needed; use MAX_ELEVATOR_HEIGHT?
     public static final double MIN_DETACH_ENCODER_HEIGHT = 220000; // FIXME: set back to 0 or determine appropriate value after climber rebuild
-    public static final double MAX_ELEVATOR_HEIGHT = 284089;
+    public static final double MAX_ELEVATOR_HEIGHT = 274560;
     
     public static final double PITCH_TOLERANCE = 0.25;  // FIXME: tune
     public static final double PITCH_WHEN_BELOW_NEXT_RUNG = 0;    // FIXME: tune
@@ -236,7 +237,7 @@ public final class Constants {
     public static final int CLIMB_2 = 1;
     public static final int CLIMB_3 = 7;
     public static final int CLIMB_4 = 8;
-    public static final int FENDER = 9;
+    public static final int LIMELIGHT_AIM_TOGGLE = 9;
     public static final int FIELD_WALL = 6;
     public static final int LAUNCHPAD = 5;
     public static final int SECONDARY = 4;
