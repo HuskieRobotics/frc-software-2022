@@ -183,7 +183,13 @@ public class RobotContainer {
 
     // limelight align while moving
     joystickButtons1[3].whenPressed(
-      new LimelightAlignOnMoveCommand(m_drivetrainSubsystem)
+      new SequentialCommandGroup(
+        new LimelightAlignOnMoveCommand(m_drivetrainSubsystem, m_flywheel, joystick0, joystick1),
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+          new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem)),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitForShotCommand(m_storage, m_flywheel, m_drivetrainSubsystem))
     );
 
     //FieldRelative toggle
@@ -290,6 +296,7 @@ public class RobotContainer {
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
         new WaitForShotCommand(m_storage, m_flywheel, m_drivetrainSubsystem)));
     
+    // limelight shot
     operatorButtons[JoystickConstants.SHOOT_LIMELIGHT].whenPressed(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
@@ -519,7 +526,7 @@ public class RobotContainer {
           new InstantCommand(()-> m_storage.disableStorage(), m_storage)));
   }
 
-  private static double deadband(double value, double deadband) {
+  public static double deadband(double value, double deadband) {
     if (Math.abs(value) > deadband) {
       if (value > 0.0) {
         return (value - deadband) / (1.0 - deadband);
@@ -531,7 +538,7 @@ public class RobotContainer {
     }
   }
 
-  private static double modifyAxis(double value) {
+  public static double modifyAxis(double value) {
     // Deadband
     value = deadband(value, 0.1);
 
