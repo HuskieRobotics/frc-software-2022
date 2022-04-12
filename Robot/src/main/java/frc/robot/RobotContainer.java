@@ -234,7 +234,7 @@ public class RobotContainer {
               new InstantCommand(() -> m_collector.enableCollector(), m_collector),
               new SortStorageCommand(m_storage),
               new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-              new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.LAUNCH_PAD_VELOCITY)),
+              new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY)),
             m_collector::isEnabled));
 
     // unjam all
