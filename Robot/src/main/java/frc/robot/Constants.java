@@ -172,7 +172,8 @@ public final class Constants {
     //  7.5" from center of robot to Limeligtht
     public static final int HUB_LAUNCHPAD_DISTANCE = 149; 
     public static final int EDGE_TO_CENTER_HUB_DISTANCE = 26 + 8;
-    public static final int HUB_WALL_DISTANCE = 130;
+    public static final int HUB_WALL_DISTANCE = 130;    // FIXME: verify distance
+    public static final int HUB_TARMAC_DISTANCE = 97;  // FIXME: verify distance
 
   }
 
