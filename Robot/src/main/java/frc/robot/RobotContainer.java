@@ -418,6 +418,7 @@ public class RobotContainer {
         new InstantCommand(() -> m_collector.disableCollector(), m_collector),
         createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 15));
 
+        // 5 ball auto (shoot 2; shoot 3 (with bowling))
       PathPlannerTrajectory autoBlue31Path = PathPlanner.loadPath("Blue3(1)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       PathPlannerTrajectory autoBlue32Path = PathPlanner.loadPath("Blue3(2)",
@@ -439,6 +440,7 @@ public class RobotContainer {
             new FollowPath(autoBlue33Path, thetaController, m_drivetrainSubsystem, false)),
         limelightCreateAutoShootCommandSequence(15));
 
+        // 5-ball auto (shoot 2, shoot 1, shoot 2 (no bowling))
       PathPlannerTrajectory autoBlue41Path = PathPlanner.loadPath("Blue4(1)",
         AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       PathPlannerTrajectory autoBlue42Path = PathPlanner.loadPath("Blue4(2)",
