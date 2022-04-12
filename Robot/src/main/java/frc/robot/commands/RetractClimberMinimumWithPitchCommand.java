@@ -15,6 +15,7 @@ public class RetractClimberMinimumWithPitchCommand extends CommandBase {
 
     @Override
     public void initialize() {
+        m_elevator.setElevatorSetpoint(ElevatorConstants.MIN_DETACH_ENCODER_HEIGHT);
     }
 
     @Override

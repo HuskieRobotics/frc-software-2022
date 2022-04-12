@@ -296,6 +296,13 @@ public class Elevator extends SubsystemBase {
             this.setElevatorMotorPower(motorPower);
 
         }
+
+        if(this.isNearLocalMaximum()) {
+            //System.out.println("near local max");
+        }
+        if(this.isNearLocalMinimum()) {
+            //System.out.println("near local min");
+        }
     }
 
     @Override
@@ -331,6 +338,10 @@ public class Elevator extends SubsystemBase {
                 this.rightElevatorMotor.set(ControlMode.PercentOutput, power);
             }
         }
+    }
+
+    public void setElevatorSetpoint(double setpoint) {
+        this.encoderPositionSetpoint = setpoint;
     }
 
     public void setElevatorMotorPosition(double desiredEncoderPosition, boolean isFast) {
