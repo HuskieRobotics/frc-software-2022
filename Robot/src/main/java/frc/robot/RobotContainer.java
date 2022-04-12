@@ -431,7 +431,7 @@ public class RobotContainer {
           new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.NEAR_WALL_SHOT_VELOCITY), m_flywheel)),
         new WaitCommand(0.5),
         new FollowPath(autoBlue31Path, thetaController, m_drivetrainSubsystem, true),
-        createAutoShootCommandSequence(FlywheelConstants.NEAR_WALL_SHOT_VELOCITY, 2),
+        createAutoShootNoAimCommandSequence(FlywheelConstants.NEAR_WALL_SHOT_VELOCITY, 2),
         new ParallelDeadlineGroup(
           new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem, false),
           new SortStorageCommand(m_storage)),
@@ -497,6 +497,16 @@ public class RobotContainer {
         new ParallelCommandGroup(
           new SetFlywheelVelocityCommand(m_flywheel, shotVelocity),
           new LimelightAlignToTargetCommand(DrivetrainConstants.LIMELIGHT_ALIGNMENT_TOLERANCE, m_drivetrainSubsystem)),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitCommand(shotDelay),
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
+          new InstantCommand(()-> m_storage.disableStorage(), m_storage)));
+  }
+
+  private Command createAutoShootNoAimCommandSequence(int shotVelocity, double shotDelay) {
+    return new SequentialCommandGroup(
+        new SetFlywheelVelocityCommand(m_flywheel, shotVelocity),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
         new WaitCommand(shotDelay),
         new ParallelCommandGroup(
