@@ -72,8 +72,7 @@ public final class Constants {
     public static final double LIMELIGHT_F = 0.05;
     public static final double LIMELIGHT_P = 0.1;
     public static final double LIMELIGHT_I = 0.0;
-    public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = .8;
-    public static final double LIMELIGHT_LAUNCHPAD_ALIGNMENT_TOLERANCE = .6;
+    public static final double LIMELIGHT_AIM_TOLERANCE = 5;  // inches FIXME: tune this
     public static final double LIMELIGHT_SLOPE = 23.08;
     public static final double LIMELIGHT_Y_COMPONENT = 4596.34;//4596.34
   }
@@ -172,6 +171,7 @@ public final class Constants {
     //  18" from bumpers to center of robot;
     //  7.5" from center of robot to Limeligtht
     public static final int HUB_LAUNCHPAD_DISTANCE = 149; 
+    public static final int EDGE_TO_CENTER_HUB_DISTANCE = 26 + 8;
     public static final int HUB_WALL_DISTANCE = 130;
 
   }

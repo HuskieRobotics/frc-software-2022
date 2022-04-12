@@ -199,7 +199,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 tabMain.addNumber("Limelight Vel", () -> getVelocityFromLimelight());
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
-                tabMain.addBoolean("Is Aimed", () -> isAimed(LIMELIGHT_ALIGNMENT_TOLERANCE));
+                tabMain.addBoolean("Is Aimed", () -> isAimed());
                 tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
                 tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
                 tabMain.addBoolean("isXstance", this :: isXstance);
@@ -219,7 +219,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
                         tab.addNumber("CoG X", () -> this.centerGravity.getX());
                         tab.addNumber("CoG Y", () -> this.centerGravity.getY());
-                        tabMain.add("align to target", new LimelightAlignToTargetCommand(LIMELIGHT_ALIGNMENT_TOLERANCE, this));
+                        tabMain.add("align to target", new LimelightAlignToTargetCommand(this));
                         
                 }
 
@@ -493,16 +493,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         }
 
-        public boolean isAimed(double tolerance) {
+        public boolean isAimed() {
 
                 // check if limelight aiming is enabled
                 if(!this.limelightAimEnabled) {
                         return true;
                 }
 
-                // Always return false if no target is visible to the Limelight. If this happens, the driver has to cancel the aim
-                //      and move to a new location, or the operator has to manually enable the storage to shoot.
-                if(Math.abs(0.0 - getLimelightX()) < tolerance){
+                // calculate the horizontal offset from the center of the hub and ensure we are within the
+                //      specified tolerance
+                double distanceToHub = getLimelightDistanceIn() + LimelightConstants.EDGE_TO_CENTER_HUB_DISTANCE;
+                if(Math.abs(distanceToHub * Math.sin(Math.toRadians(getLimelightX()))) < LIMELIGHT_AIM_TOLERANCE){
                         aimSetpointCount++;
                         if(aimSetpointCount >= 5){
                                 return true;
