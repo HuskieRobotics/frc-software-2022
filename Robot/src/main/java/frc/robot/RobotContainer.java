@@ -428,10 +428,10 @@ public class RobotContainer {
       autoBlue3 = new SequentialCommandGroup(
         new ParallelCommandGroup(
           new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-          new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.WALL_SHOT_VELOCITY), m_flywheel)),
+          new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.NEAR_WALL_SHOT_VELOCITY), m_flywheel)),
         new WaitCommand(0.5),
         new FollowPath(autoBlue31Path, thetaController, m_drivetrainSubsystem, true),
-        limelightCreateAutoShootCommandSequence(2),
+        createAutoShootCommandSequence(FlywheelConstants.NEAR_WALL_SHOT_VELOCITY, 2),
         new ParallelDeadlineGroup(
           new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem, false),
           new SortStorageCommand(m_storage)),

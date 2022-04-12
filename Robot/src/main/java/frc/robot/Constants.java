@@ -121,6 +121,7 @@ public final class Constants {
         //kp:0.5
         //kf: .0438
     public final static int MAX_FLYWHEEL_VELOCITY = 18650;
+    public static final int NEAR_WALL_SHOT_VELOCITY = 7000; // FIXME tune this
     public static final int WALL_SHOT_VELOCITY = 7182; // 7382 FIXME tune this
     public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
     public static final int LAUNCH_PAD_VELOCITY = 8182; // FIXME tune this
