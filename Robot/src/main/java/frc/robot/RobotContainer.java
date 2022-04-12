@@ -396,11 +396,14 @@ public class RobotContainer {
         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-    PathPlannerTrajectory autoBlueForwardPath = PathPlanner.loadPath("BlueForward",
+    PathPlannerTrajectory autoBlue01Path = PathPlanner.loadPath("Blue0(1)",
+        AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+    PathPlannerTrajectory autoBlue02Path = PathPlanner.loadPath("Blue0(2)",
         AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     autoBlueForward = new SequentialCommandGroup(
-      new FollowPath(autoBlueForwardPath, thetaController, m_drivetrainSubsystem, true),
-      createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 15));
+      new FollowPath(autoBlue01Path, thetaController, m_drivetrainSubsystem, true),
+      createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 2),
+      new FollowPath(autoBlue02Path, thetaController, m_drivetrainSubsystem, false));
 
       PathPlannerTrajectory autoBlue11Path = PathPlanner.loadPath("Blue1(1)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
