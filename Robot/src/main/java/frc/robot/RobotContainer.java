@@ -179,7 +179,12 @@ public class RobotContainer {
 
   private void configureDrivetrainButtons() {
     //x-stance
-    joystickButtons1[3].whileHeld(new InstantCommand(() -> m_drivetrainSubsystem.setXStance(), m_drivetrainSubsystem));
+    //joystickButtons1[3].whileHeld(new InstantCommand(() -> m_drivetrainSubsystem.setXStance(), m_drivetrainSubsystem));
+
+    // limelight align while moving
+    joystickButtons1[3].whenPressed(
+      new LimelightAlignOnMoveCommand(m_drivetrainSubsystem)
+    );
 
     //FieldRelative toggle
     joystickButtons0[3].toggleWhenPressed(
