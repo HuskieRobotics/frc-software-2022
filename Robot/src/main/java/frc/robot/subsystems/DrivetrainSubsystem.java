@@ -111,10 +111,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         private int aimSetpointCount;
         private double lastLimelightDistance;
+        private boolean limelightAimEnabled;
+
+        private boolean stackTraceLogging;
 
         public DrivetrainSubsystem() {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
                 ShuffleboardTab tabMain = Shuffleboard.getTab("MAIN");
+                this.limelightAimEnabled = true;
                 this.isFieldRelative = false;
                 this.isXstance = false;
                 this.encodersInitialized = false;
@@ -132,19 +136,20 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
                 tab.addBoolean("Encoders Init", () -> getEncoderInitialization());
                 tab.addNumber("Encoders Init Tries", () -> getEncoderInitializationTries());
-
-                tabMain.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
+                tabMain.addNumber("Limelight Vel", () -> getVelocityFromLimelight());
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
-                tabMain.addBoolean("Is Aimed", () -> isAimed());
+                tabMain.addBoolean("Is Aimed", () -> isAimed(LIMELIGHT_ALIGNMENT_TOLERANCE));
                 tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
                 tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
                 tabMain.addBoolean("isXstance", this :: isXstance);
+                tabMain.addBoolean("aim enabled", this :: isLimelightAimEnabled);
                 this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
                 
                 if(COMMAND_LOGGING) {
+                        Shuffleboard.getTab("Shooter").addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                         tab.add("drivetrain", this);
                         tab.addNumber("Limelight y Dist", () -> getLimelighty());
                         tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
@@ -154,7 +159,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
                         tab.addNumber("CoG X", () -> this.centerGravity.getX());
                         tab.addNumber("CoG Y", () -> this.centerGravity.getY());
-                        tab.add("align to target", new LimelightAlignToTargetCommand(this));
+                        tabMain.add("align to target", new LimelightAlignToTargetCommand(LIMELIGHT_ALIGNMENT_TOLERANCE, this));
+                        
                 }
 
                 if (TUNING) {
@@ -167,6 +173,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         private void createSwerveModules() {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
+                // this.m_robotCenter = new Translation2d(0,0);
+
+                this.zeroGyroscope();
+                //this.m_pigeon.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_6_SensorFusion, 255, TIMEOUT_MS);
 
                 // There are 4 methods you can call to create your swerve modules.
                 // The method you use depends on what motors you are using.
@@ -240,6 +250,43 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 BACK_RIGHT_MODULE_STEER_MOTOR,
                                 BACK_RIGHT_MODULE_STEER_ENCODER,
                                 BACK_RIGHT_MODULE_STEER_OFFSET);
+
+                this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts,
+                                AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
+
+                tabMain.addNumber("Limelight Vel", () -> getVelocityFromLimelight());
+                tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
+                tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
+                tabMain.addBoolean("Is Aimed", () -> isAimed(LIMELIGHT_ALIGNMENT_TOLERANCE));
+                tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
+                tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
+                tabMain.addBoolean("isXstance", this :: isXstance);
+                tabMain.addBoolean("aim enabled", this :: isLimelightAimEnabled);
+                this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
+                                .add("FieldRelativeState", this.isFieldRelative)
+                                .getEntry();
+                
+                if(COMMAND_LOGGING) {
+                        Shuffleboard.getTab("Shooter").addNumber("Limelight Dist", () -> getLimelightDistanceIn());
+                        tab.add("drivetrain", this);
+                        tab.addNumber("Limelight y Dist", () -> getLimelighty());
+                        tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
+                        tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
+                        tab.addNumber("Pose Rotation", () -> m_odometry.getPoseMeters().getRotation().getDegrees());
+                        tab.add("Enable XStance", new InstantCommand(() -> this.enableXstance()));
+                        tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
+                        tab.addNumber("CoG X", () -> this.centerGravity.getX());
+                        tab.addNumber("CoG Y", () -> this.centerGravity.getY());
+                        tabMain.add("align to target", new LimelightAlignToTargetCommand(LIMELIGHT_ALIGNMENT_TOLERANCE, this));
+                        
+                }
+
+                if (TUNING) {
+                        // Add indicators and controls to this Shuffleboard tab to assist with
+                        // interactively tuning the system.
+            
+                        
+                }
         }
 
         /*
@@ -289,7 +336,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                         translationYSupplier,
                                         rotationSupplier);
                 }
+
                 SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds, centerGravity);
+
+                logStates(states);
                 m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[0].angle.getRadians());
                 m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
@@ -299,6 +349,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[3].angle.getRadians());
         }}
+
+        public void stop() {
+                m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+                SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds, centerGravity);
+                setSwerveModuleStates(states);
+        }
 
         @Override
         public void periodic() {
@@ -314,6 +370,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
         }
 
         public void setSwerveModuleStates(SwerveModuleState[] states) {
+                logStates(states);
+
                 m_frontLeftModule.set(this.calculateFeedforwardVoltage(states[0].speedMetersPerSecond),
                                 states[0].angle.getRadians());
                 m_frontRightModule.set(this.calculateFeedforwardVoltage(states[1].speedMetersPerSecond),
@@ -322,6 +380,25 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 states[2].angle.getRadians());
                 m_backRightModule.set(this.calculateFeedforwardVoltage(states[3].speedMetersPerSecond),
                                 states[3].angle.getRadians());
+        }
+
+        public void enableStackTraceLogging(boolean enable) {
+                this.stackTraceLogging = enable;
+        }
+
+        private void logStates(SwerveModuleState[] states) {
+                if(COMMAND_LOGGING) {
+                        if(stackTraceLogging) {
+                                StackTraceElement[] stack = new Exception().getStackTrace();
+                                for(StackTraceElement method : stack) {
+                                        System.out.println(method);
+                                }
+
+                                for(SwerveModuleState state : states) {
+                                        System.out.println("speed: " + state.speedMetersPerSecond + "; angle: " + state.angle.getRadians());
+                                }
+                        }
+                }
         }
 
         private double calculateFeedforwardVoltage(double velocity) {
@@ -411,9 +488,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public double getLimelightX(){
                 return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
            }
-           public double getLimelighty(){
+        public double getLimelighty(){
                 return NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
            }
+
+        public boolean isLimelightTargetVisible() {
+                return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0) == 1;
+        }
 
         public double getLimelightDistanceIn() {
                 double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0.0);
@@ -421,7 +502,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.lastLimelightDistance = (LimelightConstants.HUB_H - LimelightConstants.ROBOT_H)
                         / (Math.tan(Math.toRadians(LimelightConstants.LIMELIGHT_MOUNT_ANGLE +LimelightConstants.LIMELIGHT_ANGLE_OFFSET + ty)));
                 
+                // FIXME: add linear equation mapping limelight distance to actual distance
+
                 return this.lastLimelightDistance;
+        }
+
+        public double getVelocityFromLimelight() {
+                double velocity = LIMELIGHT_SLOPE * this.getLimelightDistanceIn() + LIMELIGHT_Y_COMPONENT;
+                return velocity;
         }
 
         public boolean isAtLaunchpadDistance() {
@@ -432,20 +520,44 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 return Math.abs(LimelightConstants.HUB_WALL_DISTANCE - this.lastLimelightDistance) <= LimelightConstants.DISTANCE_TOLERANCE;
         }
 
+        // The aim method is only invoked by the LimelightAlignToTargetCommand. The units for the rotationSupplier variables
+        //      are radians/second. This method should, but currently does not, clamp the output to
+        //      MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND.
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
+                // LIMELIGHT_F is specified in units of radians/second
+                // FIXME: try new feed forward values now that clamping code is fixed
                 if (rotationSupplier > 0) {     // clockwise
-                        rotationSupplier += LIMELIGHT_F;
+                        rotationSupplier += LIMELIGHT_F * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
-                else {  // counterclockwise
-                        rotationSupplier -= LIMELIGHT_F;
+                else if (rotationSupplier < 0) {  // counterclockwise
+                        rotationSupplier -= LIMELIGHT_F * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
+
+                // clamp the rotation to MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+                // FIXME: enable clamping after testing in controlled environment
+                
+                if(rotationSupplier > MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND) {
+                        rotationSupplier = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+                }
+                else if(rotationSupplier < -MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND) {
+                        rotationSupplier = -MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+                }
+                
 
                 drive(translationXSupplier, translationYSupplier, rotationSupplier);
 
         }
 
-        public boolean isAimed() {
-                if(Math.abs(0.0 - getLimelightX()) < LIMELIGHT_ALIGNMENT_TOLERANCE){
+        public boolean isAimed(double tolerance) {
+
+                // check if limelight aiming is enabled
+                if(!this.limelightAimEnabled) {
+                        return true;
+                }
+
+                // Always return false if no target is visible to the Limelight. If this happens, the driver has to cancel the aim
+                //      and move to a new location, or the operator has to manually enable the storage to shoot.
+                if(Math.abs(0.0 - getLimelightX()) < tolerance){
                         aimSetpointCount++;
                         if(aimSetpointCount >= 5){
                                 return true;
@@ -457,6 +569,18 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 }
                 return false;
 
+        }
+
+        public void enableLimelightAim() {
+                this.limelightAimEnabled = true;
+        }
+        
+        public void disableLimelightAim() {
+                this.limelightAimEnabled = false;
+        }
+
+        public boolean isLimelightAimEnabled() {
+                return this.limelightAimEnabled;
         }
 
         public void enableXstance() {

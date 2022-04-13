@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -71,6 +72,7 @@ public class RobotContainer {
   private Command autoBlue1;
   private Command autoBlue2;
   private Command autoBlue3;
+  private Command autoBlue4;
 
   // Joysticks
 
@@ -132,6 +134,12 @@ public class RobotContainer {
 
     configureAutoCommands();
 
+    if(TUNING) {
+      Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(m_elevator, m_secondMechanism));
+      Shuffleboard.getTab("Elevator").add("Extend Before Next", new ExtendClimberBeforeNextRungCommand(m_elevator, m_secondMechanism));
+    }
+            
+
     if (COMMAND_LOGGING) {
       CommandScheduler.getInstance().onCommandInitialize(
           command -> Shuffleboard.addEventMarker("Command initialized",
@@ -192,8 +200,8 @@ public class RobotContainer {
       new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
           new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem),
-          new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav())));
+          new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
 
     // Reset Gyro
     xboxButtons[BUTTON_Y].whenPressed(
@@ -220,11 +228,13 @@ public class RobotContainer {
         new ConditionalCommand(
             new ParallelCommandGroup(
                 new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-                new InstantCommand(() -> m_storage.disableStorage(), m_storage)),
+                new InstantCommand(() -> m_storage.disableStorage(), m_storage),
+                new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel)),
             new SequentialCommandGroup(
-                new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-                new SortStorageCommand(m_storage),
-                new InstantCommand(() -> m_collector.disableCollector(), m_collector)),
+              new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+              new SortStorageCommand(m_storage),
+              new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+              new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.WALL_SHOT_VELOCITY)),
             m_collector::isEnabled));
 
     // unjam all
@@ -250,65 +260,77 @@ public class RobotContainer {
   }
 
   private void configureShooterButtons() {
-    //preset fender, don't need to turn base
-    operatorButtons[JoystickConstants.FENDER].whileHeld(
-      new SequentialCommandGroup(
-        new ParallelCommandGroup(
-          new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.FENDER_SHOT_VELOCITY),
-          new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem)),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitCommand(0.1),
-        new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-        new WaitCommand(0.3),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage)));
 
-      operatorButtons[JoystickConstants.FENDER].whenReleased(
-        new ParallelCommandGroup(
-          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
-          new SortStorageCommand(m_storage),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem)));
+    // enable/disable limelight aiming
+    operatorButtons[JoystickConstants.LIMELIGHT_AIM_TOGGLE].toggleWhenPressed( 
+        new ConditionalCommand(
+            new InstantCommand(() -> m_drivetrainSubsystem.disableLimelightAim(), m_drivetrainSubsystem),
+            new InstantCommand(() -> m_drivetrainSubsystem.enableLimelightAim(), m_drivetrainSubsystem),
+            m_drivetrainSubsystem::isLimelightAimEnabled));
 
     //preset field wall
     operatorButtons[JoystickConstants.FIELD_WALL].whenPressed(
-      createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY));
+      createShootCommandSequence(DrivetrainConstants.LIMELIGHT_ALIGNMENT_TOLERANCE, FlywheelConstants.WALL_SHOT_VELOCITY));
 
     //preset launchpad
     operatorButtons[JoystickConstants.LAUNCHPAD].whenPressed(
-      createShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY));
+      createShootCommandSequence(DrivetrainConstants.LIMELIGHT_LAUNCHPAD_ALIGNMENT_TOLERANCE, FlywheelConstants.LAUNCH_PAD_VELOCITY));
         
     //shoot slow
     operatorButtons[JoystickConstants.SHOOT_SLOW].whenPressed(
-      createShootCommandSequence(FlywheelConstants.SHOOT_SLOW_VELOCITY));
+      new SequentialCommandGroup(
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+          new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.SHOOT_SLOW_VELOCITY)),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitForShotCommand(m_storage, m_flywheel, m_drivetrainSubsystem)));
+    
+    operatorButtons[JoystickConstants.SHOOT_LIMELIGHT].whenPressed(
+      new SequentialCommandGroup(
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+          new LimelightSetFlywheelVelocityCommand(m_flywheel, m_drivetrainSubsystem),
+          new SequentialCommandGroup (
+            new LimelightAlignToTargetCommand(DrivetrainConstants.LIMELIGHT_ALIGNMENT_TOLERANCE, m_drivetrainSubsystem),
+            new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitForShotCommand(m_storage, m_flywheel, m_drivetrainSubsystem)));
   }
 
   private void configureClimberButtons() {
 
-    // configure climb to fourth rung climb sequence
+    // configure climb to 4 (traverse) rung climb sequence
     operatorButtons[8].whenPressed(
         new SequentialCommandGroup(
             new RetractClimberFullCommand(m_elevator),
-            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism),
-            new ReachToNextRungCommand(m_elevator),
+            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
+            new WaitCommand(0.5), // wait for secondary arm to be positioned
+            new ReachToNextRungCommand(m_elevator, m_secondMechanism),
             new ParallelCommandGroup(
-                new RetractClimberFullCommand(m_elevator),
-                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism)),
-            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism),
-            new ReachToNextRungCommand(m_elevator),
-            new RetractClimberMinimumCommand(m_elevator)));
+                new RetractClimberMinimumCommand(m_elevator),
+                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism)),
+            new RetractClimberFullCommand(m_elevator),
+            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
+            new WaitCommand(0.5), // wait for secondary arm to be positioned
+            new ReachBeforeNextRungCommand(m_elevator, m_secondMechanism)));
 
-    // configure climb to third rung climb sequence
+    // configure climb to 3 (high) rung climb sequence
     operatorButtons[7].whenPressed(
         new SequentialCommandGroup(
             new RetractClimberFullCommand(m_elevator),
             new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
-            new ReachToNextRungCommand(m_elevator),
-            new ParallelCommandGroup(
-                new RetractClimberMinimumCommand(m_elevator),
-                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism))));
+            new WaitCommand(0.5), // wait for secondary arm to be positioned
+            new ReachBeforeNextRungCommand(m_elevator, m_secondMechanism)));
 
-    // configure climb to 2 rung climb sequence
+    // configure climb to 1/2 (low/mid) rung climb sequence
     operatorButtons[1].whenPressed(
-        new RetractClimberFullCommand(m_elevator));
+        new SequentialCommandGroup(
+          new RetractClimberFullCommand(m_elevator),
+          new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism)));
+
+    // configure raise elevator before starting climb to 1 (low) rung; FIXME: confirm button
+    operatorButtons[11].whenPressed(
+        new ExtendClimberToLowRungCommand(m_elevator));
 
     // configure raise elevator before starting climb
     operatorButtons[2].whenPressed(
@@ -336,14 +358,22 @@ public class RobotContainer {
 
     //pause elevator
     xboxButtons[JoystickConstants.BUTTON_START].whenPressed(new InstantCommand(() ->
-    m_elevator.elevatorPause(xboxButtons[JoystickConstants.BUTTON_BACK].get()), m_elevator));
+        m_elevator.elevatorPause(xboxButtons[JoystickConstants.BUTTON_BACK].get()), m_elevator));
 
     operatorButtons[12].toggleWhenPressed(
         new ConditionalCommand(
             new InstantCommand(() -> m_elevator.disableElevatorControl(), m_elevator),
             new InstantCommand(() -> m_elevator.enableElevatorControl(), m_elevator),
             m_elevator::isElevatorControlEnabled));
+  
+    operatorButtons[JoystickConstants.SECONDARY].toggleWhenPressed(
+        new ConditionalCommand(
+          new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut()),
+          new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn()),
+          m_secondMechanism::isIn));
+        
   }
+
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -352,6 +382,13 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return m_chooser.getSelected();
+  }
+
+  // always start teleop in a known state and ready to drive
+  public void teleopInit() {
+    m_storage.disableStorage();
+    m_flywheel.stopFlywheel();
+    m_collector.disableCollector();
   }
 
   private void configureAutoCommands() {
@@ -363,8 +400,7 @@ public class RobotContainer {
         AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     autoBlueForward = new SequentialCommandGroup(
       new FollowPath(autoBlueForwardPath, thetaController, m_drivetrainSubsystem, true),
-      createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
-      new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
+      createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 15));
 
       PathPlannerTrajectory autoBlue1Path = PathPlanner.loadPath("Blue1(1)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
@@ -372,8 +408,7 @@ public class RobotContainer {
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
         new FollowPath(autoBlue1Path, thetaController, m_drivetrainSubsystem, true),
         new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-        createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
-        new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
+        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 15));
 
       PathPlannerTrajectory autoBlue2Path = PathPlanner.loadPath("Blue2(1)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
@@ -381,64 +416,102 @@ public class RobotContainer {
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
         new FollowPath(autoBlue2Path, thetaController, m_drivetrainSubsystem, true),
         new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-        createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY),
-        new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
+        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 15));
 
       PathPlannerTrajectory autoBlue31Path = PathPlanner.loadPath("Blue3(1)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-      // change to Blue3(23) after testing Blue3(2)
-      PathPlannerTrajectory autoBlue32Path = PathPlanner.loadPath("Blue3(23)",
+      PathPlannerTrajectory autoBlue32Path = PathPlanner.loadPath("Blue3(2)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+      PathPlannerTrajectory autoBlue33Path = PathPlanner.loadPath("Blue3(3)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       autoBlue3 = new SequentialCommandGroup(
-        new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-        new FollowPath(autoBlue31Path, thetaController, m_drivetrainSubsystem, true),
-        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 1),
         new ParallelCommandGroup(
-          new SortStorageCommand(m_storage),
-          new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem, false)),
-        createAutoShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY, 5));
-        //new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-        //new WaitForTeleopCommand(m_drivetrainSubsystem, m_flywheel, m_storage, m_collector));
+          new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+          new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.WALL_SHOT_VELOCITY), m_flywheel)),
+        new WaitCommand(0.5),
+        new FollowPath(autoBlue31Path, thetaController, m_drivetrainSubsystem, true),
+        limelightCreateAutoShootCommandSequence(2),
+        new ParallelDeadlineGroup(
+          new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem, false),
+          new SortStorageCommand(m_storage)),
+        new ParallelCommandGroup(
+            new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.LAUNCH_PAD_VELOCITY), m_flywheel),
+            new FollowPath(autoBlue33Path, thetaController, m_drivetrainSubsystem, false)),
+        limelightCreateAutoShootCommandSequence(15));
+
+      PathPlannerTrajectory autoBlue41Path = PathPlanner.loadPath("Blue4(1)",
+        AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+      PathPlannerTrajectory autoBlue42Path = PathPlanner.loadPath("Blue4(2)",
+        AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+      PathPlannerTrajectory autoBlue43Path = PathPlanner.loadPath("Blue4(3)",
+        AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+      PathPlannerTrajectory autoBlue44Path = PathPlanner.loadPath("Blue4(4)",
+        AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+      autoBlue4 = new SequentialCommandGroup(
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+          new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.WALL_SHOT_VELOCITY), m_flywheel)),
+        new WaitCommand(0.5),
+        new FollowPath(autoBlue41Path, thetaController, m_drivetrainSubsystem, true),
+        limelightCreateAutoShootCommandSequence(2),
+        new ParallelDeadlineGroup(
+          new FollowPath(autoBlue42Path, thetaController, m_drivetrainSubsystem, false),
+          new SortStorageCommand(m_storage)),
+        limelightCreateAutoShootCommandSequence(2),
+        new FollowPath(autoBlue43Path, thetaController, m_drivetrainSubsystem, false),
+        new InstantCommand(() -> m_drivetrainSubsystem.stop()),
+        new ParallelDeadlineGroup(
+          new WaitCommand(2),
+          new SortStorageCommand(m_storage)),
+        new ParallelCommandGroup(
+            new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.LAUNCH_PAD_VELOCITY), m_flywheel),
+            new FollowPath(autoBlue44Path, thetaController, m_drivetrainSubsystem, false)),
+        limelightCreateAutoShootCommandSequence(5));
+  
 
     ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
     m_chooser.addOption("Blue Forward", autoBlueForward);
     m_chooser.addOption("Blue 1", autoBlue1);
     m_chooser.addOption("Blue 2", autoBlue2);
     m_chooser.addOption("Blue 3", autoBlue3);
+    m_chooser.addOption("Blue 4", autoBlue4);
     tab.add("Auto Mode", m_chooser);
   }
 
-  private Command createShootCommandSequence(int shotVelocity) {
+  private Command createShootCommandSequence(double aimTolerance, int shotVelocity) {
     return new SequentialCommandGroup(
         new ParallelCommandGroup(
+          new InstantCommand(() -> m_collector.disableCollector(), m_collector),
           new SetFlywheelVelocityCommand(m_flywheel, shotVelocity),
           new SequentialCommandGroup (
-            new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+            new LimelightAlignToTargetCommand(aimTolerance, m_drivetrainSubsystem),
             new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitForShotCommand(m_flywheel, m_storage),
-        new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-        new SetFlywheelVelocityCommand(m_flywheel, shotVelocity),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitForShotCommand(m_flywheel, m_storage),
-        new ParallelCommandGroup(
-          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
-          new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-          new InstantCommand(() -> m_drivetrainSubsystem.disableXstance(), m_drivetrainSubsystem),
-          new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav())));
+        new WaitForShotCommand(m_storage, m_flywheel, m_drivetrainSubsystem));
   }
 
   private Command createAutoShootCommandSequence(int shotVelocity, double shotDelay) {
     return new SequentialCommandGroup(
         new ParallelCommandGroup(
           new SetFlywheelVelocityCommand(m_flywheel, shotVelocity),
-          new LimelightAlignToTargetCommand(m_drivetrainSubsystem)),
+          new LimelightAlignToTargetCommand(DrivetrainConstants.LIMELIGHT_ALIGNMENT_TOLERANCE, m_drivetrainSubsystem)),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
         new WaitCommand(shotDelay),
         new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
-          new InstantCommand(()-> m_storage.disableStorage(), m_storage),
-          new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav())));
+          new InstantCommand(()-> m_storage.disableStorage(), m_storage)));
+  }
+
+  private Command limelightCreateAutoShootCommandSequence(double shotDelay) {
+    return new SequentialCommandGroup(
+        new ParallelCommandGroup(
+          new LimelightSetFlywheelVelocityCommand(m_flywheel, m_drivetrainSubsystem),
+          new LimelightAlignToTargetCommand(DrivetrainConstants.LIMELIGHT_ALIGNMENT_TOLERANCE, m_drivetrainSubsystem)),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitCommand(shotDelay),
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
+          new InstantCommand(()-> m_storage.disableStorage(), m_storage)));
   }
 
   private static double deadband(double value, double deadband) {

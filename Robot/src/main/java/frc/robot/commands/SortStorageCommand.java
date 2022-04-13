@@ -35,7 +35,7 @@ public class SortStorageCommand extends CommandBase {
             else if(indexingDelay > StorageConstants.INDEXING_FORWARD_DELAY + StorageConstants.INDEXING_BACKWARD_DURATION) {
                 this.m_storage.disableStorage();
             }
-        } else if (!this.m_storage.isCollectorSensorUnblocked() & this.m_storage.isShooterSensorUnblocked()) {
+        } else if (!this.m_storage.isCollectorSensorUnblocked() && this.m_storage.isShooterSensorUnblocked()) {
             this.m_storage.enableStorage();
             indexingDelay = 0;
         }
@@ -45,7 +45,6 @@ public class SortStorageCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         this.m_storage.disableStorage();
-
     }
 
     // Returns true when the command should end.

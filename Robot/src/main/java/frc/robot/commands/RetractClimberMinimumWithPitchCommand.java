@@ -1,13 +1,14 @@
+
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.Elevator;
 
-public class RetractClimberFullCommand extends CommandBase {
+public class RetractClimberMinimumWithPitchCommand extends CommandBase {
     private final Elevator m_elevator;
 
-    public RetractClimberFullCommand(Elevator subsystem) {
+    public RetractClimberMinimumWithPitchCommand(Elevator subsystem) {
         m_elevator = subsystem;
         addRequirements(m_elevator);
     }
@@ -18,13 +19,14 @@ public class RetractClimberFullCommand extends CommandBase {
 
     @Override
     public void execute() {
-        m_elevator.setElevatorMotorPosition(ElevatorConstants.MIN_ELEVATOR_ENCODER_HEIGHT, true);
+        if(m_elevator.isNearLocalMaximum()) {
+            m_elevator.setElevatorMotorPosition(ElevatorConstants.MIN_DETACH_ENCODER_HEIGHT, true);
+        }
     }
 
     @Override
     public void end(boolean interrupted) {
         m_elevator.stopElevator();
-
     }
 
     @Override
@@ -34,5 +36,4 @@ public class RetractClimberFullCommand extends CommandBase {
         }
         return m_elevator.atSetpoint();
     }
-
 }

@@ -18,7 +18,7 @@ public class ExtendClimberToMidRungCommand extends CommandBase {
 
     @Override
     public void execute() {
-        m_elevator.setElevatorMotorPosition(ElevatorConstants.MID_RUNG_HEIGHT);
+        m_elevator.setElevatorMotorPosition(ElevatorConstants.MID_RUNG_HEIGHT, true);
     }
 
     @Override

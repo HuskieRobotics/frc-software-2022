@@ -4,10 +4,10 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.Elevator;
 
-public class RetractClimberFullCommand extends CommandBase {
+public class ExtendClimberToLowRungCommand extends CommandBase {
     private final Elevator m_elevator;
 
-    public RetractClimberFullCommand(Elevator subsystem) {
+    public ExtendClimberToLowRungCommand(Elevator subsystem) {
         m_elevator = subsystem;
         addRequirements(m_elevator);
     }
@@ -18,7 +18,7 @@ public class RetractClimberFullCommand extends CommandBase {
 
     @Override
     public void execute() {
-        m_elevator.setElevatorMotorPosition(ElevatorConstants.MIN_ELEVATOR_ENCODER_HEIGHT, true);
+        m_elevator.setElevatorMotorPosition(ElevatorConstants.LOW_RUNG_HEIGHT, true);
     }
 
     @Override
