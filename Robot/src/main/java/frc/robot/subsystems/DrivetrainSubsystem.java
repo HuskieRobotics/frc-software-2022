@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.PigeonIMU_StatusFrame;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.sensors.CANCoder;
 //import com.ctre.phoenix.sensors.PigeonIMU;
@@ -600,6 +601,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
                 // if all encoders are initialized, create the swerve modules
                 createSwerveModules();
+
+                // creating the swerve modules changes the sensor initialization strategy to boot to 0;
+                //      change it back to boot to absolute
+                frontLeftEncoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
+                frontRightEncoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
+                backLeftEncoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
+                backRightEncoder.configSensorInitializationStrategy(SensorInitializationStrategy.BootToAbsolutePosition);
             }
 
             return encodersInitialized;
