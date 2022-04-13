@@ -250,43 +250,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 BACK_RIGHT_MODULE_STEER_MOTOR,
                                 BACK_RIGHT_MODULE_STEER_ENCODER,
                                 BACK_RIGHT_MODULE_STEER_OFFSET);
-
-                this.feedForward = new SimpleMotorFeedforward(AutoConstants.ksVolts,
-                                AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
-
-                tabMain.addNumber("Limelight Vel", () -> getVelocityFromLimelight());
-                tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
-                tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
-                tabMain.addBoolean("Is Aimed", () -> isAimed(LIMELIGHT_ALIGNMENT_TOLERANCE));
-                tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
-                tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
-                tabMain.addBoolean("isXstance", this :: isXstance);
-                tabMain.addBoolean("aim enabled", this :: isLimelightAimEnabled);
-                this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
-                                .add("FieldRelativeState", this.isFieldRelative)
-                                .getEntry();
-                
-                if(COMMAND_LOGGING) {
-                        Shuffleboard.getTab("Shooter").addNumber("Limelight Dist", () -> getLimelightDistanceIn());
-                        tab.add("drivetrain", this);
-                        tab.addNumber("Limelight y Dist", () -> getLimelighty());
-                        tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
-                        tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
-                        tab.addNumber("Pose Rotation", () -> m_odometry.getPoseMeters().getRotation().getDegrees());
-                        tab.add("Enable XStance", new InstantCommand(() -> this.enableXstance()));
-                        tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
-                        tab.addNumber("CoG X", () -> this.centerGravity.getX());
-                        tab.addNumber("CoG Y", () -> this.centerGravity.getY());
-                        tabMain.add("align to target", new LimelightAlignToTargetCommand(LIMELIGHT_ALIGNMENT_TOLERANCE, this));
-                        
-                }
-
-                if (TUNING) {
-                        // Add indicators and controls to this Shuffleboard tab to assist with
-                        // interactively tuning the system.
-            
-                        
-                }
         }
 
         /*
