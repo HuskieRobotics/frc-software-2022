@@ -204,6 +204,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
                 tabMain.addNumber("Limelight Vel", () -> getVelocityFromLimelight());
+                tabMain.addNumber("gyro setpoint", () -> this.gyroSetpoint);
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
                 tabMain.addBoolean("Is Aimed", () -> isAimed(LIMELIGHT_ALIGNMENT_TOLERANCE));
