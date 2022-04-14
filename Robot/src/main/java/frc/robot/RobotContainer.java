@@ -421,7 +421,7 @@ public class RobotContainer {
         new SequentialCommandGroup(
             new ParallelCommandGroup(
               new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-              new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.SHOOT_SLOW_VELOCITY)),
+              new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.SHOOT_STEAL_VELOCITY)),
             new InstantCommand(()-> m_storage.enableStorage(), m_storage),
             new WaitCommand(15))
         );
