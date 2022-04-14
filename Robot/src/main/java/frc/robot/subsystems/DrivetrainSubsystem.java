@@ -70,7 +70,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         // replace this with a measured amount.
         public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
                         Math.hypot(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0);
-        public static double MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND * 0.25; // FIXME: make static
+        public static final double MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 1.0;
 
         private Translation2d centerGravity = new Translation2d();        // default to (0,0)
         private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
@@ -205,7 +205,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
                 tabMain.addNumber("Limelight Vel", () -> getVelocityFromLimelight());
-                tabMain.addNumber("gyro setpoint", () -> this.gyroSetpoint);
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
                 tabMain.addBoolean("Is Aimed", () -> isAimed(LIMELIGHT_ALIGNMENT_TOLERANCE));
@@ -218,45 +217,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
                 
-                tabMain.addNumber("Limelight x", () -> getLimelightX());
-                tabMain.add("align to target", new LimelightAlignToTargetCommand(LIMELIGHT_ALIGNMENT_TOLERANCE, this));
-                tabMain.add("align with gyro", new LimelightAlignWithGyroCommand(this));
-                tabMain.add("max angular vel", MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND)
-                    .withWidget(BuiltInWidgets.kNumberSlider)
-                    .withProperties(Map.of("min", 0, "max", 8)) // specify widget properties here
-                    .getEntry()
-                    .addListener(event -> {
-                        MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND = event.getEntry().getValue().getDouble();
-                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-                tabMain.add("limelight F", LIMELIGHT_F)
-                    .withWidget(BuiltInWidgets.kNumberSlider)
-                    .withProperties(Map.of("min", 0, "max", 2.0)) // specify widget properties here
-                    .getEntry()
-                    .addListener(event -> {
-                        LIMELIGHT_F = event.getEntry().getValue().getDouble();
-                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-                tabMain.add("limelight P", LIMELIGHT_P)
-                    .withWidget(BuiltInWidgets.kNumberSlider)
-                    .withProperties(Map.of("min", 0, "max", 2.0)) // specify widget properties here
-                    .getEntry()
-                    .addListener(event -> {
-                        LIMELIGHT_P = event.getEntry().getValue().getDouble();
-                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-                tabMain.add("limelight I", LIMELIGHT_I)
-                    .withWidget(BuiltInWidgets.kNumberSlider)
-                    .withProperties(Map.of("min", 0, "max", 2.0)) // specify widget properties here
-                    .getEntry()
-                    .addListener(event -> {
-                        LIMELIGHT_I = event.getEntry().getValue().getDouble();
-                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-                tabMain.add("aim tolerance", LIMELIGHT_ALIGNMENT_TOLERANCE)
-                    .withWidget(BuiltInWidgets.kNumberSlider)
-                    .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-                    .getEntry()
-                    .addListener(event -> {
-                        LIMELIGHT_ALIGNMENT_TOLERANCE = event.getEntry().getValue().getDouble();
-                    }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-                Shuffleboard.getTab("MAIN").add("drivetrain", this);
+                
                 if(COMMAND_LOGGING) {
                         Shuffleboard.getTab("Shooter").addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                         
@@ -268,7 +229,49 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
                         tab.addNumber("CoG X", () -> this.centerGravity.getX());
                         tab.addNumber("CoG Y", () -> this.centerGravity.getY());
+                        
+                        tabMain.addNumber("Limelight x", () -> getLimelightX());
+                        tabMain.addNumber("gyro setpoint", () -> this.gyroSetpoint);
                         tabMain.add("align to target", new LimelightAlignToTargetCommand(LIMELIGHT_ALIGNMENT_TOLERANCE, this));
+                        tabMain.add("align with gyro", new LimelightAlignWithGyroCommand(this));
+                        /*
+                        tabMain.add("max angular vel", MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND)
+                                .withWidget(BuiltInWidgets.kNumberSlider)
+                                .withProperties(Map.of("min", 0, "max", 8)) // specify widget properties here
+                                .getEntry()
+                                .addListener(event -> {
+                                        MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND = event.getEntry().getValue().getDouble();
+                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+                        tabMain.add("limelight F", LIMELIGHT_F)
+                                .withWidget(BuiltInWidgets.kNumberSlider)
+                                .withProperties(Map.of("min", 0, "max", 2.0)) // specify widget properties here
+                                .getEntry()
+                                .addListener(event -> {
+                                        LIMELIGHT_F = event.getEntry().getValue().getDouble();
+                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+                        tabMain.add("limelight P", LIMELIGHT_P)
+                                .withWidget(BuiltInWidgets.kNumberSlider)
+                                .withProperties(Map.of("min", 0, "max", 2.0)) // specify widget properties here
+                                .getEntry()
+                                .addListener(event -> {
+                                        LIMELIGHT_P = event.getEntry().getValue().getDouble();
+                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+                        tabMain.add("limelight I", LIMELIGHT_I)
+                                .withWidget(BuiltInWidgets.kNumberSlider)
+                                .withProperties(Map.of("min", 0, "max", 2.0)) // specify widget properties here
+                                .getEntry()
+                                .addListener(event -> {
+                                        LIMELIGHT_I = event.getEntry().getValue().getDouble();
+                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+                        tabMain.add("aim tolerance", LIMELIGHT_ALIGNMENT_TOLERANCE)
+                                .withWidget(BuiltInWidgets.kNumberSlider)
+                                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                                .getEntry()
+                                .addListener(event -> {
+                                        LIMELIGHT_ALIGNMENT_TOLERANCE = event.getEntry().getValue().getDouble();
+                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+                        */
+                        Shuffleboard.getTab("MAIN").add("drivetrain", this);
                         
                 }
 
