@@ -26,6 +26,7 @@ public class LimelightAlignWithGyroCommand extends CommandBase {
         double gyro = drivetrainSubsystem.getGyroscopeRotation().getDegrees();
         double tx = drivetrainSubsystem.getLimelightX();
         this.setpoint = gyro - tx;
+        drivetrainSubsystem.setGyroSetpoint(this.setpoint);
     }
 
     @Override
@@ -42,7 +43,7 @@ public class LimelightAlignWithGyroCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return drivetrainSubsystem.isAimedWithGyro(this.setpoint, DrivetrainConstants.LIMELIGHT_ALIGNMENT_TOLERANCE);
+        return drivetrainSubsystem.isAimedWithGyro(DrivetrainConstants.LIMELIGHT_ALIGNMENT_TOLERANCE);
     }
 
 }
