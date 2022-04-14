@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.LimelightAlignToTargetCommand;
+import frc.robot.commands.LimelightAlignWithGyroCommand;
 
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.DrivetrainConstants.*;
@@ -213,7 +214,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
                 
+                tabMain.addNumber("Limelight x", () -> getLimelightX());
                 tabMain.add("align to target", new LimelightAlignToTargetCommand(LIMELIGHT_ALIGNMENT_TOLERANCE, this));
+                tabMain.add("align with gyro", new LimelightAlignWithGyroCommand(this));
                 tabMain.add("max angular vel", MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND)
                     .withWidget(BuiltInWidgets.kNumberSlider)
                     .withProperties(Map.of("min", 0, "max", 8)) // specify widget properties here
