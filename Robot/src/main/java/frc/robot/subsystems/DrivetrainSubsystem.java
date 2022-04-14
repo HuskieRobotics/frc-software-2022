@@ -207,6 +207,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
                 tabMain.addBoolean("Is Aimed", () -> isAimed(LIMELIGHT_ALIGNMENT_TOLERANCE));
+                tabMain.addBoolean("Is Aimed With", () -> isAimedWithGyro(LIMELIGHT_ALIGNMENT_TOLERANCE));
                 tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
                 tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
                 tabMain.addBoolean("isXstance", this :: isXstance);
@@ -253,10 +254,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
                     .addListener(event -> {
                         LIMELIGHT_ALIGNMENT_TOLERANCE = event.getEntry().getValue().getDouble();
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-
+                tab.add("drivetrain", this);
                 if(COMMAND_LOGGING) {
                         Shuffleboard.getTab("Shooter").addNumber("Limelight Dist", () -> getLimelightDistanceIn());
-                        tab.add("drivetrain", this);
+                        
                         tab.addNumber("Limelight y Dist", () -> getLimelighty());
                         tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
                         tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
