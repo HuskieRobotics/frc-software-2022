@@ -254,7 +254,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                     .addListener(event -> {
                         LIMELIGHT_ALIGNMENT_TOLERANCE = event.getEntry().getValue().getDouble();
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-                tab.add("drivetrain", this);
+                Shuffleboard.getTab("MAIN").add("drivetrain", this);
                 if(COMMAND_LOGGING) {
                         Shuffleboard.getTab("Shooter").addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                         
