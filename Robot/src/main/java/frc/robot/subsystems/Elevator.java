@@ -48,7 +48,7 @@ public class Elevator extends SubsystemBase {
     private double prevPitch;
     private double[] latestPitches;
     private int latestPitchesIndex;
-    private int SAMPLE_WINDOW_WIDTH = 10;   // FIXME: make a constant after tuning
+    private int SAMPLE_WINDOW_WIDTH = 6;   // FIXME: make a constant after tuning
     private double EPSILON = 0.001; // FIXME: make a constant after tuning
 
     public Elevator() {
@@ -165,8 +165,8 @@ public class Elevator extends SubsystemBase {
             Shuffleboard.getTab("Elevator").addBoolean("isElevatorControl Enabled", this :: isElevatorControlEnabled);
             
         }
-/*
-        Shuffleboard.getTab("Elevator")
+
+        /* Shuffleboard.getTab("Elevator")
                     .add("sample window", this.SAMPLE_WINDOW_WIDTH)
                     .withWidget(BuiltInWidgets.kNumberSlider)
                     .withProperties(Map.of("min", 0, "max", 50)) // specify widget properties here
@@ -174,7 +174,7 @@ public class Elevator extends SubsystemBase {
                     .addListener(event -> {
                         this.SAMPLE_WINDOW_WIDTH = (int)(event.getEntry().getValue().getDouble());
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-*/
+        */         
         if (TUNING) {
             this.isElevatorControlEnabled = true;
 
@@ -331,6 +331,10 @@ public class Elevator extends SubsystemBase {
                 this.rightElevatorMotor.set(ControlMode.PercentOutput, power);
             }
         }
+    }
+
+    public void setElevatorSetpoint(double setpoint) {
+        this.encoderPositionSetpoint = setpoint;
     }
 
     public void setElevatorMotorPosition(double desiredEncoderPosition, boolean isFast) {
