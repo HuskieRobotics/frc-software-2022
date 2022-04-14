@@ -97,8 +97,8 @@ public final class Constants {
 
     public static final double kMaxSpeedMetersPerSecond = 3;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3;
-    public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI/3;
-    public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI/3;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 2.0*Math.PI;
+    public static final double kMaxAngularSpeedRadiansPerSecondSquared = 2.0*Math.PI;
 
     public static final double kPXController = 2.2956; // from sysId tool
     public static final double kPYController = 2.2956; // from sysId tool
@@ -121,10 +121,12 @@ public final class Constants {
         //kp:0.5
         //kf: .0438
     public final static int MAX_FLYWHEEL_VELOCITY = 18650;
+    public static final int NEAR_WALL_SHOT_VELOCITY = 7000; // FIXME tune this
     public static final int WALL_SHOT_VELOCITY = 7182; // 7382 FIXME tune this
     public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
     public static final int LAUNCH_PAD_VELOCITY = 8182; // FIXME tune this
     public static final int SHOOT_SLOW_VELOCITY = 4000; // FIXME tune this
+    public static final int SHOOT_STEAL_VELOCITY = 5000; // FIXME tune this
     public static final int SHOT_VELOCITY_DIP = 500;  // FIXME: tune this
     public static final double REVERSE_POWER = -0.2; // FIXME: tune this
     public static final int SETPOINTCOUNT = 5;

@@ -68,11 +68,12 @@ public class RobotContainer {
   private final SecondaryArm m_secondMechanism = new SecondaryArm();
   private final Elevator m_elevator = new Elevator();
 
-  private Command autoBlueForward;
-  private Command autoBlue1;
-  private Command autoBlue2;
-  private Command autoBlue3;
-  private Command autoBlue4;
+  private Command autoOneBall;
+  private Command autoTwoBallSteal;
+  private Command autoTwoBallAlt;
+  private Command autoFiveBall;
+  private Command autoFiveBallAlt;
+  private Command autoTwoBall;
 
   // Joysticks
 
@@ -396,41 +397,63 @@ public class RobotContainer {
         AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-    PathPlannerTrajectory autoBlueForwardPath = PathPlanner.loadPath("BlueForward",
+    PathPlannerTrajectory autoBlue01Path = PathPlanner.loadPath("Blue0(1)",
         AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-    autoBlueForward = new SequentialCommandGroup(
-      new FollowPath(autoBlueForwardPath, thetaController, m_drivetrainSubsystem, true),
-      createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 15));
+    PathPlannerTrajectory autoBlue02Path = PathPlanner.loadPath("Blue0(2)",
+        AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+    autoOneBall = new SequentialCommandGroup(
+      new FollowPath(autoBlue01Path, thetaController, m_drivetrainSubsystem, true),
+      createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 2),
+      new FollowPath(autoBlue02Path, thetaController, m_drivetrainSubsystem, false));
 
-      PathPlannerTrajectory autoBlue1Path = PathPlanner.loadPath("Blue1(1)",
+      PathPlannerTrajectory autoBlue11Path = PathPlanner.loadPath("Blue1(1)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-      autoBlue1 = new SequentialCommandGroup(
+      PathPlannerTrajectory autoBlue12Path = PathPlanner.loadPath("Blue1(2)",
+          AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
+      autoTwoBallSteal = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-        new FollowPath(autoBlue1Path, thetaController, m_drivetrainSubsystem, true),
-        new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+        new FollowPath(autoBlue11Path, thetaController, m_drivetrainSubsystem, true),
+        new WaitCommand(5.0),
+        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 2),
+        new ParallelDeadlineGroup(
+          new FollowPath(autoBlue12Path, thetaController, m_drivetrainSubsystem, false),
+          new SortStorageCommand(m_storage)),
+        new SequentialCommandGroup(
+            new ParallelCommandGroup(
+              new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+              new SetFlywheelVelocityCommand(m_flywheel, FlywheelConstants.SHOOT_STEAL_VELOCITY)),
+            new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+            new WaitCommand(15))
+        );
+
+      autoTwoBall = new SequentialCommandGroup(
+        new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+        new FollowPath(autoBlue11Path, thetaController, m_drivetrainSubsystem, true),
+        new WaitCommand(5.0),
         createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 15));
 
       PathPlannerTrajectory autoBlue2Path = PathPlanner.loadPath("Blue2(1)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-      autoBlue2 = new SequentialCommandGroup(
+      autoTwoBallAlt = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
         new FollowPath(autoBlue2Path, thetaController, m_drivetrainSubsystem, true),
         new InstantCommand(() -> m_collector.disableCollector(), m_collector),
         createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 15));
 
+        // 5 ball auto (shoot 2; shoot 3 (with bowling))
       PathPlannerTrajectory autoBlue31Path = PathPlanner.loadPath("Blue3(1)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       PathPlannerTrajectory autoBlue32Path = PathPlanner.loadPath("Blue3(2)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       PathPlannerTrajectory autoBlue33Path = PathPlanner.loadPath("Blue3(3)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-      autoBlue3 = new SequentialCommandGroup(
+      autoFiveBall = new SequentialCommandGroup(
         new ParallelCommandGroup(
           new InstantCommand(() -> m_collector.enableCollector(), m_collector),
-          new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.WALL_SHOT_VELOCITY), m_flywheel)),
+          new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.NEAR_WALL_SHOT_VELOCITY), m_flywheel)),
         new WaitCommand(0.5),
         new FollowPath(autoBlue31Path, thetaController, m_drivetrainSubsystem, true),
-        limelightCreateAutoShootCommandSequence(2),
+        createAutoShootNoAimCommandSequence(FlywheelConstants.NEAR_WALL_SHOT_VELOCITY, 2),
         new ParallelDeadlineGroup(
           new FollowPath(autoBlue32Path, thetaController, m_drivetrainSubsystem, false),
           new SortStorageCommand(m_storage)),
@@ -439,6 +462,7 @@ public class RobotContainer {
             new FollowPath(autoBlue33Path, thetaController, m_drivetrainSubsystem, false)),
         limelightCreateAutoShootCommandSequence(15));
 
+        // 5-ball auto (shoot 2, shoot 1, shoot 2 (no bowling))
       PathPlannerTrajectory autoBlue41Path = PathPlanner.loadPath("Blue4(1)",
         AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       PathPlannerTrajectory autoBlue42Path = PathPlanner.loadPath("Blue4(2)",
@@ -447,7 +471,7 @@ public class RobotContainer {
         AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       PathPlannerTrajectory autoBlue44Path = PathPlanner.loadPath("Blue4(4)",
         AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-      autoBlue4 = new SequentialCommandGroup(
+      autoFiveBallAlt = new SequentialCommandGroup(
         new ParallelCommandGroup(
           new InstantCommand(() -> m_collector.enableCollector(), m_collector),
           new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.WALL_SHOT_VELOCITY), m_flywheel)),
@@ -470,11 +494,12 @@ public class RobotContainer {
   
 
     ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
-    m_chooser.addOption("Blue Forward", autoBlueForward);
-    m_chooser.addOption("Blue 1", autoBlue1);
-    m_chooser.addOption("Blue 2", autoBlue2);
-    m_chooser.addOption("Blue 3", autoBlue3);
-    m_chooser.addOption("Blue 4", autoBlue4);
+    m_chooser.addOption("1 Ball", autoOneBall);
+    m_chooser.addOption("2 Ball & Steal", autoTwoBallSteal);
+    m_chooser.addOption("2 Ball", autoTwoBall);
+    m_chooser.addOption("Alt 2 Ball", autoTwoBallAlt);
+    m_chooser.addOption("Main 5 Ball", autoFiveBall);
+    m_chooser.addOption("Alt 5 Ball", autoFiveBallAlt);
     tab.add("Auto Mode", m_chooser);
   }
 
@@ -495,6 +520,16 @@ public class RobotContainer {
         new ParallelCommandGroup(
           new SetFlywheelVelocityCommand(m_flywheel, shotVelocity),
           new LimelightAlignToTargetCommand(DrivetrainConstants.LIMELIGHT_ALIGNMENT_TOLERANCE, m_drivetrainSubsystem)),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitCommand(shotDelay),
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
+          new InstantCommand(()-> m_storage.disableStorage(), m_storage)));
+  }
+
+  private Command createAutoShootNoAimCommandSequence(int shotVelocity, double shotDelay) {
+    return new SequentialCommandGroup(
+        new SetFlywheelVelocityCommand(m_flywheel, shotVelocity),
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
         new WaitCommand(shotDelay),
         new ParallelCommandGroup(
