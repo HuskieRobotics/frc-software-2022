@@ -19,17 +19,22 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.LimelightAlignToTargetCommand;
+import frc.robot.commands.LimelightAlignWithGyroCommand;
 
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.DrivetrainConstants.*;
+
+import java.util.Map;
 
 public class DrivetrainSubsystem extends SubsystemBase {
         /**
@@ -65,6 +70,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         // replace this with a measured amount.
         public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
                         Math.hypot(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0);
+        public static final double MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 1.0;
 
         private Translation2d centerGravity = new Translation2d();        // default to (0,0)
         private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
@@ -104,8 +110,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
         private SimpleMotorFeedforward feedForward;
 
         private int aimSetpointCount;
+        private int gyroAimSetpointCount;
         private double lastLimelightDistance;
         private boolean limelightAimEnabled;
+        private double gyroSetpoint;
 
         private boolean stackTraceLogging;
 
@@ -200,6 +208,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
                 tabMain.addBoolean("Is Aimed", () -> isAimed());
+                tabMain.addBoolean("Is Aimed With", () -> isAimedWithGyro(LIMELIGHT_ALIGNMENT_TOLERANCE));
                 tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
                 tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
                 tabMain.addBoolean("isXstance", this :: isXstance);
@@ -210,7 +219,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 
                 if(COMMAND_LOGGING) {
                         Shuffleboard.getTab("Shooter").addNumber("Limelight Dist", () -> getLimelightDistanceIn());
-                        tab.add("drivetrain", this);
+                        
                         tab.addNumber("Limelight y Dist", () -> getLimelighty());
                         tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
                         tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
@@ -219,7 +228,49 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
                         tab.addNumber("CoG X", () -> this.centerGravity.getX());
                         tab.addNumber("CoG Y", () -> this.centerGravity.getY());
+                        
+                        tabMain.addNumber("Limelight x", () -> getLimelightX());
+                        tabMain.addNumber("gyro setpoint", () -> this.gyroSetpoint);
+                        tabMain.add("align with gyro", new LimelightAlignWithGyroCommand(this));
                         tabMain.add("align to target", new LimelightAlignToTargetCommand(this));
+                        /*
+                        tabMain.add("max angular vel", MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND)
+                                .withWidget(BuiltInWidgets.kNumberSlider)
+                                .withProperties(Map.of("min", 0, "max", 8)) // specify widget properties here
+                                .getEntry()
+                                .addListener(event -> {
+                                        MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND = event.getEntry().getValue().getDouble();
+                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+                        tabMain.add("limelight F", LIMELIGHT_F)
+                                .withWidget(BuiltInWidgets.kNumberSlider)
+                                .withProperties(Map.of("min", 0, "max", 2.0)) // specify widget properties here
+                                .getEntry()
+                                .addListener(event -> {
+                                        LIMELIGHT_F = event.getEntry().getValue().getDouble();
+                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+                        tabMain.add("limelight P", LIMELIGHT_P)
+                                .withWidget(BuiltInWidgets.kNumberSlider)
+                                .withProperties(Map.of("min", 0, "max", 2.0)) // specify widget properties here
+                                .getEntry()
+                                .addListener(event -> {
+                                        LIMELIGHT_P = event.getEntry().getValue().getDouble();
+                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+                        tabMain.add("limelight I", LIMELIGHT_I)
+                                .withWidget(BuiltInWidgets.kNumberSlider)
+                                .withProperties(Map.of("min", 0, "max", 2.0)) // specify widget properties here
+                                .getEntry()
+                                .addListener(event -> {
+                                        LIMELIGHT_I = event.getEntry().getValue().getDouble();
+                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+                        tabMain.add("aim tolerance", LIMELIGHT_ALIGNMENT_TOLERANCE)
+                                .withWidget(BuiltInWidgets.kNumberSlider)
+                                .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+                                .getEntry()
+                                .addListener(event -> {
+                                        LIMELIGHT_ALIGNMENT_TOLERANCE = event.getEntry().getValue().getDouble();
+                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+                        */
+                        Shuffleboard.getTab("MAIN").add("drivetrain", this);
                         
                 }
 
@@ -469,25 +520,21 @@ public class DrivetrainSubsystem extends SubsystemBase {
         //      are radians/second. This method should, but currently does not, clamp the output to
         //      MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND.
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
-                // LIMELIGHT_F is specified in units of radians/second
-                // FIXME: try new feed forward values now that clamping code is fixed
+                // LIMELIGHT_F is specified as a fraction of MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND
                 if (rotationSupplier > 0) {     // clockwise
-                        rotationSupplier += LIMELIGHT_F * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+                        rotationSupplier += LIMELIGHT_F * MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
                 else if (rotationSupplier < 0) {  // counterclockwise
-                        rotationSupplier -= LIMELIGHT_F * MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+                        rotationSupplier -= LIMELIGHT_F * MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
 
-                // clamp the rotation to MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
-                // FIXME: enable clamping after testing in controlled environment
-                
-                if(rotationSupplier > MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND) {
-                        rotationSupplier = MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+                // clamp the rotation to MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+                if(rotationSupplier > MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND) {
+                        rotationSupplier = MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
-                else if(rotationSupplier < -MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND) {
-                        rotationSupplier = -MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
+                else if(rotationSupplier < -MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND) {
+                        rotationSupplier = -MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
                 }
-                
 
                 drive(translationXSupplier, translationYSupplier, rotationSupplier);
 
@@ -505,13 +552,40 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 double distanceToHub = getLimelightDistanceIn() + LimelightConstants.EDGE_TO_CENTER_HUB_DISTANCE;
                 if(Math.abs(distanceToHub * Math.sin(Math.toRadians(getLimelightX()))) < LIMELIGHT_AIM_TOLERANCE){
                         aimSetpointCount++;
-                        if(aimSetpointCount >= 5){
+                        if(aimSetpointCount >= 2){
                                 return true;
                         }
                 }
                 else {
                         
                         aimSetpointCount = 0;
+                }
+                return false;
+
+        }
+
+        public void setGyroSetpoint(double setpoint) {
+                this.gyroSetpoint = setpoint;
+        }
+        
+        public boolean isAimedWithGyro(double tolerance) {
+
+                // check if limelight aiming is enabled
+                if(!this.limelightAimEnabled) {
+                        return true;
+                }
+
+                // Always return false if no target is visible to the Limelight. If this happens, the driver has to cancel the aim
+                //      and move to a new location, or the operator has to manually enable the storage to shoot.
+                if(Math.abs(this.gyroSetpoint - getGyroscopeRotation().getDegrees()) < tolerance){
+                        gyroAimSetpointCount++;
+                        if(gyroAimSetpointCount >= 2){
+                                return true;
+                        }
+                }
+                else {
+                        
+                        gyroAimSetpointCount = 0;
                 }
                 return false;
 
