@@ -217,7 +217,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
                 
-                
                 if(COMMAND_LOGGING) {
                         Shuffleboard.getTab("Shooter").addNumber("Limelight Dist", () -> getLimelightDistanceIn());
                         
@@ -232,8 +231,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         
                         tabMain.addNumber("Limelight x", () -> getLimelightX());
                         tabMain.addNumber("gyro setpoint", () -> this.gyroSetpoint);
-                        tabMain.add("align to target", new LimelightAlignToTargetCommand(LIMELIGHT_ALIGNMENT_TOLERANCE, this));
                         tabMain.add("align with gyro", new LimelightAlignWithGyroCommand(this));
+                        tabMain.add("align to target", new LimelightAlignToTargetCommand(LIMELIGHT_ALIGNMENT_TOLERANCE, this));
                         /*
                         tabMain.add("max angular vel", MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND)
                                 .withWidget(BuiltInWidgets.kNumberSlider)
@@ -552,7 +551,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 //      and move to a new location, or the operator has to manually enable the storage to shoot.
                 if(Math.abs(0.0 - getLimelightX()) < tolerance){
                         aimSetpointCount++;
-                        if(aimSetpointCount >= 5){
+                        if(aimSetpointCount >= 2){
                                 return true;
                         }
                 }
