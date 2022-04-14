@@ -118,10 +118,10 @@ public class Flywheel extends SubsystemBase {
         this.velocitySetPoint = 0.0;
 
         //Shuffleboard.getTab("MAIN").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
-        
+        Shuffleboard.getTab("MAIN").add("shooter", this);
         if(Constants.COMMAND_LOGGING) {
             Shuffleboard.getTab("Shooter").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
-            Shuffleboard.getTab("Shooter").add("shooter", this);
+           
             Shuffleboard.getTab("Shooter").addNumber("FlywheelVelocity", this::getVelocity);
             Shuffleboard.getTab("Shooter").addNumber("FlywheelMinVelocity", this::getMinVelocity);
             Shuffleboard.getTab("Shooter").addNumber("FlywheelRightEncoderReading",
