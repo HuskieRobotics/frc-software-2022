@@ -69,10 +69,10 @@ public final class Constants {
     public static final double CURRENT_LIMIT_FACTOR = 0.5;  // FIXME: this is extreme; tune it
 
     /* Limelight */
-    public static final double LIMELIGHT_F = 0.05;
-    public static final double LIMELIGHT_P = 0.1;
-    public static final double LIMELIGHT_I = 0.0;
-    public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = .8;
+    public static final double LIMELIGHT_F = 0.1; // FIXME: make static
+    public static final double LIMELIGHT_P = 0.2; // FIXME: make static
+    public static final double LIMELIGHT_I = 0.50; // FIXME: make static
+    public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = 1.0; // FIXME: make static
     public static final double LIMELIGHT_LAUNCHPAD_ALIGNMENT_TOLERANCE = .6;
     public static final double LIMELIGHT_SLOPE = 23.08;
     public static final double LIMELIGHT_Y_COMPONENT = 4596.34;//4596.34
