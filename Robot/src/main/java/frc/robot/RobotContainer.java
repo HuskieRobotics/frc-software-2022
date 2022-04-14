@@ -73,6 +73,7 @@ public class RobotContainer {
   private Command autoBlue2;
   private Command autoBlue3;
   private Command autoBlue4;
+  private Command autoBlue5;
 
   // Joysticks
 
@@ -410,9 +411,9 @@ public class RobotContainer {
       PathPlannerTrajectory autoBlue12Path = PathPlanner.loadPath("Blue1(2)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       autoBlue1 = new SequentialCommandGroup(
-        new WaitCommand(5.0),
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
         new FollowPath(autoBlue11Path, thetaController, m_drivetrainSubsystem, true),
+        new WaitCommand(5.0),
         createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 2),
         new ParallelDeadlineGroup(
           new FollowPath(autoBlue12Path, thetaController, m_drivetrainSubsystem, false),
@@ -489,7 +490,8 @@ public class RobotContainer {
     ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
     m_chooser.addOption("1 Ball", autoBlueForward);
     m_chooser.addOption("2 Ball & Steal", autoBlue1);
-    m_chooser.addOption("Blue 2", autoBlue2);
+    m_chooser.addOption("2 Ball", autoBlue5);
+    m_chooser.addOption("Alt 2 Ball", autoBlue2);
     m_chooser.addOption("Main 5 Ball", autoBlue3);
     m_chooser.addOption("Alt 5 Ball", autoBlue4);
     tab.add("Auto Mode", m_chooser);
