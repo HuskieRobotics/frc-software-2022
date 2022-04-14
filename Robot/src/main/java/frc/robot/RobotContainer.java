@@ -487,11 +487,11 @@ public class RobotContainer {
   
 
     ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
-    m_chooser.addOption("Blue Forward", autoBlueForward);
-    m_chooser.addOption("Blue 1", autoBlue1);
+    m_chooser.addOption("1 Ball", autoBlueForward);
+    m_chooser.addOption("2 Ball & Steal", autoBlue1);
     m_chooser.addOption("Blue 2", autoBlue2);
-    m_chooser.addOption("Blue 3", autoBlue3);
-    m_chooser.addOption("Blue 4", autoBlue4);
+    m_chooser.addOption("Main 5 Ball", autoBlue3);
+    m_chooser.addOption("Alt 5 Ball", autoBlue4);
     tab.add("Auto Mode", m_chooser);
   }
 
