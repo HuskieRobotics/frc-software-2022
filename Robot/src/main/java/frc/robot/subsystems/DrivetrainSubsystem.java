@@ -556,6 +556,29 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 return false;
 
         }
+        
+        public boolean isAimedWithGyro(double setpoint, double tolerance) {
+
+                // check if limelight aiming is enabled
+                if(!this.limelightAimEnabled) {
+                        return true;
+                }
+
+                // Always return false if no target is visible to the Limelight. If this happens, the driver has to cancel the aim
+                //      and move to a new location, or the operator has to manually enable the storage to shoot.
+                if(Math.abs(setpoint - getGyroscopeRotation().getDegrees()) < tolerance){
+                        aimSetpointCount++;
+                        if(aimSetpointCount >= 5){
+                                return true;
+                        }
+                }
+                else {
+                        
+                        aimSetpointCount = 0;
+                }
+                return false;
+
+        }
 
         public void enableLimelightAim() {
                 this.limelightAimEnabled = true;

@@ -42,7 +42,7 @@ public class LimelightAlignWithGyroCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return drivetrainSubsystem.isAimed(DrivetrainConstants.LIMELIGHT_ALIGNMENT_TOLERANCE);
+        return drivetrainSubsystem.isAimedWithGyro(this.setpoint, DrivetrainConstants.LIMELIGHT_ALIGNMENT_TOLERANCE);
     }
 
 }
