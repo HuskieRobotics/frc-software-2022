@@ -110,6 +110,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         private SimpleMotorFeedforward feedForward;
 
         private int aimSetpointCount;
+        private int gyroAimSetpointCount;
         private double lastLimelightDistance;
         private boolean limelightAimEnabled;
         private double gyroSetpoint;
@@ -574,14 +575,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 // Always return false if no target is visible to the Limelight. If this happens, the driver has to cancel the aim
                 //      and move to a new location, or the operator has to manually enable the storage to shoot.
                 if(Math.abs(this.gyroSetpoint - getGyroscopeRotation().getDegrees()) < tolerance){
-                        aimSetpointCount++;
-                        if(aimSetpointCount >= 5){
+                        gyroAimSetpointCount++;
+                        if(gyroAimSetpointCount >= 5){
                                 return true;
                         }
                 }
                 else {
                         
-                        aimSetpointCount = 0;
+                        gyroAimSetpointCount = 0;
                 }
                 return false;
 
