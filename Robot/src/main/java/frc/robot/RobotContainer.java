@@ -70,9 +70,9 @@ public class RobotContainer {
 
   private Command autoOneBall;
   private Command autoTwoBallSteal;
-  private Command autoBlue2;
-  private Command autoBlue3;
-  private Command autoBlue4;
+  private Command autoTwoBallAlt;
+  private Command autoFiveBall;
+  private Command autoFiveBallAlt;
   private Command autoTwoBall;
 
   // Joysticks
@@ -434,7 +434,7 @@ public class RobotContainer {
 
       PathPlannerTrajectory autoBlue2Path = PathPlanner.loadPath("Blue2(1)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-      autoBlue2 = new SequentialCommandGroup(
+      autoTwoBallAlt = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
         new FollowPath(autoBlue2Path, thetaController, m_drivetrainSubsystem, true),
         new InstantCommand(() -> m_collector.disableCollector(), m_collector),
@@ -447,7 +447,7 @@ public class RobotContainer {
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       PathPlannerTrajectory autoBlue33Path = PathPlanner.loadPath("Blue3(3)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-      autoBlue3 = new SequentialCommandGroup(
+      autoFiveBall = new SequentialCommandGroup(
         new ParallelCommandGroup(
           new InstantCommand(() -> m_collector.enableCollector(), m_collector),
           new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.NEAR_WALL_SHOT_VELOCITY), m_flywheel)),
@@ -471,7 +471,7 @@ public class RobotContainer {
         AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       PathPlannerTrajectory autoBlue44Path = PathPlanner.loadPath("Blue4(4)",
         AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-      autoBlue4 = new SequentialCommandGroup(
+      autoFiveBallAlt = new SequentialCommandGroup(
         new ParallelCommandGroup(
           new InstantCommand(() -> m_collector.enableCollector(), m_collector),
           new InstantCommand(() -> m_flywheel.setVelocity(FlywheelConstants.WALL_SHOT_VELOCITY), m_flywheel)),
@@ -497,9 +497,9 @@ public class RobotContainer {
     m_chooser.addOption("1 Ball", autoOneBall);
     m_chooser.addOption("2 Ball & Steal", autoTwoBallSteal);
     m_chooser.addOption("2 Ball", autoTwoBall);
-    m_chooser.addOption("Alt 2 Ball", autoBlue2);
-    m_chooser.addOption("Main 5 Ball", autoBlue3);
-    m_chooser.addOption("Alt 5 Ball", autoBlue4);
+    m_chooser.addOption("Alt 2 Ball", autoTwoBallAlt);
+    m_chooser.addOption("Main 5 Ball", autoFiveBall);
+    m_chooser.addOption("Alt 5 Ball", autoFiveBallAlt);
     tab.add("Auto Mode", m_chooser);
   }
 
