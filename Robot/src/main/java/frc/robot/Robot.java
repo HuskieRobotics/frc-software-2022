@@ -92,6 +92,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
+        // By invoking the stop method, each swerve module's set method will be invoked when the robot is disabled.
+        //  This is important since it provides an opportunity for the absolute angle to be properly read and the seed
+        //  angle to be fixed before starting auto. As long as the robot is running for at most 10 seconds, the angles
+        //  will be correct.
+        RobotContainer.getInstance().getDrivetrainSubsystem().stop();
     }
 
     /**
