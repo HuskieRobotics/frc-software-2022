@@ -68,12 +68,12 @@ public class RobotContainer {
   private final SecondaryArm m_secondMechanism = new SecondaryArm();
   private final Elevator m_elevator = new Elevator();
 
-  private Command autoBlueForward;
-  private Command autoBlue1;
+  private Command autoOneBall;
+  private Command autoTwoBallSteal;
   private Command autoBlue2;
   private Command autoBlue3;
   private Command autoBlue4;
-  private Command autoBlue5;
+  private Command autoTwoBall;
 
   // Joysticks
 
@@ -401,7 +401,7 @@ public class RobotContainer {
         AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
     PathPlannerTrajectory autoBlue02Path = PathPlanner.loadPath("Blue0(2)",
         AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-    autoBlueForward = new SequentialCommandGroup(
+    autoOneBall = new SequentialCommandGroup(
       new FollowPath(autoBlue01Path, thetaController, m_drivetrainSubsystem, true),
       createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 2),
       new FollowPath(autoBlue02Path, thetaController, m_drivetrainSubsystem, false));
@@ -410,7 +410,7 @@ public class RobotContainer {
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
       PathPlannerTrajectory autoBlue12Path = PathPlanner.loadPath("Blue1(2)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
-      autoBlue1 = new SequentialCommandGroup(
+      autoTwoBallSteal = new SequentialCommandGroup(
         new InstantCommand(() -> m_collector.enableCollector(), m_collector),
         new FollowPath(autoBlue11Path, thetaController, m_drivetrainSubsystem, true),
         new WaitCommand(5.0),
@@ -425,6 +425,12 @@ public class RobotContainer {
             new InstantCommand(()-> m_storage.enableStorage(), m_storage),
             new WaitCommand(15))
         );
+
+      autoTwoBall = new SequentialCommandGroup(
+        new InstantCommand(() -> m_collector.enableCollector(), m_collector),
+        new FollowPath(autoBlue11Path, thetaController, m_drivetrainSubsystem, true),
+        new WaitCommand(5.0),
+        createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 15));
 
       PathPlannerTrajectory autoBlue2Path = PathPlanner.loadPath("Blue2(1)",
           AutoConstants.kMaxSpeedMetersPerSecond, AutoConstants.kMaxAccelerationMetersPerSecondSquared);
@@ -488,9 +494,9 @@ public class RobotContainer {
   
 
     ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
-    m_chooser.addOption("1 Ball", autoBlueForward);
-    m_chooser.addOption("2 Ball & Steal", autoBlue1);
-    m_chooser.addOption("2 Ball", autoBlue5);
+    m_chooser.addOption("1 Ball", autoOneBall);
+    m_chooser.addOption("2 Ball & Steal", autoTwoBallSteal);
+    m_chooser.addOption("2 Ball", autoTwoBall);
     m_chooser.addOption("Alt 2 Ball", autoBlue2);
     m_chooser.addOption("Main 5 Ball", autoBlue3);
     m_chooser.addOption("Alt 5 Ball", autoBlue4);
