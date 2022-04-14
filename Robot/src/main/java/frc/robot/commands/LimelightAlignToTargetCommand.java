@@ -8,6 +8,7 @@ public class LimelightAlignToTargetCommand extends PIDCommand {
 
     private double tolerance;
     private DrivetrainSubsystem drivetrainSubsystem;
+    private double setpoint;
 
     public LimelightAlignToTargetCommand(double aimTolerance, DrivetrainSubsystem subsystem){
         super(
@@ -26,6 +27,9 @@ public class LimelightAlignToTargetCommand extends PIDCommand {
         super.initialize();
         getController().setP(DrivetrainConstants.LIMELIGHT_P);
         getController().setI(DrivetrainConstants.LIMELIGHT_I);
+        double gyro = drivetrainSubsystem.getGyroscopeRotation().getDegrees();
+        double tx = drivetrainSubsystem.getLimelightX();
+        this.setpoint = gyro - tx;
     }
 
     public void end(boolean interrupted) {
