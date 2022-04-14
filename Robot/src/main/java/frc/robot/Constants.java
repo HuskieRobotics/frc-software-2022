@@ -97,8 +97,8 @@ public final class Constants {
 
     public static final double kMaxSpeedMetersPerSecond = 3;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3;
-    public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI/3;
-    public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI/3;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 2.0*Math.PI;
+    public static final double kMaxAngularSpeedRadiansPerSecondSquared = 2.0*Math.PI;
 
     public static final double kPXController = 2.2956; // from sysId tool
     public static final double kPYController = 2.2956; // from sysId tool
