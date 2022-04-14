@@ -576,7 +576,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 //      and move to a new location, or the operator has to manually enable the storage to shoot.
                 if(Math.abs(this.gyroSetpoint - getGyroscopeRotation().getDegrees()) < tolerance){
                         gyroAimSetpointCount++;
-                        if(gyroAimSetpointCount >= 5){
+                        if(gyroAimSetpointCount >= 2){
                                 return true;
                         }
                 }
