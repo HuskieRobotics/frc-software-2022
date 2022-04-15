@@ -113,6 +113,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         private int gyroAimSetpointCount;
         private double lastLimelightDistance;
         private boolean limelightAimEnabled;
+        private boolean autoAimAndShootEnabled;
         private double gyroSetpoint;
 
         private boolean stackTraceLogging;
@@ -123,6 +124,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.isFieldRelative = false;
                 this.isXstance = false;
                 this.limelightAimEnabled = true;
+                this.autoAimAndShootEnabled = false;
                 // this.m_robotCenter = new Translation2d(0,0);
 
                 this.zeroGyroscope();
@@ -215,16 +217,16 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
                 tabMain.addBoolean("isXstance", this :: isXstance);
                 tabMain.addBoolean("aim enabled", this :: isLimelightAimEnabled);
+                tabMain.addBoolean("aim & shoot enabled", () -> this.autoAimAndShootEnabled);
                 tabMain.add("align to target", new LimelightAlignToTargetCommand(this));
                 this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
                 
-                Shuffleboard.getTab("MAIN").add("drivetrain", this);
-
                 if(COMMAND_LOGGING) {
                         
                         
+                        tabMain.add("drivetrain", this);
                         tabMain.addNumber("vx", () -> getVelocityX());
                         tabMain.addNumber("vy", () -> getVelocityY());
                         tabMain.addNumber("Limelight x", () -> getLimelightX());
@@ -603,6 +605,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         public double getVelocityY() {
                 return m_chassisSpeeds.vyMetersPerSecond;
+        }
+
+        public void enableAutoAimAndShoot() {
+                this.autoAimAndShootEnabled = true;
+        }
+
+        public void disableAutoAimAndShoot() {
+                this.autoAimAndShootEnabled = false;
         }
 
         public void enableLimelightAim() {

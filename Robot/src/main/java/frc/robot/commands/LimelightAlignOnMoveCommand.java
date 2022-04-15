@@ -31,6 +31,7 @@ public class LimelightAlignOnMoveCommand extends CommandBase {
     @Override
     public void initialize() {
         controller.reset();
+        drivetrainSubsystem.enableAutoAimAndShoot();
     }
 
     @Override
@@ -78,6 +79,7 @@ public class LimelightAlignOnMoveCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         drivetrainSubsystem.stop();
+        drivetrainSubsystem.disableAutoAimAndShoot();
     }
 
     @Override
