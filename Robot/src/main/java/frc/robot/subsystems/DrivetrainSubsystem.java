@@ -218,7 +218,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 tabMain.addBoolean("isXstance", this :: isXstance);
                 tabMain.addBoolean("aim enabled", this :: isLimelightAimEnabled);
                 tabMain.addBoolean("aim & shoot enabled", () -> this.autoAimAndShootEnabled);
-                tabMain.add("align to target", new LimelightAlignToTargetCommand(this));
                 this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
