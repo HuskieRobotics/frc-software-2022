@@ -306,21 +306,6 @@ public class RobotContainer {
 
   private void configureClimberButtons() {
 
-    // configure climb to 4 (traverse) rung climb sequence
-    operatorButtons[8].whenPressed(
-        new SequentialCommandGroup(
-            new RetractClimberFullCommand(m_elevator),
-            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
-            new WaitCommand(0.5), // wait for secondary arm to be positioned
-            new ReachToNextRungWithPitchCommand(m_elevator, m_secondMechanism),
-            new WaitCommand(0.040), // wait for secondary arm to be positioned; FIXME tune for half the period of swing
-            new RetractClimberFullCommand(m_elevator),
-            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
-            new WaitCommand(0.5), // wait for secondary arm to be positioned
-            new ReachToNextRungWithPitchCommand(m_elevator, m_secondMechanism),
-            new WaitCommand(0.040), // wait for secondary arm to be positioned; FIXME tune for half the period of swing
-            new RetractClimberFullCommand(m_elevator)));
-
     // configure climb to 3 (high) rung climb sequence
     operatorButtons[7].whenPressed(
         new SequentialCommandGroup(
