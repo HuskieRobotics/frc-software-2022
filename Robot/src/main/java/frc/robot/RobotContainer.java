@@ -182,19 +182,11 @@ public class RobotContainer {
     //x-stance
     //joystickButtons1[3].whileHeld(new InstantCommand(() -> m_drivetrainSubsystem.setXStance(), m_drivetrainSubsystem));
 
-    // limelight align while moving
+    // auto aim and shoot while moving
     joystickButtons1[3].whenPressed(
       new SequentialCommandGroup(
         new LimelightAlignOnMoveCommand(m_drivetrainSubsystem, m_flywheel, m_storage, joystick0, joystick1),
-        new ParallelCommandGroup( // ensure the robot is aligned and the flywheel is at the setpoint before shooting
-          new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
-          new LimelightSetFlywheelVelocityCommand(m_flywheel, m_drivetrainSubsystem)),
-        new ParallelCommandGroup(
-          new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-          new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem)),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitForShotCommand(m_storage, m_flywheel, m_drivetrainSubsystem))
-    );
+        createLimelightShootCommandSequence()));
 
     //FieldRelative toggle
     joystickButtons0[3].toggleWhenPressed(
@@ -302,15 +294,7 @@ public class RobotContainer {
     
     // limelight shot
     operatorButtons[JoystickConstants.SHOOT_LIMELIGHT].whenPressed(
-      new SequentialCommandGroup(
-        new ParallelCommandGroup(
-          new InstantCommand(() -> m_collector.disableCollector(), m_collector),
-          new LimelightSetFlywheelVelocityCommand(m_flywheel, m_drivetrainSubsystem),
-          new SequentialCommandGroup (
-            new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
-            new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
-        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
-        new WaitForShotCommand(m_storage, m_flywheel, m_drivetrainSubsystem)));
+      createLimelightShootCommandSequence());
   }
 
   private void configureClimberButtons() {
@@ -523,6 +507,18 @@ public class RobotContainer {
         new ParallelCommandGroup(
           new InstantCommand(() -> m_collector.disableCollector(), m_collector),
           new SetFlywheelVelocityCommand(m_flywheel, shotVelocity),
+          new SequentialCommandGroup (
+            new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+            new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
+        new InstantCommand(()-> m_storage.enableStorage(), m_storage),
+        new WaitForShotCommand(m_storage, m_flywheel, m_drivetrainSubsystem));
+  }
+
+  private Command createLimelightShootCommandSequence() {
+    return new SequentialCommandGroup(
+        new ParallelCommandGroup(
+          new InstantCommand(() -> m_collector.disableCollector(), m_collector),
+          new LimelightSetFlywheelVelocityCommand(m_flywheel, m_drivetrainSubsystem),
           new SequentialCommandGroup (
             new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
             new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem))),
