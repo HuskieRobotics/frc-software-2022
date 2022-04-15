@@ -212,7 +212,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
                 tabMain.addBoolean("Is Aimed", () -> isAimed());
-                tabMain.addBoolean("Is Aimed With", () -> isAimedWithGyro(LIMELIGHT_ALIGNMENT_TOLERANCE));
+                tabMain.addBoolean("Is Aimed With", () -> isAimedWithGyro());
                 tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
                 tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
                 tabMain.addBoolean("isXstance", this :: isXstance);
@@ -557,7 +557,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 double distanceToHub = getLimelightDistanceIn() + LimelightConstants.EDGE_TO_CENTER_HUB_DISTANCE;
                 if(Math.abs(distanceToHub * Math.sin(Math.toRadians(getLimelightX()))) < LIMELIGHT_AIM_TOLERANCE){
                         aimSetpointCount++;
-                        if(aimSetpointCount >= 2){
+                        if(aimSetpointCount >= AIM_SETPOINT_COUNT){
                                 return true;
                         }
                 }
@@ -573,18 +573,21 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 this.gyroSetpoint = setpoint;
         }
         
-        public boolean isAimedWithGyro(double tolerance) {
+        public boolean isAimedWithGyro() {
 
                 // check if limelight aiming is enabled
                 if(!this.limelightAimEnabled) {
                         return true;
                 }
 
-                // Always return false if no target is visible to the Limelight. If this happens, the driver has to cancel the aim
-                //      and move to a new location, or the operator has to manually enable the storage to shoot.
-                if(Math.abs(this.gyroSetpoint - getGyroscopeRotation().getDegrees()) < tolerance){
+                // calculate the horizontal offset from the center of the hub and ensure we are within the
+                //      specified tolerance
+                double distanceToHub = getLimelightDistanceIn() + LimelightConstants.EDGE_TO_CENTER_HUB_DISTANCE;
+                double setPointDisplacement = distanceToHub * Math.sin(Math.toRadians(this.gyroSetpoint));
+                double currentDisplacement = distanceToHub * Math.sin(getGyroscopeRotation().getRadians());
+                if(Math.abs(setPointDisplacement - currentDisplacement) < LIMELIGHT_AIM_TOLERANCE){
                         gyroAimSetpointCount++;
-                        if(gyroAimSetpointCount >= 2){
+                        if(gyroAimSetpointCount >= AIM_SETPOINT_COUNT){
                                 return true;
                         }
                 }
