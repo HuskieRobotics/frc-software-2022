@@ -595,6 +595,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         }
 
+        public double getVelocityX() {
+                return m_chassisSpeeds.vxMetersPerSecond;
+        }
+
+        public double getVelocityY() {
+                return m_chassisSpeeds.vyMetersPerSecond;
+        }
+
         public void enableLimelightAim() {
                 this.limelightAimEnabled = true;
         }
