@@ -179,9 +179,6 @@ public class RobotContainer {
   }
 
   private void configureDrivetrainButtons() {
-    //x-stance
-    //joystickButtons1[3].whileHeld(new InstantCommand(() -> m_drivetrainSubsystem.setXStance(), m_drivetrainSubsystem));
-
     // auto aim and shoot while moving
     joystickButtons1[3].whenPressed(
       new SequentialCommandGroup(
