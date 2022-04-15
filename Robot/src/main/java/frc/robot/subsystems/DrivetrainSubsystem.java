@@ -218,6 +218,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();
                 
+                Shuffleboard.getTab("MAIN").add("drivetrain", this);
+
                 if(COMMAND_LOGGING) {
                         
                         
@@ -271,7 +273,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                         LIMELIGHT_ALIGNMENT_TOLERANCE = event.getEntry().getValue().getDouble();
                                 }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
                         */
-                        Shuffleboard.getTab("MAIN").add("drivetrain", this);
                         
                 }
 
