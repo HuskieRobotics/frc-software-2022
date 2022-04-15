@@ -185,8 +185,10 @@ public class RobotContainer {
     // limelight align while moving
     joystickButtons1[3].whenPressed(
       new SequentialCommandGroup(
-        new LimelightAlignOnMoveCommand(m_drivetrainSubsystem, m_flywheel, joystick0, joystick1),
-        new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+        new LimelightAlignOnMoveCommand(m_drivetrainSubsystem, m_flywheel, m_storage, joystick0, joystick1),
+        new ParallelCommandGroup( // ensure the robot is aligned and the flywheel is at the setpoint before shooting
+          new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
+          new LimelightSetFlywheelVelocityCommand(m_flywheel, m_drivetrainSubsystem)),
         new ParallelCommandGroup(
           new InstantCommand(() -> m_collector.disableCollector(), m_collector),
           new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem)),
