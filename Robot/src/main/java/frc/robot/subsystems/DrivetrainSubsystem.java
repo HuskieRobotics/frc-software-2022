@@ -205,6 +205,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 AutoConstants.kvVoltSecondsPerMeter, AutoConstants.kaVoltSecondsSquaredPerMeter);
 
                 tabMain.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
+                tabMain.addBoolean("Target Visible", () -> isLimelightTargetVisible());
                 tabMain.addNumber("Limelight Vel", () -> getVelocityFromLimelight());
                 tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
                 tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
@@ -214,6 +215,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
                 tabMain.addBoolean("isXstance", this :: isXstance);
                 tabMain.addBoolean("aim enabled", this :: isLimelightAimEnabled);
+                tabMain.add("align to target", new LimelightAlignToTargetCommand(this));
                 this.fieldRelativeNT = Shuffleboard.getTab("MAIN")
                                 .add("FieldRelativeState", this.isFieldRelative)
                                 .getEntry();

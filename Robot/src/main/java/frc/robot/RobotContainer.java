@@ -186,6 +186,7 @@ public class RobotContainer {
     joystickButtons1[3].whenPressed(
       new SequentialCommandGroup(
         new LimelightAlignOnMoveCommand(m_drivetrainSubsystem, m_flywheel, joystick0, joystick1),
+        new LimelightAlignToTargetCommand(m_drivetrainSubsystem),
         new ParallelCommandGroup(
           new InstantCommand(() -> m_collector.disableCollector(), m_collector),
           new InstantCommand(()-> m_drivetrainSubsystem.enableXstance(), m_drivetrainSubsystem)),
