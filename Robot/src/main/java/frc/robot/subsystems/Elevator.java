@@ -280,7 +280,7 @@ public class Elevator extends SubsystemBase {
             double average = this.pitchRunningAverage * this.pitchRunningAverageSamples;
             average += pitch;
             this.pitchRunningAverageSamples++;
-            this.pitchRunningAverage /= this.pitchRunningAverageSamples;
+            this.pitchRunningAverage = average / this.pitchRunningAverageSamples;
         }
         else {
             this.resetPitchRunningAverage();
