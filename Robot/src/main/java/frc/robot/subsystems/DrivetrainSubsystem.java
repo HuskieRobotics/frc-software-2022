@@ -225,6 +225,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 if(COMMAND_LOGGING) {
                         
                         
+                        tabMain.addNumber("vx", () -> getVelocityX());
+                        tabMain.addNumber("vy", () -> getVelocityY());
+                        tabMain.addNumber("Limelight x", () -> getLimelightX());
                         tab.addNumber("Limelight y Dist", () -> getLimelighty());
                         tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
                         tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
@@ -234,7 +237,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         tab.addNumber("CoG X", () -> this.centerGravity.getX());
                         tab.addNumber("CoG Y", () -> this.centerGravity.getY());
                         
-                        tabMain.addNumber("Limelight x", () -> getLimelightX());
                         tabMain.addNumber("gyro setpoint", () -> this.gyroSetpoint);
                         tabMain.add("align with gyro", new LimelightAlignWithGyroCommand(this));
                         tabMain.add("align to target", new LimelightAlignToTargetCommand(this));

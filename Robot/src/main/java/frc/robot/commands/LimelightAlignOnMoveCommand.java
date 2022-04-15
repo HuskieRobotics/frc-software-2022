@@ -42,10 +42,10 @@ public class LimelightAlignOnMoveCommand extends CommandBase {
         if (drivetrainSubsystem.isLimelightTargetVisible()) { // if the target is visible, try to aim with PID
 
             double tx = Math.toRadians(drivetrainSubsystem.getLimelightX()); //limelight offset angle in rad, left of camera is negative angle
-            double d = drivetrainSubsystem.getLimelightDistanceIn() * 0.0254; //positive limelight distance in meters
+            double d = (drivetrainSubsystem.getLimelightDistanceIn() +7.5 + 24) * 0.0254; //positive limelight distance in meters
             //assuming robot v is forward/left positive and in the direction of the collector
-            double dhdt = drivetrainSubsystem.getVelocityY(); //these may need to be adjusted to be the same units as l and h
-            double dldt = -drivetrainSubsystem.getVelocityX();
+            double dhdt = drivetrainSubsystem.getVelocityX(); //these may need to be adjusted to be the same units as l and h
+            double dldt = drivetrainSubsystem.getVelocityY();
             double h = d * Math.cos(tx); //h is always positive
             double l = -d * Math.sin(tx); // positive if the target is to the left of the robot
 
@@ -56,7 +56,7 @@ public class LimelightAlignOnMoveCommand extends CommandBase {
                             * AIMING_LINEAR_SPEED_MULTIPLIER, // joystick x
                     -RobotContainer.modifyAxis(joystick0.getX()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND
                             * AIMING_LINEAR_SPEED_MULTIPLIER, // joystick y
-                    w // PID output (rad/s)
+                    output + w // PID output (rad/s)
             );
 
             flywheelSubsystem.setVelocity(drivetrainSubsystem.getVelocityFromLimelight());
