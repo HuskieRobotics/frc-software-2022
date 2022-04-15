@@ -21,8 +21,6 @@ public class LimelightAlignWithGyroCommand extends CommandBase {
     @Override
     public void initialize() {
         controller.reset();
-        controller.setP(DrivetrainConstants.LIMELIGHT_P);
-        controller.setI(DrivetrainConstants.LIMELIGHT_I);
         double gyro = drivetrainSubsystem.getGyroscopeRotation().getDegrees();
         double tx = drivetrainSubsystem.getLimelightX();
         this.setpoint = gyro - tx;
