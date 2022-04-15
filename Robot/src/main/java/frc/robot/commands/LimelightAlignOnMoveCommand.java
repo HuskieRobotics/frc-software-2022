@@ -48,7 +48,7 @@ public class LimelightAlignOnMoveCommand extends CommandBase {
             double tx = Math.toRadians(drivetrainSubsystem.getLimelightX()); //limelight offset angle in rad, left of camera is negative angle
             // positive limelight distance in meters; add the distance from the limelight to the center of the robot
             //  and the distance for the retroreflective tape to the center of the hub before converting to meters
-            double d = (drivetrainSubsystem.getLimelightDistanceIn() + 7.5 + 24) * 0.0254;
+            double d = (drivetrainSubsystem.getLimelightDistanceIn() + LimelightConstants.EDGE_TO_CENTER_HUB_DISTANCE) * 0.0254;
             // assuming robot v is forward/left positive and in the direction of the collector
             double dhdt = drivetrainSubsystem.getVelocityX();
             double dldt = drivetrainSubsystem.getVelocityY();
