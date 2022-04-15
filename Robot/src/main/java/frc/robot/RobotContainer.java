@@ -137,7 +137,6 @@ public class RobotContainer {
 
     if(TUNING) {
       Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(m_elevator, m_secondMechanism));
-      Shuffleboard.getTab("Elevator").add("Extend Before Next", new ExtendClimberBeforeNextRungCommand(m_elevator, m_secondMechanism));
     }
             
 
