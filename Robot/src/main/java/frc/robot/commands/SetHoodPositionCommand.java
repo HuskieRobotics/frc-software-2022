@@ -9,7 +9,7 @@ public class SetHoodPositionCommand extends CommandBase {
 
     public SetHoodPositionCommand(Hood hood, double position) {
         this.hood = hood;
-        // FIXME: this will get the ideal position when the command is constructed; not
+        // this will get the ideal position when the command is constructed; not
         // when the command is scheduled
         // The next line should be moved to the initialzie method.
         this.position = position;

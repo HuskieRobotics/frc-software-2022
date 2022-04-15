@@ -69,14 +69,14 @@ public final class Constants {
     public static final double CURRENT_LIMIT_FACTOR = 0.5;  // FIXME: this is extreme; tune it
 
     /* Limelight */
-    public static final double LIMELIGHT_F = 0.1; // FIXME: make static
-    public static final double LIMELIGHT_P = 0.2; // FIXME: make static
-    public static final double LIMELIGHT_I = 0.50; // FIXME: make static
-    public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = 1.0; // FIXME: make static
+    public static final double LIMELIGHT_F = 0.1;
+    public static final double LIMELIGHT_P = 0.2;
+    public static final double LIMELIGHT_I = 0.50;
+    public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = 1.0;
     public static final double LIMELIGHT_LAUNCHPAD_ALIGNMENT_TOLERANCE = .6;
-    public static final double LIMELIGHT_AIM_TOLERANCE = 5;  // inches FIXME: tune this
+    public static final double LIMELIGHT_AIM_TOLERANCE = 5;  // inches
     public static final double LIMELIGHT_SLOPE = 23.08;
-    public static final double LIMELIGHT_Y_COMPONENT = 4596.34;//4596.34
+    public static final double LIMELIGHT_Y_COMPONENT = 4596.34;
   }
 
   public static final class CollectorConstants {
@@ -122,14 +122,13 @@ public final class Constants {
         //kp:0.5
         //kf: .0438
     public final static int MAX_FLYWHEEL_VELOCITY = 18650;
-    public static final int NEAR_WALL_SHOT_VELOCITY = 7000; // FIXME tune this
-    public static final int WALL_SHOT_VELOCITY = 7182; // 7382 FIXME tune this
-    public static final int FENDER_SHOT_VELOCITY = 7799; // FIXME tune this
-    public static final int LAUNCH_PAD_VELOCITY = 8182; // FIXME tune this
-    public static final int SHOOT_SLOW_VELOCITY = 4000; // FIXME tune this
-    public static final int SHOOT_STEAL_VELOCITY = 5000; // FIXME tune this
-    public static final int SHOT_VELOCITY_DIP = 500;  // FIXME: tune this
-    public static final double REVERSE_POWER = -0.2; // FIXME: tune this
+    public static final int NEAR_WALL_SHOT_VELOCITY = 7000;
+    public static final int WALL_SHOT_VELOCITY = 7182;
+    public static final int FENDER_SHOT_VELOCITY = 7799;
+    public static final int LAUNCH_PAD_VELOCITY = 8182;
+    public static final int SHOOT_SLOW_VELOCITY = 4000;
+    public static final int SHOOT_STEAL_VELOCITY = 5000;
+    public static final double REVERSE_POWER = -0.2;
     public static final int SETPOINTCOUNT = 5;
 
 
@@ -177,8 +176,8 @@ public final class Constants {
     public static final int HUB_LAUNCHPAD_DISTANCE = 149; 
     public static final int EDGE_TO_CENTER_HUB_DISTANCE = 26 + 8;
     public static final int HUB_WALL_DISTANCE = 130; 
-    public static final int AUTO_SHOT_HUB_FAR_DISTANCE = 104;    // FIXME: verify distance
-    public static final int AUTO_SHOT_HUB_CLOSE_DISTANCE = 68;  // FIXME: verify distance
+    public static final int AUTO_SHOT_HUB_FAR_DISTANCE = 104;
+    public static final int AUTO_SHOT_HUB_CLOSE_DISTANCE = 68;
 
   }
 
@@ -190,7 +189,7 @@ public final class Constants {
     public static final double STORAGE_DEFAULT_SPEED = 0.7;
     public static final int STORAGE_CAMERA_PORT = 0;
     public static final int TIMEOUT_MS = 30;
-    public static final int WAIT_FOR_SHOT_DELAY = 10; // FIXME: tune
+    public static final int WAIT_FOR_SHOT_DELAY = 10;
     public static final int INDEXING_FORWARD_DELAY = 16;
     public static final int INDEXING_BACKWARD_DURATION = 3;
   }
@@ -201,27 +200,23 @@ public final class Constants {
     public static final double TRANSFER_TO_SECONDARY_HEIGHT = 25150;
     public static final double LOW_RUNG_HEIGHT = 150786;
     public static final double REACH_JUST_BEFORE_NEXT_RUNG = 219680;
-    public static final double MID_RUNG_HEIGHT = 269560;//277129;
+    public static final double MID_RUNG_HEIGHT = 269560;
     public static final double NEXT_RUNG_HEIGHT = 227499; 
-    public static final double REACH_TO_NEXT_RUNG_HEIGHT = 279733;//269733; // 284066; //   // FIXME: not sure if this is needed; use MAX_ELEVATOR_HEIGHT?
-    public static final double MIN_DETACH_ENCODER_HEIGHT = 220000; // FIXME: set back to 0 or determine appropriate value after climber rebuild
+    public static final double REACH_TO_NEXT_RUNG_HEIGHT = 279733;
+    public static final double MIN_DETACH_ENCODER_HEIGHT = 220000; // FIXME: determine appropriate value after climber rebuild
     public static final double MAX_ELEVATOR_HEIGHT = 274560;
-    
-    public static final double PITCH_TOLERANCE = 0.25;  // FIXME: tune
-    public static final double PITCH_WHEN_BELOW_NEXT_RUNG = 0;    // FIXME: tune
-    public static final double PITCH_WHEN_BELOW_NEXT_RUNG_TOLERANCE = 0.25;    // FIXME: tune
     
     public static final int ELEVATOR_POSITION_TOLERANCE = 1000;
     public static final double ARBITRARY_FEED_FORWARD_EXTEND = .02;
     public static final double ARBITRARY_FEED_FORWARD_RETRACT = -0.07;
-    public static final double DEFAULT_MOTOR_POWER = 0.5; //FIXME TUNE
+    public static final double DEFAULT_MOTOR_POWER = 0.5;
 
     public static final int kSlotIdx = 0;
     public static final int kPIDLoopIdx = 0;
     public static final int kTimeoutMs = 30;
     public static final Gains GAINS_POSITION = new Gains(0.4 /* kP */, 0 /* kI */, 0 /* kD */, 0 /* kF */,
         0 /* kIZone */, 1.00 /* max output */);
-    public static final double SLOW_PEAK_OUTPUT = 0.15; // FIXME: tune this
+    public static final double SLOW_PEAK_OUTPUT = 0.15;
     public static final double MAX_ELEVATOR_VELOCITY = 20000; // theoretical maximum 21305
     public static final double ELEVATOR_ACCELERATION = MAX_ELEVATOR_VELOCITY * 10;
     public static final int SCURVE_STRENGTH = 0;
@@ -238,7 +233,7 @@ public final class Constants {
     public static final int PNEUMATIC_CHANNEL = 1;
   }
 
-  public static final class JoystickConstants { // FIXME: make consistent with software feature sheet and use in RobotContainer
+  public static final class JoystickConstants {
     public static final int CLIMBER_UP = 2;
     public static final int CLIMB_2 = 1;
     public static final int CLIMB_3 = 7;

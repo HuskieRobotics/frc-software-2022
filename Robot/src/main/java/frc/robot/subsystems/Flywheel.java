@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.networktables.EntryListenerFlags;
 
-import static frc.robot.Constants.*;
 import static frc.robot.Constants.FlywheelConstants.*;
 
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;

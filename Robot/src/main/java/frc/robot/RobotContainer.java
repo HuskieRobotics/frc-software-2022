@@ -324,7 +324,7 @@ public class RobotContainer {
           new RetractClimberFullCommand(m_elevator),
           new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism)));
 
-    // configure raise elevator before starting climb to 1 (low) rung; FIXME: confirm button
+    // configure raise elevator before starting climb to 1 (low) rung
     operatorButtons[11].whenPressed(
         new ExtendClimberToLowRungCommand(m_elevator));
 
