@@ -182,7 +182,7 @@ public class RobotContainer {
     joystickButtons1[3].whenPressed(
       new SequentialCommandGroup(
         new LimelightAlignOnMoveCommand(m_drivetrainSubsystem, m_flywheel, m_storage, joystick0, joystick1),
-        new WaitCommand(0.100),
+        new WaitCommand(0.300),
         createLimelightShootCommandSequence(true /* use gyro */)));
 
     //FieldRelative toggle

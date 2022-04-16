@@ -177,7 +177,7 @@ public final class Constants {
     public static final int HUB_LAUNCHPAD_DISTANCE = 149; 
     public static final int EDGE_TO_CENTER_HUB_DISTANCE = 26 + 8;
     public static final int HUB_WALL_DISTANCE = 130; 
-    public static final int AUTO_SHOT_HUB_FAR_DISTANCE = 104;
+    public static final int AUTO_SHOT_HUB_FAR_DISTANCE = 124;
     public static final int AUTO_SHOT_HUB_CLOSE_DISTANCE = 68;
 
   }
