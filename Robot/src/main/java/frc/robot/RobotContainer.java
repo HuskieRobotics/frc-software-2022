@@ -181,7 +181,7 @@ public class RobotContainer {
     // auto aim and shoot while moving
     joystickButtons1[3].whenPressed(
       new SequentialCommandGroup(
-        new LimelightAlignOnMoveCommand(m_drivetrainSubsystem, m_flywheel, m_storage, joystick0, joystick1),
+        new LimelightAlignOnMoveCommand(m_drivetrainSubsystem, m_flywheel, m_collector, joystick0, joystick1),
         new WaitCommand(0.300),
         createLimelightShootCommandSequence(true /* use gyro */)));
 

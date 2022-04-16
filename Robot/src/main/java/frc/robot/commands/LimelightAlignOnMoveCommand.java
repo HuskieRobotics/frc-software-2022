@@ -5,6 +5,7 @@ import frc.robot.Constants.*;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.Storage;
@@ -14,16 +15,16 @@ public class LimelightAlignOnMoveCommand extends CommandBase {
     private PIDController controller;
     private DrivetrainSubsystem drivetrainSubsystem;
     private Flywheel flywheelSubsystem;
-    private Storage storageSubsystem;
+    private Collector collectorSubsystem;
     private Joystick joystick0;
     private Joystick joystick1;
 
-    public LimelightAlignOnMoveCommand(DrivetrainSubsystem drivetrain, Flywheel flywheel, Storage storage, Joystick joystick0,
+    public LimelightAlignOnMoveCommand(DrivetrainSubsystem drivetrain, Flywheel flywheel, Collector collector, Joystick joystick0,
             Joystick joystick1) {
         controller = new PIDController(DrivetrainConstants.LIMELIGHT_P, DrivetrainConstants.LIMELIGHT_I, 0);
         drivetrainSubsystem = drivetrain;
         flywheelSubsystem = flywheel;
-        storageSubsystem = storage;
+        collectorSubsystem = collector;
         this.joystick0 = joystick0;
         this.joystick1 = joystick1;
 
@@ -66,7 +67,7 @@ public class LimelightAlignOnMoveCommand extends CommandBase {
             );
 
             // only turn on the flywheel if there is a cargo indexed
-            if(!storageSubsystem.isShooterSensorUnblocked()) {
+            if(!collectorSubsystem.isEnabled()) {
                 flywheelSubsystem.setVelocity(drivetrainSubsystem.getVelocityFromLimelight());
             }
 
