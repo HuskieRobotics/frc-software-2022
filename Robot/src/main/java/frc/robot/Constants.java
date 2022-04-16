@@ -74,7 +74,7 @@ public final class Constants {
     public static final double LIMELIGHT_I = 0.50;
     public static final double LIMELIGHT_ALIGNMENT_TOLERANCE = 1.0;
     public static final double LIMELIGHT_LAUNCHPAD_ALIGNMENT_TOLERANCE = .6;
-    public static final double LIMELIGHT_AIM_TOLERANCE = 5;  // inches
+    public static final double LIMELIGHT_AIM_TOLERANCE = 3;  // inches
     public static final int AIM_SETPOINT_COUNT = 2;
     public static final double LIMELIGHT_SLOPE = 23.08;
     public static final double LIMELIGHT_Y_COMPONENT = 4596.34;

@@ -292,10 +292,18 @@ public class RobotContainer {
     
     // limelight shot
     operatorButtons[JoystickConstants.SHOOT_LIMELIGHT].whenPressed(
-      createLimelightShootCommandSequence(true /* use gyro */));
+      new SequentialCommandGroup(
+        new ParallelCommandGroup(
+          new IndexSingleBallCommand(m_storage),
+          new WaitCommand(0.300)),
+        createLimelightShootCommandSequence(true /* use gyro */)));
 
     joystickButtons0[2].whenPressed(
-      createLimelightShootCommandSequence(true /* use gyro */));
+      new SequentialCommandGroup(
+        new ParallelCommandGroup(
+          new IndexSingleBallCommand(m_storage),
+          new WaitCommand(0.300)),
+        createLimelightShootCommandSequence(true /* use gyro */)));
   }
 
   private void configureClimberButtons() {
