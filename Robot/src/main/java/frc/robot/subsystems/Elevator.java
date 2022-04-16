@@ -143,17 +143,16 @@ public class Elevator extends SubsystemBase {
         this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, kTimeoutMs);
         Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight);
         
-        
-        Shuffleboard.getTab("Elevator").addBoolean("Near Local Min", this::isNearLocalMinimum);
-        Shuffleboard.getTab("Elevator").addBoolean("Near Local Max", this::isNearLocalMaximum);
-        Shuffleboard.getTab("Elevator").addBoolean("Above Next Rung", this::isAboveNextRung);
-        Shuffleboard.getTab("Elevator").addBoolean("Below Next Rung", this::isBelowNextRung);
-        Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
-        Shuffleboard.getTab("Elevator").addNumber("Running Average", this::getPitchRunningAverage);
-        Shuffleboard.getTab("Elevator").add("elevator", this);
      
             
         if(COMMAND_LOGGING) {
+            Shuffleboard.getTab("Elevator").addBoolean("Near Local Min", this::isNearLocalMinimum);
+            Shuffleboard.getTab("Elevator").addBoolean("Near Local Max", this::isNearLocalMaximum);
+            Shuffleboard.getTab("Elevator").addBoolean("Above Next Rung", this::isAboveNextRung);
+            Shuffleboard.getTab("Elevator").addBoolean("Below Next Rung", this::isBelowNextRung);
+            Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
+            Shuffleboard.getTab("Elevator").addNumber("Running Average", this::getPitchRunningAverage);
+            Shuffleboard.getTab("Elevator").add("elevator", this);
             Shuffleboard.getTab("Elevator").addBoolean("Elevator At Setpoint", this::atSetpoint);
             Shuffleboard.getTab("Elevator").addBoolean("Transfer to Secondary", this::hasTransferredToSecondary);
             Shuffleboard.getTab("Elevator").addBoolean("Approaching Next Rung", this::isApproachingNextRung);
