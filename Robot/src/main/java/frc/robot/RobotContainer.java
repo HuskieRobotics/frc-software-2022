@@ -2,7 +2,6 @@ package frc.robot;
 
 import static frc.robot.Constants.JoystickConstants.*;
 
-
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
@@ -300,28 +299,15 @@ public class RobotContainer {
 
   private void configureClimberButtons() {
 
-    // configure climb to 4 (traverse) rung climb sequence
-    operatorButtons[8].whenPressed(
-        new SequentialCommandGroup(
-            new RetractClimberFullCommand(m_elevator),
-            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
-            new WaitCommand(0.5), // wait for secondary arm to be positioned
-            new ReachToNextRungCommand(m_elevator, m_secondMechanism),
-            new ParallelCommandGroup(
-                new RetractClimberMinimumCommand(m_elevator),
-                new InstantCommand(() -> m_secondMechanism.moveSecondaryArmIn(), m_secondMechanism)),
-            new RetractClimberFullCommand(m_elevator),
-            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
-            new WaitCommand(0.5), // wait for secondary arm to be positioned
-            new ReachToNextRungWithPitchCommand(m_elevator, m_secondMechanism)));
-
     // configure climb to 3 (high) rung climb sequence
     operatorButtons[7].whenPressed(
         new SequentialCommandGroup(
             new RetractClimberFullCommand(m_elevator),
             new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
             new WaitCommand(0.5), // wait for secondary arm to be positioned
-            new ReachToNextRungWithPitchCommand(m_elevator, m_secondMechanism)));
+            new ReachToNextRungWithPitchCommand(m_elevator, m_secondMechanism),
+            new WaitCommand(ElevatorConstants.RETRACT_DELAY_AFTER_EXTENSION_UNDER_RUNG), // wait for secondary arm to be positioned
+            new RetractClimberMinimumCommand(m_elevator)));
 
     // configure climb to 1/2 (low/mid) rung climb sequence
     operatorButtons[1].whenPressed(
@@ -341,6 +327,9 @@ public class RobotContainer {
     xboxButtons[BUTTON_A].whenPressed(
       new RetractClimberFullCommand(m_elevator)
     );
+
+
+
 
     //extend climber
     xboxButtons[JoystickConstants.BUTTON_RB].whenPressed(
