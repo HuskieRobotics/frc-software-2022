@@ -200,12 +200,15 @@ public final class Constants {
     public static final double MIN_ELEVATOR_ENCODER_HEIGHT = 0;
     public static final double TRANSFER_TO_SECONDARY_HEIGHT = 25150;
     public static final double LOW_RUNG_HEIGHT = 150786;
-    public static final double REACH_JUST_BEFORE_NEXT_RUNG = 219680;
+    public static final double REACH_JUST_BEFORE_NEXT_RUNG = 185227;
     public static final double MID_RUNG_HEIGHT = 269560;
+
     public static final double NEXT_RUNG_HEIGHT = 227499; 
-    public static final double REACH_TO_NEXT_RUNG_HEIGHT = 279733;
-    public static final double MIN_DETACH_ENCODER_HEIGHT = 220000; // FIXME: determine appropriate value after climber rebuild
+    public static final double LATCH_NEXT_RUNG_ENCODER_HEIGHT = 238151;
+    public static final double REACH_TO_NEXT_RUNG_HEIGHT = 265674;
     public static final double MAX_ELEVATOR_HEIGHT = 274560;
+
+    public static double RETRACT_DELAY_AFTER_EXTENSION_UNDER_RUNG = 0.040;
     
     public static final int ELEVATOR_POSITION_TOLERANCE = 1000;
     public static final double ARBITRARY_FEED_FORWARD_EXTEND = .02;
