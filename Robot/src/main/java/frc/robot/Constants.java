@@ -200,11 +200,12 @@ public final class Constants {
     public static final double MIN_ELEVATOR_ENCODER_HEIGHT = 0;
     public static final double TRANSFER_TO_SECONDARY_HEIGHT = 25150;
     public static final double LOW_RUNG_HEIGHT = 150786;
-    public static final double REACH_JUST_BEFORE_NEXT_RUNG = 219680;
+    public static final double REACH_JUST_BEFORE_NEXT_RUNG = 185227;
     public static final double MID_RUNG_HEIGHT = 269560;
+
     public static final double NEXT_RUNG_HEIGHT = 227499; 
-    public static final double LATCH_NEXT_RUNG_ENCODER_HEIGHT = 278000; // FIXME: tune this
-    public static final double REACH_TO_NEXT_RUNG_HEIGHT = 279733;  // FIXME: tune this
+    public static final double LATCH_NEXT_RUNG_ENCODER_HEIGHT = 238151;//243851; // FIXME: tune this
+    public static final double REACH_TO_NEXT_RUNG_HEIGHT = 265674;  // FIXME: tune this
     public static final double MAX_ELEVATOR_HEIGHT = 274560;
 
     public static double RETRACT_DELAY_AFTER_EXTENSION_UNDER_RUNG = 0.040; // FIXME: tune this; make final

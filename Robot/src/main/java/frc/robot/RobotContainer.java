@@ -138,7 +138,7 @@ public class RobotContainer {
 
     configureAutoCommands();
 
-    Shuffleboard.getTab("MAIN").add("retract delay", ElevatorConstants.RETRACT_DELAY_AFTER_EXTENSION_UNDER_RUNG)
+    Shuffleboard.getTab("Elevator").add("retract delay", ElevatorConstants.RETRACT_DELAY_AFTER_EXTENSION_UNDER_RUNG)
                                 .withWidget(BuiltInWidgets.kNumberSlider)
                                 .withProperties(Map.of("min", 0.0, "max", 0.20)) // specify widget properties here
                                 .getEntry()
@@ -334,6 +334,9 @@ public class RobotContainer {
     xboxButtons[BUTTON_A].whenPressed(
       new RetractClimberFullCommand(m_elevator)
     );
+
+
+
 
     //extend climber
     xboxButtons[JoystickConstants.BUTTON_RB].whenPressed(
