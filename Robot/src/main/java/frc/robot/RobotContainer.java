@@ -2,18 +2,14 @@ package frc.robot;
 
 import static frc.robot.Constants.JoystickConstants.*;
 
-import java.util.Map;
-
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -137,14 +133,6 @@ public class RobotContainer {
     // Configure autonomous sendable chooser
 
     configureAutoCommands();
-
-    Shuffleboard.getTab("Elevator").add("retract delay", ElevatorConstants.RETRACT_DELAY_AFTER_EXTENSION_UNDER_RUNG)
-                                .withWidget(BuiltInWidgets.kNumberSlider)
-                                .withProperties(Map.of("min", 0.0, "max", 0.20)) // specify widget properties here
-                                .getEntry()
-                                .addListener(event -> {
-                                  ElevatorConstants.RETRACT_DELAY_AFTER_EXTENSION_UNDER_RUNG = event.getEntry().getValue().getDouble();
-                                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
     if(TUNING) {
       Shuffleboard.getTab("Elevator").add("Reach to Next Rung", new ReachToNextRungCommand(m_elevator, m_secondMechanism));
