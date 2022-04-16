@@ -93,7 +93,8 @@ public class LimelightAlignOnMoveCommand extends CommandBase {
     @Override
     public boolean isFinished() {
         // shooter is aimed AND flywheel is at speed AND robot is within optimal shooting distance
-        return drivetrainSubsystem.isAimed() && flywheelSubsystem.isAtSetpoint() &&
+        return drivetrainSubsystem.isLimelightTargetVisible() &&
+                drivetrainSubsystem.isAimed() && flywheelSubsystem.isAtSetpoint() &&
                 (drivetrainSubsystem.getLimelightDistanceIn() < LimelightConstants.AUTO_SHOT_HUB_FAR_DISTANCE && 
                 drivetrainSubsystem.getLimelightDistanceIn() > LimelightConstants.AUTO_SHOT_HUB_CLOSE_DISTANCE);
     }
