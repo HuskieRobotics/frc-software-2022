@@ -206,7 +206,7 @@ public final class Constants {
     public static final double NEXT_RUNG_HEIGHT = 227499; 
     public static final double LATCH_NEXT_RUNG_ENCODER_HEIGHT = 238151;
     public static final double REACH_TO_NEXT_RUNG_HEIGHT = 265674;
-    public static final double MAX_ELEVATOR_HEIGHT = 274560;
+    public static final double MAX_ELEVATOR_HEIGHT = 272631;//274560;
 
     public static double RETRACT_DELAY_AFTER_EXTENSION_UNDER_RUNG = 0.040;
     
