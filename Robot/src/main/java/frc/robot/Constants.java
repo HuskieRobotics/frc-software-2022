@@ -201,11 +201,11 @@ public final class Constants {
     public static final double TRANSFER_TO_SECONDARY_HEIGHT = 25150;
     public static final double LOW_RUNG_HEIGHT = 150786;
     public static final double REACH_JUST_BEFORE_NEXT_RUNG = 185227;
-    public static final double MID_RUNG_HEIGHT = 269560;
+    public static final double MID_RUNG_HEIGHT = 259788;//269560;
 
     public static final double NEXT_RUNG_HEIGHT = 227499; 
     public static final double LATCH_HIGH_RUNG_ENCODER_HEIGHT = 238151;
-    public static final double LATCH_TRAVERSE_RUNG_ENCODER_HEIGHT = 136095;//subtract a foot//242587;//240369;
+    public static final double LATCH_TRAVERSE_RUNG_ENCODER_HEIGHT = 171592;//136095;//subtract a foot//242587;//240369;
     public static final double REACH_TO_NEXT_RUNG_HEIGHT = 265674;
     public static final double MAX_ELEVATOR_HEIGHT = 272631;//274560;
     public static final double TICKS_PER_INCH = 8874.266;
