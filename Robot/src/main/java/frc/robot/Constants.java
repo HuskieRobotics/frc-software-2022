@@ -32,7 +32,7 @@ public final class Constants {
     public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 13;//10;
     public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 12;//9;
     public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 14;//11;
-    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(103.2715);
+    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(102.9968);//103.2715);
     // 172.96875
     public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 10;//13;
     public static final int BACK_LEFT_MODULE_STEER_MOTOR = 9;//12;
@@ -247,7 +247,8 @@ public final class Constants {
     public static final int FIELD_WALL = 6;
     public static final int LAUNCHPAD = 5;
     public static final int SECONDARY = 4;
-    public static final int SHOOT_LIMELIGHT = 3;
+    public static final int SHOOT_LIMELIGHT =1;// 3;
+    public static final int RESET_ALL = 2;
     public static final int SHOOT_SLOW = 10;
     public static final int UNASSIGNED = 11;
     public static final int CLIMB_CAM = 12;

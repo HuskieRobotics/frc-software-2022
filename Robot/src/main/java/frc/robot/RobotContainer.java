@@ -199,8 +199,8 @@ public class RobotContainer {
               m_drivetrainSubsystem));
     joystickButtons1[4]
         .whenReleased(new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav(), m_drivetrainSubsystem));
-
-    joystickButtons0[1].whenPressed(
+    //reset all
+    joystickButtons0[JoystickConstants.RESET_ALL].whenPressed(
       new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
           new InstantCommand(()-> m_storage.disableStorage(), m_storage),
