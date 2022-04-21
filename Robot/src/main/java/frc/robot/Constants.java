@@ -201,7 +201,7 @@ public final class Constants {
     public static final double TRANSFER_TO_SECONDARY_HEIGHT = 25150;
     public static final double LOW_RUNG_HEIGHT = 150786;
     public static final double REACH_JUST_BEFORE_NEXT_RUNG = 185227;
-    public static final double MID_RUNG_HEIGHT = 259788;//269560;
+    public static final double MID_RUNG_HEIGHT = 253338;//259788;//269560;
 
     public static final double NEXT_RUNG_HEIGHT = 227499; 
     public static final double LATCH_HIGH_RUNG_ENCODER_HEIGHT = 238151;
@@ -248,7 +248,7 @@ public final class Constants {
     public static final int FIELD_WALL = 6;
     public static final int LAUNCHPAD = 5;
     public static final int SECONDARY = 4;
-    public static final int SHOOT_LIMELIGHT =3;
+    public static final int AUTO_AIM_AND_SHOOT =3;
     public static final int SHOOT_SLOW = 10;
     public static final int UNASSIGNED = 11;
     public static final int CLIMB_CAM = 12;

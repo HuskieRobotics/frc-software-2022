@@ -178,12 +178,13 @@ public class RobotContainer {
 
   private void configureDrivetrainButtons() {
     // auto aim and shoot while moving
-    joystickButtons1[3].whenPressed(
-      new SequentialCommandGroup(
-        new IndexSingleBallCommand(m_storage),
-        new LimelightAlignOnMoveCommand(m_drivetrainSubsystem, m_flywheel, m_collector, joystick0, joystick1),
-        new WaitCommand(0.300),
-        createLimelightShootCommandSequence(true /* use gyro */)));
+    operatorButtons[JoystickConstants.AUTO_AIM_AND_SHOOT].whenPressed(
+        new SequentialCommandGroup(
+          new IndexSingleBallCommand(m_storage),
+          new LimelightAlignOnMoveCommand(m_drivetrainSubsystem, m_flywheel, m_collector, joystick0, joystick1),
+          new WaitCommand(0.300),
+          createLimelightShootCommandSequence(true /* use gyro */)));
+
 
     //FieldRelative toggle
     joystickButtons0[3].toggleWhenPressed(
@@ -200,7 +201,7 @@ public class RobotContainer {
     joystickButtons1[4]
         .whenReleased(new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav(), m_drivetrainSubsystem));
     //reset all(2)
-    joystickButtons0[2].whenPressed(
+    joystickButtons1[3].whenPressed(
       new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
           new InstantCommand(()-> m_storage.disableStorage(), m_storage),
@@ -290,13 +291,6 @@ public class RobotContainer {
         new WaitForShotCommand(m_storage, m_flywheel, m_drivetrainSubsystem)));
     
     // limelight shot(1)
-    operatorButtons[JoystickConstants.SHOOT_LIMELIGHT].whenPressed(
-      new SequentialCommandGroup(
-        new ParallelCommandGroup(
-          new IndexSingleBallCommand(m_storage),
-          new WaitCommand(0.300)),
-        createLimelightShootCommandSequence(true /* use gyro */)));
-
     joystickButtons0[1].whenPressed(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
