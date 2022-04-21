@@ -164,7 +164,7 @@ public class Elevator extends SubsystemBase {
             //Shuffleboard.getTab("Elevator").addNumber("Right Motor Power", this.rightElevatorMotor::getMotorOutputPercent);
             Shuffleboard.getTab("Elevator").add("Extend Climber to Mid", new ExtendClimberToMidRungCommand(this));
             Shuffleboard.getTab("Elevator").add("Retract Climber Full", new RetractClimberFullCommand(this));
-            Shuffleboard.getTab("Elevator").add("Retract Climber Minimum", new RetractClimberMinimumCommand(this));
+            Shuffleboard.getTab("Elevator").add("Retract Climber Minimum", new RetractClimberMinimumCommand(ElevatorConstants.LATCH_HIGH_RUNG_ENCODER_HEIGHT, this));
             Shuffleboard.getTab("Elevator").addBoolean("isElevatorControl Enabled", this :: isElevatorControlEnabled);
             
         }

@@ -199,8 +199,8 @@ public class RobotContainer {
               m_drivetrainSubsystem));
     joystickButtons1[4]
         .whenReleased(new InstantCommand(() -> m_drivetrainSubsystem.resetCenterGrav(), m_drivetrainSubsystem));
-    //reset all
-    joystickButtons0[JoystickConstants.RESET_ALL].whenPressed(
+    //reset all(2)
+    joystickButtons0[2].whenPressed(
       new ParallelCommandGroup(
           new InstantCommand(() -> m_flywheel.stopFlywheel(), m_flywheel),
           new InstantCommand(()-> m_storage.disableStorage(), m_storage),
@@ -289,7 +289,7 @@ public class RobotContainer {
         new InstantCommand(()-> m_storage.enableStorage(), m_storage),
         new WaitForShotCommand(m_storage, m_flywheel, m_drivetrainSubsystem)));
     
-    // limelight shot
+    // limelight shot(1)
     operatorButtons[JoystickConstants.SHOOT_LIMELIGHT].whenPressed(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
@@ -297,7 +297,7 @@ public class RobotContainer {
           new WaitCommand(0.300)),
         createLimelightShootCommandSequence(true /* use gyro */)));
 
-    joystickButtons0[2].whenPressed(
+    joystickButtons0[1].whenPressed(
       new SequentialCommandGroup(
         new ParallelCommandGroup(
           new IndexSingleBallCommand(m_storage),
@@ -307,6 +307,16 @@ public class RobotContainer {
 
   private void configureClimberButtons() {
 
+    // configure climb to 4 (high) rung climb sequence
+    operatorButtons[8].whenPressed(
+        new SequentialCommandGroup(
+            new RetractClimberFullCommand(m_elevator),
+            new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism),
+            new WaitCommand(0.5), // wait for secondary arm to be positioned
+            new ReachToNextRungWithPitchCommand(m_elevator, m_secondMechanism),
+            new WaitCommand(ElevatorConstants.RETRACT_DELAY_AFTER_EXTENSION_UNDER_RUNG), // wait for secondary arm to be positioned
+            new RetractClimberMinimumCommand(ElevatorConstants.LATCH_TRAVERSE_RUNG_ENCODER_HEIGHT, m_elevator)));
+
     // configure climb to 3 (high) rung climb sequence
     operatorButtons[7].whenPressed(
         new SequentialCommandGroup(
@@ -315,7 +325,7 @@ public class RobotContainer {
             new WaitCommand(0.5), // wait for secondary arm to be positioned
             new ReachToNextRungWithPitchCommand(m_elevator, m_secondMechanism),
             new WaitCommand(ElevatorConstants.RETRACT_DELAY_AFTER_EXTENSION_UNDER_RUNG), // wait for secondary arm to be positioned
-            new RetractClimberMinimumCommand(m_elevator)));
+            new RetractClimberMinimumCommand(ElevatorConstants.LATCH_HIGH_RUNG_ENCODER_HEIGHT, m_elevator)));
 
     // configure climb to 1/2 (low/mid) rung climb sequence
     operatorButtons[1].whenPressed(
@@ -323,7 +333,7 @@ public class RobotContainer {
           new RetractClimberFullCommand(m_elevator),
           new InstantCommand(() -> m_secondMechanism.moveSecondaryArmOut(), m_secondMechanism)));
 
-    // configure raise elevator before starting climb to 1 (low) rung
+     // configure raise elevator before starting climb to 1 (low) rung
     operatorButtons[11].whenPressed(
         new ExtendClimberToLowRungCommand(m_elevator));
 

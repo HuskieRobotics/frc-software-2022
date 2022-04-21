@@ -7,9 +7,11 @@ import frc.robot.subsystems.Elevator;
 
 public class RetractClimberMinimumCommand extends CommandBase {
     private final Elevator m_elevator;
+    private double encoderSetpoint;
 
-    public RetractClimberMinimumCommand(Elevator subsystem) {
+    public RetractClimberMinimumCommand(double setpoint, Elevator subsystem) {
         m_elevator = subsystem;
+        encoderSetpoint = setpoint;
         addRequirements(m_elevator);
     }
 
@@ -19,7 +21,7 @@ public class RetractClimberMinimumCommand extends CommandBase {
 
     @Override
     public void execute() {
-        m_elevator.setElevatorMotorPosition(ElevatorConstants.LATCH_NEXT_RUNG_ENCODER_HEIGHT, true);
+        m_elevator.setElevatorMotorPosition(encoderSetpoint, true);
     }
 
     @Override

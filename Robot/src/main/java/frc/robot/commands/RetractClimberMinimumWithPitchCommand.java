@@ -15,13 +15,13 @@ public class RetractClimberMinimumWithPitchCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        m_elevator.setElevatorSetpoint(ElevatorConstants.LATCH_NEXT_RUNG_ENCODER_HEIGHT);
+        m_elevator.setElevatorSetpoint(ElevatorConstants.LATCH_HIGH_RUNG_ENCODER_HEIGHT);
     }
 
     @Override
     public void execute() {
         if(m_elevator.isNearLocalMaximum()) {
-            m_elevator.setElevatorMotorPosition(ElevatorConstants.LATCH_NEXT_RUNG_ENCODER_HEIGHT, true);
+            m_elevator.setElevatorMotorPosition(ElevatorConstants.LATCH_HIGH_RUNG_ENCODER_HEIGHT, true);
         }
     }
 
