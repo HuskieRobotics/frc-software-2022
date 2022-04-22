@@ -128,7 +128,7 @@ public final class Constants {
     public static final int FENDER_SHOT_VELOCITY = 7799;
     public static final int LAUNCH_PAD_VELOCITY = 8182;
     public static final int SHOOT_SLOW_VELOCITY = 4000;
-    public static final int SHOOT_STEAL_VELOCITY = 5000;
+    public static final int SHOOT_STEAL_VELOCITY = 5500;
     public static final double REVERSE_POWER = -0.2;
     public static final int SETPOINTCOUNT = 5;
 
