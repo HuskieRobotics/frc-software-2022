@@ -17,12 +17,16 @@ public class SecondaryArm extends SubsystemBase {
     private Solenoid secondaryMechanism;
 
     public SecondaryArm() {
+
+        //secondary arm state
         this.isIn = false;
 
         secondaryMechanism = new Solenoid(SecondMechanismConstants.PNEUMATIC_HUB_CAN_ID, PneumaticsModuleType.REVPH,
                 SecondMechanismConstants.PNEUMATIC_CHANNEL);
         addChild("Secondary Mechanism", this.secondaryMechanism);
 
+
+        //shuffleboard information useful for debugging but not during regular use
         if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Elevator").add("Second Arm Out", new InstantCommand(this::moveSecondaryArmOut));
             Shuffleboard.getTab("Elevator").add("Second Arm In", new InstantCommand(this::moveSecondaryArmIn));
@@ -45,6 +49,8 @@ public class SecondaryArm extends SubsystemBase {
 
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
+
+    
     public boolean isIn() {
         return this.isIn;
     }

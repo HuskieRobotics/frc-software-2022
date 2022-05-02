@@ -34,6 +34,7 @@ public class Storage extends SubsystemBase {
         this.isStorageEnabled = false;
         storage4 = new WPI_TalonSRX(StorageConstants.STORAGE_MOTOR_ID);
 
+        //setting the status frame period controlls CAN bus utilization
         this.storage4.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, TIMEOUT_MS);
         this.storage4.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, TIMEOUT_MS);
 
@@ -43,7 +44,7 @@ public class Storage extends SubsystemBase {
         shooterSensor1 = new DigitalInput(StorageConstants.SHOOTER_SENSOR);
         addChild("Shooter Sensor 1", shooterSensor1);
 
-        
+        //shuffleboard information useful for debugging but not during regular use
         if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Storage").add("Sort Storage", new SortStorageCommand(this));
             Shuffleboard.getTab("MAIN").addBoolean("Collector Unblocked", this::isCollectorSensorUnblocked);
@@ -51,6 +52,8 @@ public class Storage extends SubsystemBase {
             Shuffleboard.getTab("Storage").add("storage", this);
         }
 
+
+        //for tuning pid's or any other "tuning"
         if (TUNING) {
             // Each robot feature that requires PID tuniing has its own Shuffleboard tab for
             // tuning (i.e., "ShooterTuning")
