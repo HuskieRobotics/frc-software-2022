@@ -29,10 +29,13 @@ public class Collector extends SubsystemBase {
     *
     */
     public Collector() {
-        isEnabled = false;
+        isEnabled = false; //collector state
+
         collector5 = new WPI_TalonSRX(CollectorConstants.COLLECTOR_MOTOR_ID);
         collector5.setInverted(true);
 
+
+        //setting the status frame period controlls CAN bus utilization
         this.collector5.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, TIMEOUT_MS);
         this.collector5.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, TIMEOUT_MS);
 
@@ -45,6 +48,8 @@ public class Collector extends SubsystemBase {
                 .withWidget(BuiltInWidgets.kNumberSlider)
                 .getEntry();
 
+
+        //shuffleboard information useful for debugging but not during regular use
         if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Collector").add("collector", this);
             Shuffleboard.getTab("Collector").add("deployCollector", new InstantCommand(this::deployCollectorPiston, this));
@@ -57,6 +62,8 @@ public class Collector extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
+
+        //for tuning pid's or any other "tuning"
         if (TUNING) {
             double collectorPower = this.collectorMotorPowerNT.getDouble(0.0);
             this.setCollectorPower(collectorPower);
@@ -64,9 +71,13 @@ public class Collector extends SubsystemBase {
 
     }
 
+
+    // collector motor controll
     public void setCollectorPower(double power) {
         this.collector5.set(ControlMode.PercentOutput, power);
     }
+
+
 
     public void disableCollector() {
         isEnabled = false;
@@ -80,10 +91,14 @@ public class Collector extends SubsystemBase {
         this.collectorPiston.set(true);
     }
 
+
+    //accessor for the collector state
     public boolean isEnabled() {
         return isEnabled;
     }
 
+
+    //pistion control
     public void deployCollectorPiston() {
         this.collectorPiston.set(true);
     }
@@ -92,6 +107,8 @@ public class Collector extends SubsystemBase {
         this.collectorPiston.set(false);
     }
 
+
+    //pistion state
     public boolean isPistonExtended() {
         return this.collectorPiston.get();
     }

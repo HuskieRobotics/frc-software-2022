@@ -53,12 +53,15 @@ public class Elevator extends SubsystemBase {
 
     public Elevator() {
 
+        //for collecting recent readings of our robots pitch
         this.latestPitches = new double[100];
 
         this.leftElevatorMotor = new WPI_TalonFX(LEFT_ELEVATOR_MOTOR_CAN_ID);
         this.rightElevatorMotor = new WPI_TalonFX(RIGHT_ELEVATOR_MOTOR_CAN_ID);
 
         this.isElevatorControlEnabled = false;
+
+        
         /* Factory Default all hardware to prevent unexpected behaviour */
         this.rightElevatorMotor.configFactoryDefault();
         this.leftElevatorMotor.configFactoryDefault();
@@ -139,12 +142,13 @@ public class Elevator extends SubsystemBase {
         /* Initialize */
         this.rightElevatorMotor.getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
 
+        //setting the status frame period controlls CAN bus utilization
 		this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, kTimeoutMs);
         this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, kTimeoutMs);
         Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight);
         
      
-            
+        //shuffleboard information useful for debugging but not during regular use
         if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Elevator").addBoolean("Near Local Min", this::isNearLocalMinimum);
             Shuffleboard.getTab("Elevator").addBoolean("Near Local Max", this::isNearLocalMaximum);
@@ -177,7 +181,10 @@ public class Elevator extends SubsystemBase {
                     .addListener(event -> {
                         this.SAMPLE_WINDOW_WIDTH = (int)(event.getEntry().getValue().getDouble());
                     }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-        */         
+        */     
+        
+        
+        //for tuning pid's or any other "tuning"
         if (TUNING) {
             this.isElevatorControlEnabled = true;
 
@@ -323,6 +330,9 @@ public class Elevator extends SubsystemBase {
         return this.rightElevatorMotor.getSelectedSensorPosition();
     }
 
+
+
+    //elevator control with software stops
     public void setElevatorMotorPower(double power) {
 
         if (isElevatorControlEnabled()) {
@@ -336,10 +346,21 @@ public class Elevator extends SubsystemBase {
         }
     }
 
+
+    //elevator position control
     public void setElevatorSetpoint(double setpoint) {
         this.encoderPositionSetpoint = setpoint;
     }
 
+
+    /**
+     * 
+     * @param desiredEncoderPosition desired setpoint of the elevator
+     * @param isFast controlls the speed of the elevator 
+     * 
+     * 
+     * position controll of the elevator, including software stops and accounts for if we are or are not under load 
+     */
     public void setElevatorMotorPosition(double desiredEncoderPosition, boolean isFast) {
         if (isElevatorControlEnabled()) {
 
@@ -376,6 +397,8 @@ public class Elevator extends SubsystemBase {
         }
     }
 
+
+    
     public boolean atSetpoint() {
         return Math.abs(this.getElevatorEncoderHeight() - this.encoderPositionSetpoint) < ELEVATOR_POSITION_TOLERANCE;
     }
@@ -385,6 +408,8 @@ public class Elevator extends SubsystemBase {
         this.rightElevatorMotor.set(ControlMode.PercentOutput, 0.0);
     }
 
+
+    
     public boolean isBelowNextRung() {
         double pitch =  m_pigeon.getPitch();
         if(pitch < this.getPitchRunningAverage()) {
@@ -402,7 +427,12 @@ public class Elevator extends SubsystemBase {
 
         return false;
     }
-
+    /**
+     * 
+     * @return boolean of if we are in the minimum point of our swing via our robots recent pitches 
+     * 
+     * 
+     */
     public boolean isNearLocalMinimum() {
         // check for a local minimum 2/3 through the sample window
         //  (latestPitchesIndex is the index where the *next* pitch will be stored)
@@ -431,6 +461,14 @@ public class Elevator extends SubsystemBase {
         return isLocalMin;
     }
 
+
+
+    /**
+     * 
+     * @return boolean of if we are in the maximum point of our swing via our robots recent pitches 
+     * 
+     * 
+     */
     public boolean isNearLocalMaximum() {
         // check for a local minimum 2/3 through the sample window
         //  (latestPitchesIndex is the index where the *next* pitch will be stored)
