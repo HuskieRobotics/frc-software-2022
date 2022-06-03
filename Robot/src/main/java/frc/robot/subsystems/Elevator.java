@@ -33,16 +33,16 @@ import java.util.Map;
 public class Elevator extends SubsystemBase {
   private NetworkTableEntry elevatorMotorPowerNT;
   private NetworkTableEntry positionSetPointNT;
-  private NetworkTableEntry FConstantNT;
-  private NetworkTableEntry PConstantNT;
-  private NetworkTableEntry IConstantNT;
-  private NetworkTableEntry DConstantNT;
+  private NetworkTableEntry fConstantNT;
+  private NetworkTableEntry pConstantNT;
+  private NetworkTableEntry iConstantNT;
+  private NetworkTableEntry dConstantNT;
   private NetworkTableEntry sCurveConstantNT;
   private NetworkTableEntry velocityConstantNT;
   private NetworkTableEntry accelerationConstantNT;
   private WPI_TalonFX leftElevatorMotor;
   private WPI_TalonFX rightElevatorMotor;
-  private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
+  private final Pigeon2 pigeon = new Pigeon2(PIGEON_ID);
   private double encoderPositionSetpoint;
   private boolean isElevatorControlEnabled;
   private double pitchRunningAverage;
@@ -50,8 +50,8 @@ public class Elevator extends SubsystemBase {
   private double prevPitch;
   private double[] latestPitches;
   private int latestPitchesIndex;
-  private int SAMPLE_WINDOW_WIDTH = 6; // FIXME: make a constant after tuning
-  private double EPSILON = 0.001; // FIXME: make a constant after tuning
+  private static final int SAMPLE_WINDOW_WIDTH = 6;
+  private static final double EPSILON = 0.001;
 
   /** Constructs a new Elevator object. */
   public Elevator() {
@@ -70,7 +70,7 @@ public class Elevator extends SubsystemBase {
     this.leftElevatorMotor.configFactoryDefault();
 
     /** Config Objects for motor controllers */
-    TalonFXConfiguration _rightConfig = new TalonFXConfiguration();
+    TalonFXConfiguration rightConfig = new TalonFXConfiguration();
 
     /* Disable all motors */
     this.rightElevatorMotor.set(TalonFXControlMode.PercentOutput, 0);
@@ -103,21 +103,21 @@ public class Elevator extends SubsystemBase {
     /** Distance Configs */
 
     /* Configure the left Talon's selected sensor as integrated sensor */
-    _rightConfig.primaryPID.selectedFeedbackSensor =
+    rightConfig.primaryPID.selectedFeedbackSensor =
         TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); // Local
     // Feedback
     // Source
 
     /* FPID for Distance */
-    _rightConfig.slot0.kF = GAINS_POSITION.kF;
-    _rightConfig.slot0.kP = GAINS_POSITION.kP;
-    _rightConfig.slot0.kI = GAINS_POSITION.kI;
-    _rightConfig.slot0.kD = GAINS_POSITION.kD;
-    _rightConfig.slot0.integralZone = GAINS_POSITION.kIzone;
-    _rightConfig.slot0.closedLoopPeakOutput = GAINS_POSITION.kPeakOutput;
+    rightConfig.slot0.kF = GAINS_POSITION.kF;
+    rightConfig.slot0.kP = GAINS_POSITION.kP;
+    rightConfig.slot0.kI = GAINS_POSITION.kI;
+    rightConfig.slot0.kD = GAINS_POSITION.kD;
+    rightConfig.slot0.integralZone = GAINS_POSITION.kIzone;
+    rightConfig.slot0.closedLoopPeakOutput = GAINS_POSITION.kPeakOutput;
 
     /* Config the neutral deadband. */
-    _rightConfig.neutralDeadband = 0.001;
+    rightConfig.neutralDeadband = 0.001;
 
     /**
      * 1ms per loop. PID loop can be slowed down if need be. For example, - if sensor updates are
@@ -126,21 +126,21 @@ public class Elevator extends SubsystemBase {
      * zero.
      */
     int closedLoopTimeMs = 1;
-    _rightConfig.slot0.closedLoopPeriod = closedLoopTimeMs;
-    _rightConfig.slot1.closedLoopPeriod = closedLoopTimeMs;
-    _rightConfig.slot2.closedLoopPeriod = closedLoopTimeMs;
-    _rightConfig.slot3.closedLoopPeriod = closedLoopTimeMs;
+    rightConfig.slot0.closedLoopPeriod = closedLoopTimeMs;
+    rightConfig.slot1.closedLoopPeriod = closedLoopTimeMs;
+    rightConfig.slot2.closedLoopPeriod = closedLoopTimeMs;
+    rightConfig.slot3.closedLoopPeriod = closedLoopTimeMs;
 
     /* Motion Magic Configs */
-    _rightConfig.motionAcceleration =
+    rightConfig.motionAcceleration =
         ELEVATOR_ACCELERATION; // (distance units per 100 ms) per second
-    _rightConfig.motionCruiseVelocity = MAX_ELEVATOR_VELOCITY; // distance units per 100 ms
-    _rightConfig.motionCurveStrength = SCURVE_STRENGTH;
+    rightConfig.motionCruiseVelocity = MAX_ELEVATOR_VELOCITY; // distance units per 100 ms
+    rightConfig.motionCurveStrength = SCURVE_STRENGTH;
 
     /* APPLY the config settings */
-    this.rightElevatorMotor.configAllSettings(_rightConfig);
+    this.rightElevatorMotor.configAllSettings(rightConfig);
 
-    // this.rightElevatorMotor.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
+    // this.rightElevatorMotor.selectProfileSlot(SLOT_INDEX, kPIDLoopIdx);
 
     /* Initialize */
     this.rightElevatorMotor.getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
@@ -159,7 +159,7 @@ public class Elevator extends SubsystemBase {
       Shuffleboard.getTab("Elevator").addBoolean("Near Local Max", this::isNearLocalMaximum);
       Shuffleboard.getTab("Elevator").addBoolean("Above Next Rung", this::isAboveNextRung);
       Shuffleboard.getTab("Elevator").addBoolean("Below Next Rung", this::isBelowNextRung);
-      Shuffleboard.getTab("Elevator").addNumber("Pitch Value", m_pigeon::getPitch);
+      Shuffleboard.getTab("Elevator").addNumber("Pitch Value", pigeon::getPitch);
       Shuffleboard.getTab("Elevator").addNumber("Running Average", this::getPitchRunningAverage);
       Shuffleboard.getTab("Elevator").add("elevator", this);
       Shuffleboard.getTab("Elevator").addBoolean("Elevator At Setpoint", this::atSetpoint);
@@ -222,55 +222,55 @@ public class Elevator extends SubsystemBase {
           },
           EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-      this.FConstantNT =
+      this.fConstantNT =
           Shuffleboard.getTab("Elevator")
               .add("Flywheel F", GAINS_POSITION.kF)
               .withWidget(BuiltInWidgets.kNumberSlider)
               .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
               .getEntry();
-      this.FConstantNT.addListener(
+      this.fConstantNT.addListener(
           event -> {
             this.rightElevatorMotor.config_kF(
-                kSlotIdx, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
           },
           EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-      this.PConstantNT =
+      this.pConstantNT =
           Shuffleboard.getTab("Elevator")
               .add("Flywheel P", GAINS_POSITION.kP)
               .withWidget(BuiltInWidgets.kNumberSlider)
               .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
               .getEntry();
-      this.PConstantNT.addListener(
+      this.pConstantNT.addListener(
           event -> {
             this.rightElevatorMotor.config_kP(
-                kSlotIdx, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
           },
           EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-      this.IConstantNT =
+      this.iConstantNT =
           Shuffleboard.getTab("Elevator")
               .add("Flywheel I", GAINS_POSITION.kI)
               .withWidget(BuiltInWidgets.kNumberSlider)
               .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
               .getEntry();
-      this.IConstantNT.addListener(
+      this.iConstantNT.addListener(
           event -> {
             this.rightElevatorMotor.config_kI(
-                kSlotIdx, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
           },
           EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-      this.DConstantNT =
+      this.dConstantNT =
           Shuffleboard.getTab("Elevator")
               .add("Flywheel D", GAINS_POSITION.kD)
               .withWidget(BuiltInWidgets.kNumberSlider)
               .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
               .getEntry();
-      this.DConstantNT.addListener(
+      this.dConstantNT.addListener(
           event -> {
             this.rightElevatorMotor.config_kD(
-                kSlotIdx, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
           },
           EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
@@ -324,7 +324,7 @@ public class Elevator extends SubsystemBase {
    */
   @Override
   public void periodic() {
-    double pitch = m_pigeon.getPitch();
+    double pitch = pigeon.getPitch();
 
     // keep the last 100 unique pitches (2 seconds of data)
     if (pitch != this.prevPitch) {
@@ -420,9 +420,9 @@ public class Elevator extends SubsystemBase {
     if (isElevatorControlEnabled()) {
 
       if (isFast) {
-        this.rightElevatorMotor.configClosedLoopPeakOutput(kSlotIdx, GAINS_POSITION.kPeakOutput);
+        this.rightElevatorMotor.configClosedLoopPeakOutput(SLOT_INDEX, GAINS_POSITION.kPeakOutput);
       } else {
-        this.rightElevatorMotor.configClosedLoopPeakOutput(kSlotIdx, SLOW_PEAK_OUTPUT);
+        this.rightElevatorMotor.configClosedLoopPeakOutput(SLOT_INDEX, SLOW_PEAK_OUTPUT);
       }
 
       // the feedforward term will be different depending if the elevator is going up
@@ -486,7 +486,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public boolean isBelowNextRung() {
-    double pitch = m_pigeon.getPitch();
+    double pitch = pigeon.getPitch();
     if (pitch < this.getPitchRunningAverage()) {
       return true;
     }
@@ -495,7 +495,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public boolean isAboveNextRung() {
-    double pitch = m_pigeon.getPitch();
+    double pitch = pigeon.getPitch();
     if (pitch > this.getPitchRunningAverage()) {
       return true;
     }

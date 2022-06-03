@@ -19,7 +19,7 @@ import frc.robot.subsystems.*;
  * <p>At End: leaves the flywheel spinning
  */
 public class SortStorageCommand extends CommandBase {
-  private Storage m_storage;
+  private Storage storage;
   private int indexingDelay;
 
   /**
@@ -28,8 +28,8 @@ public class SortStorageCommand extends CommandBase {
    * @param storage the storage subsystem this command will control
    */
   public SortStorageCommand(Storage storage) {
-    this.m_storage = storage;
-    this.addRequirements(this.m_storage);
+    this.storage = storage;
+    this.addRequirements(this.storage);
   }
 
   /**
@@ -56,17 +56,17 @@ public class SortStorageCommand extends CommandBase {
    */
   @Override
   public void execute() {
-    if (!this.m_storage.isShooterSensorUnblocked()) {
+    if (!this.storage.isShooterSensorUnblocked()) {
       indexingDelay++;
       if (indexingDelay == StorageConstants.INDEXING_FORWARD_DELAY) {
-        this.m_storage.setStoragePower(StorageConstants.OUTTAKE_POWER);
+        this.storage.setStoragePower(StorageConstants.OUTTAKE_POWER);
       } else if (indexingDelay
           > StorageConstants.INDEXING_FORWARD_DELAY + StorageConstants.INDEXING_BACKWARD_DURATION) {
-        this.m_storage.disableStorage();
+        this.storage.disableStorage();
       }
-    } else if (!this.m_storage.isCollectorSensorUnblocked()
-        && this.m_storage.isShooterSensorUnblocked()) {
-      this.m_storage.enableStorage();
+    } else if (!this.storage.isCollectorSensorUnblocked()
+        && this.storage.isShooterSensorUnblocked()) {
+      this.storage.enableStorage();
       indexingDelay = 0;
     }
   }
@@ -79,7 +79,7 @@ public class SortStorageCommand extends CommandBase {
    */
   @Override
   public void end(boolean interrupted) {
-    this.m_storage.disableStorage();
+    this.storage.disableStorage();
   }
 
   /**
@@ -91,8 +91,8 @@ public class SortStorageCommand extends CommandBase {
    */
   @Override
   public boolean isFinished() {
-    return !this.m_storage.isCollectorSensorUnblocked()
-        && !this.m_storage.isShooterSensorUnblocked()
+    return !this.storage.isCollectorSensorUnblocked()
+        && !this.storage.isShooterSensorUnblocked()
         && indexingDelay
             > StorageConstants.INDEXING_FORWARD_DELAY + StorageConstants.INDEXING_BACKWARD_DURATION;
   }

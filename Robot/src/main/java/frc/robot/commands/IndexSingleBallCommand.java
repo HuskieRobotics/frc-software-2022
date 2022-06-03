@@ -17,7 +17,7 @@ import frc.robot.subsystems.*;
  * <p>At End: stops the storage
  */
 public class IndexSingleBallCommand extends CommandBase {
-  private Storage m_storage;
+  private Storage storage;
   private int indexingDelay;
 
   /**
@@ -26,8 +26,8 @@ public class IndexSingleBallCommand extends CommandBase {
    * @param storage the storage subsystem required by this command
    */
   public IndexSingleBallCommand(Storage storage) {
-    this.m_storage = storage;
-    this.addRequirements(this.m_storage);
+    this.storage = storage;
+    this.addRequirements(this.storage);
   }
 
   /**
@@ -51,7 +51,7 @@ public class IndexSingleBallCommand extends CommandBase {
 
     // it may be more efficient to only invoke setStoragePower in the initialize
     //  method instead of repeatedly in this method
-    this.m_storage.setStoragePower(StorageConstants.OUTTAKE_POWER);
+    this.storage.setStoragePower(StorageConstants.OUTTAKE_POWER);
   }
 
   /**
@@ -62,7 +62,7 @@ public class IndexSingleBallCommand extends CommandBase {
    */
   @Override
   public void end(boolean interrupted) {
-    this.m_storage.disableStorage();
+    this.storage.disableStorage();
   }
 
   /**

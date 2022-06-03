@@ -94,23 +94,24 @@ public final class Constants {
   public static final class AutoConstants {
 
     // from sysId tool
-    public static final double ksVolts = 0.55493;
-    public static final double kvVoltSecondsPerMeter = 2.3014;
-    public static final double kaVoltSecondsSquaredPerMeter = 0.12872;
+    public static final double S_VOLTS = 0.55493;
+    public static final double V_VOLT_SECONDS_PER_METER = 2.3014;
+    public static final double A_VOLT_SECONDS_SQUARED_PER_METER = 0.12872;
 
-    public static final double kMaxSpeedMetersPerSecond = 3;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
-    public static final double kMaxAngularSpeedRadiansPerSecond = 2.0 * Math.PI;
-    public static final double kMaxAngularSpeedRadiansPerSecondSquared = 2.0 * Math.PI;
+    public static final double MAX_SPEED_METERS_PER_SECOND = 3;
+    public static final double MAX_ACCELERATION_METERS_PER_SECOND_SQUARED = 3;
+    public static final double MAX_ANGULAR_SPEED_RADIANS_PER_SECOND = 2.0 * Math.PI;
+    public static final double MAX_ANGULAR_SPEED_RADIANS_PER_SECOND_SQUARED = 2.0 * Math.PI;
 
-    public static final double kPXController = 2.2956; // from sysId tool
-    public static final double kPYController = 2.2956; // from sysId tool
-    public static final double kPThetaController = 4.9; // tune after verifying non-holonomic motion
+    public static final double PX_CONTROLLER = 2.2956; // from sysId tool
+    public static final double PY_CONTROLLER = 2.2956; // from sysId tool
+    public static final double P_THETA_CONTROLLER =
+        4.9; // tune after verifying non-holonomic motion
 
     // Constraint for the motion profilied robot angle controller
-    public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
+    public static final TrapezoidProfile.Constraints THETA_CONTROLLER_CONSTRAINTS =
         new TrapezoidProfile.Constraints(
-            kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+            MAX_ANGULAR_SPEED_RADIANS_PER_SECOND, MAX_ANGULAR_SPEED_RADIANS_PER_SECOND_SQUARED);
   }
 
   public static class FlywheelConstants {
@@ -146,7 +147,7 @@ public final class Constants {
     public static final double KP = 0; // FIXME find hood pid p value
     public static final double KI = 0;
     public static final double KD = 0;
-    public static final double KIz = 0;
+    public static final double KI_Z = 0;
     public static final double KFF = 0;
     public static final double K_MAX_OUTPUT = 1;
     public static final double K_MIN_OUTPUT = -1;
@@ -168,18 +169,18 @@ public final class Constants {
     public static final double HUB_H = 104;
     public static final double ROBOT_H = 21.25;
     public static final double GRAV_CONST_FT = -32.17519788;
-    public static final double Flywheel_Radius_IN = 2;
-    public static final double Velocity_Multiplier = 2;
-    public static final double Ticks_Per_One_Rotation = 2048;
+    public static final double FLYWHEEL_RADIUS_INCHES = 2;
+    public static final double VELOCITY_MULTIPLIER = 2;
+    public static final double TICKS_PER_ROTATION = 2048;
     public static final int LIMELIGHT_ANGLE_OFFSET = -2;
     public static final int LIMELIGHT_MOUNT_ANGLE = 45;
     public static final int D2_D1_OFFSET_IN = 24;
     public static final int H2_H1_OFFSET_IN = -24;
     public static final int DISTANCE_TOLERANCE = 12;
-    // 203" from center of hub to center of lauchpad;
-    //  26" from edge of hub to center of hub;
-    //  3" from center of launch pad to bumpers;
-    //  18" from bumpers to center of robot;
+    // 203" from center of hub to center of lauchpad
+    //  26" from edge of hub to center of hub
+    //  3" from center of launch pad to bumpers
+    //  18" from bumpers to center of robot
     //  7.5" from center of robot to Limeligtht
     public static final int HUB_LAUNCHPAD_DISTANCE = 149;
     public static final int EDGE_TO_CENTER_HUB_DISTANCE = 26 + 8;
@@ -217,16 +218,16 @@ public final class Constants {
     public static final double MAX_ELEVATOR_HEIGHT = 272631; // 274560;
     public static final double TICKS_PER_INCH = 8874.266;
 
-    public static double RETRACT_DELAY_AFTER_EXTENSION_UNDER_RUNG = 0.040;
+    public static final double RETRACT_DELAY_AFTER_EXTENSION_UNDER_RUNG = 0.040;
 
     public static final int ELEVATOR_POSITION_TOLERANCE = 1000;
     public static final double ARBITRARY_FEED_FORWARD_EXTEND = .02;
     public static final double ARBITRARY_FEED_FORWARD_RETRACT = -0.07;
     public static final double DEFAULT_MOTOR_POWER = 0.5;
 
-    public static final int kSlotIdx = 0;
-    public static final int kPIDLoopIdx = 0;
-    public static final int kTimeoutMs = 30;
+    public static final int SLOT_INDEX = 0;
+    public static final int PID_LOOP_INDEX = 0;
+    public static final int TIMEOUT_MS = 30;
     public static final Gains GAINS_POSITION =
         new Gains(
             0.4 /* kP */,

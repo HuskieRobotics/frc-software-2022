@@ -15,7 +15,7 @@ import frc.robot.subsystems.Elevator;
  * <p>At End: stops the elevator
  */
 public class ExtendClimberToMidRungCommand extends CommandBase {
-  private final Elevator m_elevator;
+  private final Elevator elevator;
 
   /**
    * Constructs a new ExtendClimberToMidRungCommand object.
@@ -23,12 +23,9 @@ public class ExtendClimberToMidRungCommand extends CommandBase {
    * @param subsystem the elevator subsystem this command will control
    */
   public ExtendClimberToMidRungCommand(Elevator subsystem) {
-    m_elevator = subsystem;
-    addRequirements(m_elevator);
+    elevator = subsystem;
+    addRequirements(elevator);
   }
-
-  @Override
-  public void initialize() {}
 
   /**
    * This method will be invoked every iteration of the Command Scheduler. It sets the setpoint of
@@ -38,7 +35,7 @@ public class ExtendClimberToMidRungCommand extends CommandBase {
   public void execute() {
     // it may be more efficient to only invoke setElevatorMotorPosition in the initialize
     //  method instead of repeatedly in this method
-    m_elevator.setElevatorMotorPosition(ElevatorConstants.MID_RUNG_HEIGHT, true);
+    elevator.setElevatorMotorPosition(ElevatorConstants.MID_RUNG_HEIGHT, true);
   }
 
   /**
@@ -49,7 +46,7 @@ public class ExtendClimberToMidRungCommand extends CommandBase {
    */
   @Override
   public void end(boolean interrupted) {
-    m_elevator.stopElevator();
+    elevator.stopElevator();
   }
 
   /**
@@ -59,11 +56,11 @@ public class ExtendClimberToMidRungCommand extends CommandBase {
   @Override
   public boolean isFinished() {
     // the responsibility for checking if elevator control is enabled is currently split
-    //  between the commands and the elevator subsystem. It should be in a single class;
+    //  between the commands and the elevator subsystem. It should be in a single class,
     //  probably, the elevator subsystem.
-    if (!m_elevator.isElevatorControlEnabled()) {
+    if (!elevator.isElevatorControlEnabled()) {
       return true;
     }
-    return m_elevator.atSetpoint();
+    return elevator.atSetpoint();
   }
 }

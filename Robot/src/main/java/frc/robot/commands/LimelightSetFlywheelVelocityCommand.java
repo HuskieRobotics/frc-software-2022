@@ -55,15 +55,6 @@ public class LimelightSetFlywheelVelocityCommand extends CommandBase {
   }
 
   /**
-   * This method will be invoked when this command finishes or is interrupted. It does not stops the
-   * motion of the flywheel.
-   *
-   * @param interrupted true if the command was interrupted by another command being scheduled
-   */
-  @Override
-  public void end(boolean interrupted) {}
-
-  /**
    * This method is invoked at the end of each Command Scheduler iteration. It returns true when the
    * velocity of the flywheel has reached the specified setpoint.
    */

@@ -41,10 +41,6 @@ public class SetFlywheelVelocityCommand extends CommandBase {
     flywheel.setVelocity(this.velocity);
   }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {}
-
   /**
    * This method is invoked at the end of each Command Scheduler iteration. It returns true when the
    * velocity of the flywheel has reached the specified setpoint.

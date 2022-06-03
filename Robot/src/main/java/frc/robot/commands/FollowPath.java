@@ -46,8 +46,8 @@ public class FollowPath extends PPSwerveControllerCommand {
         trajectory,
         subsystem::getPose,
         subsystem.getKinematics(),
-        new PIDController(AutoConstants.kPXController, 0, 0),
-        new PIDController(AutoConstants.kPYController, 0, 0),
+        new PIDController(AutoConstants.PX_CONTROLLER, 0, 0),
+        new PIDController(AutoConstants.PY_CONTROLLER, 0, 0),
         thetaController,
         subsystem::setSwerveModuleStates,
         subsystem);

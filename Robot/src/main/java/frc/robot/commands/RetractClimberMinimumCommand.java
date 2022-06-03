@@ -14,7 +14,7 @@ import frc.robot.subsystems.Elevator;
  * <p>At End: stops the elevator
  */
 public class RetractClimberMinimumCommand extends CommandBase {
-  private final Elevator m_elevator;
+  private final Elevator elevator;
   private double encoderSetpoint;
 
   /**
@@ -24,13 +24,10 @@ public class RetractClimberMinimumCommand extends CommandBase {
    * @param subsystem the elevator subsystem this command will control
    */
   public RetractClimberMinimumCommand(double setpoint, Elevator subsystem) {
-    m_elevator = subsystem;
+    elevator = subsystem;
     encoderSetpoint = setpoint;
-    addRequirements(m_elevator);
+    addRequirements(elevator);
   }
-
-  @Override
-  public void initialize() {}
 
   /**
    * This method will be invoked every iteration of the Command Scheduler. It sets the setpoint of
@@ -40,7 +37,7 @@ public class RetractClimberMinimumCommand extends CommandBase {
   public void execute() {
     // it may be more efficient to only invoke setElevatorMotorPosition in the initialize
     //  method instead of repeatedly in this method as well as the following line of code
-    m_elevator.setElevatorMotorPosition(encoderSetpoint, true);
+    elevator.setElevatorMotorPosition(encoderSetpoint, true);
   }
 
   /**
@@ -51,7 +48,7 @@ public class RetractClimberMinimumCommand extends CommandBase {
    */
   @Override
   public void end(boolean interrupted) {
-    m_elevator.stopElevator();
+    elevator.stopElevator();
   }
 
   /**
@@ -63,9 +60,9 @@ public class RetractClimberMinimumCommand extends CommandBase {
     // the responsibility for checking if elevator control is enabled is currently split
     //  between the commands and the elevator subsystem. It should be in a single class;
     //  probably, the elevator subsystem.
-    if (!m_elevator.isElevatorControlEnabled()) {
+    if (!elevator.isElevatorControlEnabled()) {
       return true;
     }
-    return m_elevator.atSetpoint();
+    return elevator.atSetpoint();
   }
 }

@@ -16,11 +16,11 @@ import java.util.function.DoubleSupplier;
  * <p>At End: stops the drivetrain
  */
 public class DefaultDriveCommand extends CommandBase {
-  private final DrivetrainSubsystem m_drivetrainSubsystem;
+  private final DrivetrainSubsystem drivetrain;
 
-  private final DoubleSupplier m_translationXSupplier;
-  private final DoubleSupplier m_translationYSupplier;
-  private final DoubleSupplier m_rotationSupplier;
+  private final DoubleSupplier translationXSupplier;
+  private final DoubleSupplier translationYSupplier;
+  private final DoubleSupplier rotationSupplier;
 
   /**
    * Construct a new DefaultDriveCommand object.
@@ -35,16 +35,13 @@ public class DefaultDriveCommand extends CommandBase {
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
       DoubleSupplier rotationSupplier) {
-    this.m_drivetrainSubsystem = drivetrainSubsystem;
-    this.m_translationXSupplier = translationXSupplier;
-    this.m_translationYSupplier = translationYSupplier;
-    this.m_rotationSupplier = rotationSupplier;
+    this.drivetrain = drivetrainSubsystem;
+    this.translationXSupplier = translationXSupplier;
+    this.translationYSupplier = translationYSupplier;
+    this.rotationSupplier = rotationSupplier;
 
     addRequirements(drivetrainSubsystem);
   }
-
-  @Override
-  public void initialize() {}
 
   /**
    * This method will be invoked every iteration of the Command Scheduler. This method should only
@@ -56,13 +53,13 @@ public class DefaultDriveCommand extends CommandBase {
     // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of
     // field-oriented movement
 
-    m_drivetrainSubsystem.drive(
-        m_translationXSupplier.getAsDouble(),
-        m_translationYSupplier.getAsDouble(),
-        m_rotationSupplier.getAsDouble());
-    // m_drivetrainSubsystem.drive(new
-    // ChassisSpeeds(m_translationXSupplier.getAsDouble(),
-    // m_translationYSupplier.getAsDouble(), m_rotationSupplier.getAsDouble()));
+    drivetrain.drive(
+        translationXSupplier.getAsDouble(),
+        translationYSupplier.getAsDouble(),
+        rotationSupplier.getAsDouble());
+    // drivetrain.drive(new
+    // ChassisSpeeds(translationXSupplier.getAsDouble(),
+    // translationYSupplier.getAsDouble(), rotationSupplier.getAsDouble()));
   }
 
   /**
@@ -71,6 +68,6 @@ public class DefaultDriveCommand extends CommandBase {
    */
   @Override
   public void end(boolean interrupted) {
-    m_drivetrainSubsystem.stop();
+    drivetrain.stop();
   }
 }
