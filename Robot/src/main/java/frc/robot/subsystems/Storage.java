@@ -116,7 +116,7 @@ public class Storage extends SubsystemBase {
     /**
      * Sets the storage's motor, which moves the belt, to the specified value
      * @param power the specified power of the storage's motor as a percentage of full power
-     *      [-1.0, 1.0]
+     *      [-1.0, 1.0]; positive values rotate the belt in the intake direction
      */
     public void setStoragePower(double power) {
         this.storage4.set(ControlMode.PercentOutput, power);

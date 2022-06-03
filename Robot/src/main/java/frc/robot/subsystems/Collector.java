@@ -73,9 +73,10 @@ public class Collector extends SubsystemBase {
     }
 
     /**
-     * Sets the power of the collector's motor, which rotates the collector's intake wheels, to the specified value
+     * Sets the power of the collector's motor, which rotates the collector's intake wheels, to the
+     * specified value.
      * @param power the specified power of the collector's motor as a percentage of full power
-     *      [-1.0, 1.0]
+     *      [-1.0, 1.0]; positive values rotate the wheels in the intake direction
      */
     public void setCollectorPower(double power) {
         this.collector5.set(ControlMode.PercentOutput, power);

@@ -36,7 +36,14 @@ import static frc.robot.Constants.DrivetrainConstants.*;
 
 import java.util.Map;
 
+/**
+ * This subsystem models the robot's drivetrain mechanism. It consists of a four MK4 swerve
+ * modules, each with two motors and an encoder. It also consists of a Pigeon which is used to
+ * measure the robot's rotation.
+ */
 public class DrivetrainSubsystem extends SubsystemBase {
+        // some of this code is from the SDS example code
+        
         /**
          * The maximum voltage that will be delivered to the drive motors.
          * <p>
@@ -44,6 +51,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
          * useful during initial testing of the robot.
          */
         public static final double MAX_VOLTAGE = 13.0;
+
         // The formula for calculating the theoretical maximum velocity is:
         // <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> *
         // pi
@@ -52,6 +60,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         // An example of this constant for a Mk4 L2 module with NEOs to drive is:
         // 5880.0 / 60.0 / SdsModuleConfigurations.MK4_L2.getDriveReduction() *
         // SdsModuleConfigurations.MK4_L2.getWheelDiameter() * Math.PI
+
         /**
          * The maximum velocity of the robot in meters per second.
          * <p>
@@ -61,11 +70,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
                         SdsModuleConfigurations.MK4_L2.getDriveReduction() *
                         SdsModuleConfigurations.MK4_L2.getWheelDiameter() * Math.PI;
-        /**
+        
+                        /**
          * The maximum angular velocity of the robot in radians per second.
          * <p>
          * This is a measure of how fast the robot can rotate in place.
          */
+
         // Here we calculate the theoretical maximum angular velocity. You can also
         // replace this with a measured amount.
         public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
