@@ -81,9 +81,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
         // replace this with a measured amount.
         public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
                         Math.hypot(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0);
+        
+        // When aiming, rotate the robot much slower to avoid overshooting the setpoint
         public static final double MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 1.0;
 
         private Translation2d centerGravity = new Translation2d();        // default to (0,0)
+
+        // better document the coordinate system of the robot and the kinematics
         private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
                         // Front left
                         new Translation2d(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0),
@@ -129,6 +133,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         private boolean stackTraceLogging;
 
+        /**
+         * Constructs a new DrivetrainSubsystem object.
+         */
         public DrivetrainSubsystem() {
                 ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
                 ShuffleboardTab tabMain = Shuffleboard.getTab("MAIN");
@@ -309,29 +316,81 @@ public class DrivetrainSubsystem extends SubsystemBase {
          * 'forwards' direction.
          */
 
+         /**
+          * Zeroes the gyroscope. This sets the current rotation of the robot to zero degrees. This
+          *     method is intended to be invoked only when the alignment beteween the robot's
+          *     rotation and the gyro is sufficiently different to make field-relative driving
+          *     difficult. The robot needs to be positioned facing away from the driver, ideally
+          *     aligned to a field wall before this method is invoked.
+          */
         public void zeroGyroscope() {
+                // A better approach would be to set the gyroOffset to the current reading of the
+                //      gryo. There is a delay between setting the yaw on the Pigeon and that change
+                //      taking effect. As a result, it is recommended to never set the yaw and
+                //      adjust the local offset instead.
                 m_pigeon.setYaw(0.0);
                 this.gyroOffset = 0.0;
         }
 
+        /**
+         * Returns the rotation of the robot. Zero degrees is facing away from the driver station;
+         *      CCW is positive. This method should always be invoked instead of obtaining the yaw
+         *      directly from the Pigeon as the local offset needs to be added.
+         * @return the rotation of the robot
+         */
         public Rotation2d getGyroscopeRotation() {
                 return Rotation2d.fromDegrees(m_pigeon.getYaw() + this.gyroOffset);
         }
 
+        /**
+         * Sets the rotation of the robot to the specified value. This method should only be invoked
+         *      when the rotation of the robot is known (e.g., at the start of an autonomous path).
+         *      Zero degrees is facing away from the driver station; CCW is positive.
+         * @param expectedYaw the rotation of the robot (in degrees)
+         */
         public void setGyroOffset(double expectedYaw) {
+                // There is a delay between setting the yaw on the Pigeon and that change
+                //      taking effect. As a result, it is recommended to never set the yaw and
+                //      adjust the local offset instead.
                 this.gyroOffset = expectedYaw - m_pigeon.getYaw();
         }
 
+        /**
+         * Returns the pose of the robot (e.g., x and y position of the robot on the field). The
+         * origin of the field to the lower left corner (i.e., the corner of the field to the
+         * driver's right). Zero degrees is away from the driver and increases in the CCW direction.
+         * @return the pose of the robot
+         */
         public Pose2d getPose() {
                 return m_odometry.getPoseMeters();
         }
 
+        /**
+         * Sets the odometry of the robot to the specified PathPlanner state. This method should
+         * only be invoked when the rotation of the robot is known (e.g., at the start of an
+         * autonomous path). The origin of the field to the lower left corner (i.e., the corner of
+         * the field to the driver's right). Zero degrees is away from the driver and increases in
+         * the CCW direction.
+         * @param state the specified PathPlanner state to which is set the odometry
+         */
         public void resetOdometry(PathPlannerState state) {
                 m_odometry.resetPosition(new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation),
                  this.getGyroscopeRotation());
         }
 
         // Implement change in center of gravity here
+        /**
+         * Controls the drivetrain to move the robot with the desired velocities in the x, y, and
+         * rotational directions. The velocities may be specified from either the robot's frame of
+         * reference of the field's frame of reference. In the robot's frame of reference, the
+         * positive x direction is forward; the positive y direction, left; position rotation, CCW.
+         * In the field frame of reference, the origin of the field to the lower left corner (i.e., the corner of
+         * the field to the driver's right). Zero degrees is away from the driver and increases in
+         * the CCW direction.
+         * @param translationXSupplier the desired velocity in the x direction (m/s)
+         * @param translationYSupplier the desired velocity in the y direction (m/s)
+         * @param rotationSupplier the desired rotational velcoity (rad/s)
+         */
         public void drive(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
         if (isXstance) {
                 this.setXStance();
@@ -354,6 +413,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds, centerGravity);
 
                 logStates(states);
+
+                // the set method of the swerve modules take a voltage, not a velocity
                 m_frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
                                 states[0].angle.getRadians());
                 m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
@@ -364,12 +425,21 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                 states[3].angle.getRadians());
         }}
 
+        /**
+         * Stops the motion of the robot. Since the motors are in break mode, the robot will stop
+         * soon after this method is invoked.
+         */
         public void stop() {
                 m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
                 SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds, centerGravity);
                 setSwerveModuleStates(states);
         }
 
+        /**
+     * This method is invoked each iteration of the scheduler. Typically, when using a
+     * command-based model, subsystems don't override the periodic method. However, the drivetrain
+     * needs to continually update the odometry of the robot.
+     */
         @Override
         public void periodic() {
                 m_odometry.update(this.getGyroscopeRotation(),
@@ -383,9 +453,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                                 new Rotation2d(m_backRightModule.getSteerAngle())));
         }
 
+        /**
+         * Sets each of the swerve modules based on the specified corresponding swerve module
+         *      state. Incorporates the configured feedforward when setting each swerve module. The
+         *      order of the states in the array must be front left, front right, back left, back
+         *      right.
+         * @param states the specified swerve module state for each swerve module
+         */
         public void setSwerveModuleStates(SwerveModuleState[] states) {
                 logStates(states);
 
+                // the set method of the swerve modules take a voltage, not a velocity
                 m_frontLeftModule.set(this.calculateFeedforwardVoltage(states[0].speedMetersPerSecond),
                                 states[0].angle.getRadians());
                 m_frontRightModule.set(this.calculateFeedforwardVoltage(states[1].speedMetersPerSecond),
@@ -417,33 +495,58 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         private double calculateFeedforwardVoltage(double velocity) {
                 double voltage = this.feedForward.calculate(velocity);
+                // clamp the voltage to the maximum voltage
                 if (voltage > MAX_VOLTAGE) {
                         return MAX_VOLTAGE;
                 }
                 return voltage;
         }
 
+        /**
+         * Returns the kinematics for the drivetrain
+         * @return the kinematics for the drivetrain
+         */
         public SwerveDriveKinematics getKinematics() {
                 return m_kinematics;
         }
 
+        /**
+         * Returns true if field relative mode is enabled
+         * @return true if field relative mode is enabled
+         */
         public boolean getFieldRelative() {
                 return isFieldRelative;
         }
 
+        /**
+         * Enables field-relative mode. When enabled, the joystick inputs specify the velocity of
+         * the robot in the frame of reference of the field.
+         */
         public boolean enableFieldRelative() {
                 this.isFieldRelative = true;
                 this.fieldRelativeNT.setBoolean(this.isFieldRelative);
+                // change to void return type
                 return this.isFieldRelative;
         }
 
+        /**
+         * Disables field-relative mode. When disabled, the joystick inputs specify the velocity of
+         * the robot in the frame of reference of the robot.
+         */
         public boolean disableFieldRelative() {
                 this.isFieldRelative = false;
                 this.fieldRelativeNT.setBoolean(this.isFieldRelative);
+                // change to void return type
                 return this.isFieldRelative;
         }
 
+        /**
+         * Sets the swerve modules in the x-stance orientation. In this orientation the wheels are
+         * aligned to make an 'X'. This makes it more difficult for other robots to push the robot,
+         * which is useful when shooting.
+         */
         public void setXStance() {
+                // replace hard-coded values with constants
                 // FL
                 m_frontLeftModule.set(0, (Math.PI/2 - Math.atan(22.5 / 23.5)));
                 // FR
@@ -454,14 +557,38 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 m_backRightModule.set(0, (3.0/2.0 * Math.PI - Math.atan(22.5 / 23.5)));
         }
 
+        /**
+         * Sets the robot's center of gravity about which it will rotate. The origin is at the center of the robot. the
+         * positive x direction is forward; the positive y direction, left. (confirm this)
+         * @param x the x coordinate of the robot's center of gravity
+         * @param y the y coordinate of the robot's center of gravity
+         */
         public void setCenterGrav(double x, double y) {
                 this.centerGravity = new Translation2d(x, y);
         }
 
+        /**
+         * Resets the robot's center of gravity about which it will rotate to the center of the robot.
+         */
         public void resetCenterGrav() {
                 setCenterGrav(0.0, 0.0);
         }
 
+        /**
+         * Controls the drivetrain to move the robot with the desired velocities in the x, y, and
+         * rotational directions. Instead of rotating about the robot's center of gravity, the
+         * robot will rotate about the point on the robot's frame perimeter in the direction of the
+         * velocity. This will result in a "spin move" to evade a defending robot. The velocities
+         * must be specified from reference of the field's frame of reference: the origin of the
+         * field to the lower left corner (i.e., the corner of the field to the driver's right).
+         * Zero degrees is away from the driver and increases in the CCW direction.
+         * 
+         * This method needs to be debugged.
+         * 
+         * @param translationX the desired velocity in the x direction (m/s)
+         * @param translationY the desired velocity in the y direction (m/s)
+         * @param rotation the desired rotational velcoity (rad/s)
+         */
         public void rotateEvasively(double translationX, double translationY, double rotation) {
 
                 double gyro = getGyroscopeRotation().getDegrees();
@@ -499,18 +626,46 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 setCenterGrav(cogX, cogY);
         }
 
+        /**
+         * Returns the horizontal offset between the rotation of the robot and the center of the
+         * hub's vision target (in degrees). A positive value indicates the hub's vision target is
+         * to the left of the robot rotation.
+         * @return the horizontal offset between the rotation of the robot and the center of the
+         *      hub's vision target (in degrees)
+         */
         public double getLimelightX(){
                 return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
            }
-        public double getLimelighty(){
+        
+        /**
+         * Returns the vertical offset between the center of the Limelight image and the the hub's
+         * vision target (in degrees). A positive value indicates the vision target is above the
+         * center of the Limelight image.
+         * @return the vertical offset between the center of the Limelight image and the the hub's
+         *      vision target (in degrees)
+         */
+        private double getLimelighty(){
                 return NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
            }
 
+        /**
+         * Returns true if the hub's vision target is visible.
+         * @return true if the hub's vision target is visible
+         */
         public boolean isLimelightTargetVisible() {
                 return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0) == 1;
         }
 
+        /**
+         * Returns the distance from the Limelight mounted on the robot to the hub's vision target
+         *      (in inches).
+         * @return the distance from the Limelight mounted on the robot to the hub's vision target
+         *      (in inches).
+         */
         public double getLimelightDistanceIn() {
+                // refer to the following page for the algorithm to calculate the distance:
+                //      https://docs.limelightvision.io/en/latest/cs_estimating_distance.html
+
                 double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0.0);
 
                 this.lastLimelightDistance = (LimelightConstants.HUB_H - LimelightConstants.ROBOT_H)
@@ -519,23 +674,46 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 return this.lastLimelightDistance;
         }
 
+        /**
+         * Returns the desired flywheel velocity (in ticks / 100 ms) based on the distance to the
+         *      hub. The line of best fit was determined empirically.
+         * @return the desired flywheel velocity (in ticks / 100 ms) based on the distance to the
+         *      hub
+         */
         public double getVelocityFromLimelight() {
                 double velocity = LIMELIGHT_SLOPE * this.getLimelightDistanceIn() + LIMELIGHT_Y_COMPONENT;
                 return velocity;
         }
 
-        public boolean isAtLaunchpadDistance() {
+        private boolean isAtLaunchpadDistance() {
                 return Math.abs(LimelightConstants.HUB_LAUNCHPAD_DISTANCE - this.lastLimelightDistance) <= LimelightConstants.DISTANCE_TOLERANCE;
         }
 
-        public boolean isAtWallDistance() {
+        private boolean isAtWallDistance() {
                 return Math.abs(LimelightConstants.HUB_WALL_DISTANCE - this.lastLimelightDistance) <= LimelightConstants.DISTANCE_TOLERANCE;
         }
 
-        // The aim method is only invoked by the LimelightAlignToTargetCommand. The units for the rotationSupplier variables
-        //      are radians/second. This method should, but currently does not, clamp the output to
-        //      MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND.
+        /**
+         * Controls the drivetrain to move the robot with the desired velocities in the x, y, and
+         * rotational directions. This method is designed to be invoked from commands that use
+         * joystick inputs for the x and y velocities and a PID for the rotational velocity (to
+         * align the robot with the hub).
+         * 
+         * The velocities may be specified from either the robot's frame of
+         * reference of the field's frame of reference. In the robot's frame of reference, the
+         * positive x direction is forward; the positive y direction, left; position rotation, CCW.
+         * In the field frame of reference, the origin of the field to the lower left corner (i.e., the corner of
+         * the field to the driver's right). Zero degrees is away from the driver and increases in
+         * the CCW direction.
+         * 
+         * @param translationXSupplier the desired velocity in the x direction (m/s)
+         * @param translationYSupplier the desired velocity in the y direction (m/s)
+         * @param rotationSupplier the desired rotational velcoity (rad/s)
+         */
         public void aim(double translationXSupplier, double translationYSupplier, double rotationSupplier) {
+
+                // incorporate a feedforward for the rotation to make the PID more responsive
+
                 // LIMELIGHT_F is specified as a fraction of MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND
                 if (rotationSupplier > 0) {     // clockwise
                         rotationSupplier += LIMELIGHT_F * MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND;
@@ -556,6 +734,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         }
 
+        /**
+         * Returns true if the robot is aimed at the center of the hub's vision traget (within the
+         * desired tolerance) based on the Limelight's reported horizontal offset. If Limelight
+         * aiming is disabled, this method returns true.
+         * @return true if the robot is aimed at the center of the hub's vision traget (within the
+         * desired tolerance) based on the Limelight's reported horizontal offset. If Limelight
+         * aiming is disabled, this method returns true
+         */
         public boolean isAimed() {
 
                 // check if limelight aiming is enabled
@@ -563,8 +749,19 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         return true;
                 }
 
-                // calculate the horizontal offset from the center of the hub and ensure we are within the
-                //      specified tolerance
+                // Calculate the horizontal offset (in inches) from the center of the hub and
+                //      ensure we are within the specified tolerance. It is critical to use the
+                //      offset in inches instead of degrees as the same degree offset when close
+                //      to the hub or far from the hub results in significantly different offsets
+                //      in inches, which can result in missed shots. The tolerance is critical
+                //      since it is highly unlikely that the robot will be aligned perfectly.
+                //      Waiting the specified number of iterations is critical since the PID may
+                //      overshoot the setpoint and need additional time to settle. The robot is
+                //      only considered aimed if it remains aligned continuously for the desired
+                //      number of iterations. Without waiting, it would be reported that the
+                //      robot was aimed but then, when the cargo is shot, the robot would
+                //      overrotate and miss.
+                
                 double distanceToHub = getLimelightDistanceIn() + LimelightConstants.EDGE_TO_CENTER_HUB_DISTANCE;
                 if(Math.abs(distanceToHub * Math.sin(Math.toRadians(getLimelightX()))) < LIMELIGHT_AIM_TOLERANCE){
                         aimSetpointCount++;
@@ -580,10 +777,23 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         }
 
+        /**
+         * Sets the setpoint for the robot's rotation to the specified value (in degrees). Zero
+         * degrees is away from the driver and increases in the CCW direction.
+         * @param setpoint the specified setpoint for the robot's rotation (in degrees)
+         */
         public void setGyroSetpoint(double setpoint) {
                 this.gyroSetpoint = setpoint;
         }
         
+        /**
+         * Returns true if the robot is aimed at the center of the hub's vision traget (within the
+         * desired tolerance) based on the gyro. If Limelight aiming is disabled, this method
+         * returns true.
+         * @return true if the robot is aimed at the center of the hub's vision traget (within the
+         * desired tolerance) based on the gyro. If Limelight aiming is disabled, this method
+         * returns true.
+         */
         public boolean isAimedWithGyro() {
 
                 // check if limelight aiming is enabled
@@ -591,8 +801,19 @@ public class DrivetrainSubsystem extends SubsystemBase {
                         return true;
                 }
 
-                // calculate the horizontal offset from the center of the hub and ensure we are within the
-                //      specified tolerance
+                // Calculate the horizontal offset (in inches) from the center of the hub and
+                //      ensure we are within the specified tolerance. It is critical to use the
+                //      offset in inches instead of degrees as the same degree offset when close
+                //      to the hub or far from the hub results in significantly different offsets
+                //      in inches, which can result in missed shots. The tolerance is critical
+                //      since it is highly unlikely that the robot will be aligned perfectly.
+                //      Waiting the specified number of iterations is critical since the PID may
+                //      overshoot the setpoint and need additional time to settle. The robot is
+                //      only considered aimed if it remains aligned continuously for the desired
+                //      number of iterations. Without waiting, it would be reported that the
+                //      robot was aimed but then, when the cargo is shot, the robot would
+                //      overrotate and miss.
+                
                 double distanceToHub = getLimelightDistanceIn() + LimelightConstants.EDGE_TO_CENTER_HUB_DISTANCE;
                 double setPointDisplacement = distanceToHub * Math.sin(Math.toRadians(this.gyroSetpoint));
                 double currentDisplacement = distanceToHub * Math.sin(getGyroscopeRotation().getRadians());
@@ -610,42 +831,84 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         }
 
+        /**
+         * Returns the desired velocity of the drivetrain in the x direction (units of m/s)
+         * @return the desired velocity of the drivetrain in the x direction (units of m/s)
+         */
         public double getVelocityX() {
                 return m_chassisSpeeds.vxMetersPerSecond;
         }
 
+        /**
+         * Returns the desired velocity of the drivetrain in the y direction (units of m/s)
+         * @return the desired velocity of the drivetrain in the y direction (units of m/s)
+         */
         public double getVelocityY() {
                 return m_chassisSpeeds.vyMetersPerSecond;
         }
 
+        /**
+         * Enable the auto aim and shoot mode. In this mode, the robot moves based on the joystick
+         * inputs. If the hub is visible, the drivetrain will rotate to stay aimed at the hub; if
+         * not, the joystick input will control the rotation of the drivetrain.
+         */
         public void enableAutoAimAndShoot() {
                 this.autoAimAndShootEnabled = true;
         }
 
+        /**
+         * Disables the auto aim and shoot mode.
+         */
         public void disableAutoAimAndShoot() {
                 this.autoAimAndShootEnabled = false;
         }
 
+        /**
+         * Enables aiming based on the Limelight.
+         */
         public void enableLimelightAim() {
                 this.limelightAimEnabled = true;
         }
         
+        /**
+         * Disables aiming based on the Limelight. This method is only invoked when the operator
+         * has determined that the Limelight is not functioning and the driver will aim the robot
+         * manually. This is critical since, without disabling this feature, the driver would be
+         * fighting the code that tries to aim based on the malfunctioning Limelight.
+         */
         public void disableLimelightAim() {
                 this.limelightAimEnabled = false;
         }
 
+        /**
+         * Returns true if the limelight aim feature is enabled.
+         * @return
+         */
         public boolean isLimelightAimEnabled() {
                 return this.limelightAimEnabled;
         }
 
+        /**
+         * Puts the drivetrain into the x-stance orientation. In this orientation the wheels are
+         * aligned to make an 'X'. This makes it more difficult for other robots to push the robot,
+         * which is useful when shooting. The robot cannot be driven until x-stance is disabled.
+         */
         public void enableXstance() {
                 this.isXstance = true;
                 this.setXStance();
         }
+
+        /**
+         * Disables the x-stance, allowing the robot to be driven.
+         */
         public void disableXstance() {
                 this.isXstance = false;
         }
 
+        /**
+         * Returns true if the robot is in the x-stance orientation.
+         * @return true if the robot is in the x-stance orientation
+         */
         public boolean isXstance() {
                 return isXstance;
         }

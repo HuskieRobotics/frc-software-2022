@@ -49,8 +49,11 @@ public class FollowPath extends PPSwerveControllerCommand {
     /**
      * This method is invoked once when this command is scheduled. If the trajectory is the first
      * in a sequence of trajectories or the only trajector, initialize the gyro and odometry to
-     * match the start of trajectory. It is critical that this initialization occurs in this method
-     * and not the constructor as this object is constructed well before the command is scheduled.
+     * match the start of trajectory. PathPlanner sets the origin of the field to the lower left
+     * corner (i.e., the corner of the field to the driver's right). Zero degrees is away from the
+     * driver and increases in the CCW direction. It is critical that this initialization occurs in
+     * this method and not the constructor as this object is constructed well before the command is
+     * scheduled.
      */
     @Override
     public void initialize() {
@@ -59,6 +62,8 @@ public class FollowPath extends PPSwerveControllerCommand {
         this.drivetrainSubsystem.enableStackTraceLogging(false);
 
         if(initialPath) {
+
+            // incorporate this line into the resetOdometry method
             this.drivetrainSubsystem.setGyroOffset(this.trajectory.getInitialState().holonomicRotation.getDegrees());
 
             // Reset odometry to the starting pose of the trajectory.
