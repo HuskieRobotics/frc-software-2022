@@ -18,7 +18,7 @@ public class ExtendClimberToLowRungCommand extends CommandBase {
     /**
      * Constructs a new ExtendClimberToLowRungCommand object.
      * 
-     * @param subsystem the Elevator subsystem required by this command
+     * @param subsystem the elevator subsystem this command will control
      */
     public ExtendClimberToLowRungCommand(Elevator subsystem) {
         m_elevator = subsystem;
@@ -54,7 +54,7 @@ public class ExtendClimberToLowRungCommand extends CommandBase {
 
     /**
      * This method is invoked at the end of each Command Scheduler iteration. It returns true when
-     * the elevator has reached the specified setpoint.
+     * the elevator has reached the specified setpoint, which is slightly above the low rung.
      */
     @Override
     public boolean isFinished() {
