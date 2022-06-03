@@ -21,7 +21,7 @@ import frc.robot.subsystems.DrivetrainSubsystem;
  */
 public class FollowPath extends PPSwerveControllerCommand {
   private ProfiledPIDController thetaController;
-  private DrivetrainSubsystem drivetrainSubsystem;
+  private DrivetrainSubsystem drivetrain;
   private PathPlannerTrajectory trajectory;
   private boolean initialPath;
 
@@ -53,7 +53,7 @@ public class FollowPath extends PPSwerveControllerCommand {
         subsystem);
 
     this.thetaController = thetaController;
-    this.drivetrainSubsystem = subsystem;
+    this.drivetrain = subsystem;
     this.trajectory = trajectory;
     this.initialPath = initialPath;
   }
@@ -70,21 +70,14 @@ public class FollowPath extends PPSwerveControllerCommand {
   public void initialize() {
     super.initialize();
 
-    this.drivetrainSubsystem.enableStackTraceLogging(false);
-
     if (initialPath) {
-
-      // incorporate this line into the resetOdometry method
-      this.drivetrainSubsystem.setGyroOffset(
-          this.trajectory.getInitialState().holonomicRotation.getDegrees());
-
-      // Reset odometry to the starting pose of the trajectory.
-      this.drivetrainSubsystem.resetOdometry(this.trajectory.getInitialState());
+      // reset odometry to the starting pose of the trajectory
+      this.drivetrain.resetOdometry(this.trajectory.getInitialState());
     }
 
     // reset the theta controller such that old accumuldated ID values aren't used with the new path
     //      this doesn't matter if only the P value is non-zero, which is the current behavior
-    this.thetaController.reset(this.drivetrainSubsystem.getPose().getRotation().getRadians());
+    this.thetaController.reset(this.drivetrain.getPose().getRotation().getRadians());
   }
 
   /**
@@ -95,8 +88,7 @@ public class FollowPath extends PPSwerveControllerCommand {
    */
   @Override
   public void end(boolean interrupted) {
-    this.drivetrainSubsystem.enableStackTraceLogging(true);
-    this.drivetrainSubsystem.stop();
+    this.drivetrain.stop();
     super.end(interrupted);
   }
 }

@@ -21,7 +21,7 @@ public class WaitForShotCommand extends CommandBase {
   private final Storage storage;
   private final Flywheel flywheel;
   private final DrivetrainSubsystem drivetrain;
-  private int iterations;
+  private int iterationDelayCount;
 
   /**
    * Constructs a new WaitForShotCommand object.
@@ -40,14 +40,14 @@ public class WaitForShotCommand extends CommandBase {
   }
 
   /**
-   * This method is invoked once when this command is scheduled. It initializes the iterations delay
-   * counter. It is critical that this initialization occurs in this method and not the constructor
-   * as this command is constructed once when the RobotContainer is created, but this method is
-   * invoked each time this command is scheduled.
+   * This method is invoked once when this command is scheduled. It initializes the
+   * iterationDelayCount delay counter. It is critical that this initialization occurs in this
+   * method and not the constructor as this command is constructed once when the RobotContainer is
+   * created, but this method is invoked each time this command is scheduled.
    */
   @Override
   public void initialize() {
-    iterations = 0;
+    iterationDelayCount = 0;
   }
 
   /**
@@ -66,23 +66,23 @@ public class WaitForShotCommand extends CommandBase {
   /**
    * This method is invoked at the end of each Command Scheduler iteration. It returns true when
    * cargo is detected at neither the shooter end of the storage nor the collector end, and the
-   * desired number of additional iterations have occurred to ensure the cargo has completely exited
-   * the shooter before the flywheel and storage are stopped.
+   * desired number of additional iterationDelayCount have occurred to ensure the cargo has
+   * completely exited the shooter before the flywheel and storage are stopped.
    */
   @Override
   public boolean isFinished() {
     if (storage.isCollectorSensorUnblocked() && storage.isShooterSensorUnblocked()) {
-      if (iterations > StorageConstants.WAIT_FOR_SHOT_DELAY) {
+      if (iterationDelayCount > StorageConstants.WAIT_FOR_SHOT_DELAY) {
         return true;
       }
 
-      iterations++;
+      iterationDelayCount++;
     }
-    // if cargo is detected at either end of the storage system, reset the iterations delay
+    // if cargo is detected at either end of the storage system, reset the iterationDelayCount delay
     //  counter. This is critical as there is a brief period of time where cargo can be between
     //  the sensors and the iteration counter can be incremented prematurely.
     else {
-      iterations = 0;
+      iterationDelayCount = 0;
     }
 
     return false;

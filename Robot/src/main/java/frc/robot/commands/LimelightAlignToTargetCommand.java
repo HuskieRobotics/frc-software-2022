@@ -18,24 +18,24 @@ import frc.robot.subsystems.DrivetrainSubsystem;
  */
 public class LimelightAlignToTargetCommand extends PIDCommand {
 
-  private DrivetrainSubsystem drivetrainSubsystem;
+  private DrivetrainSubsystem drivetrain;
 
   /**
    * Constructs a new LimelightAlignToTargetCommand object.
    *
-   * @param subsystem the drivetrain subsystem this command will control
+   * @param drivetrain the drivetrain subsystem this command will control
    */
-  public LimelightAlignToTargetCommand(DrivetrainSubsystem subsystem) {
+  public LimelightAlignToTargetCommand(DrivetrainSubsystem drivetrain) {
     // the input to the rotational PID controller is the number of degrees between the rotation
     //  of the drivetrain and the center of the hub target; the setpoint is 0 (aimed perfectly)
     super(
         new PIDController(DrivetrainConstants.LIMELIGHT_P, DrivetrainConstants.LIMELIGHT_I, 0),
-        subsystem::getLimelightX,
+        drivetrain::getLimelightX,
         0,
-        output -> subsystem.aim(0, 0, output),
-        subsystem);
+        output -> drivetrain.aim(0, 0, output),
+        drivetrain);
 
-    drivetrainSubsystem = subsystem;
+    this.drivetrain = drivetrain;
   }
 
   /**
@@ -44,8 +44,9 @@ public class LimelightAlignToTargetCommand extends PIDCommand {
    *
    * @param interrupted true if the command was interrupted by another command being scheduled
    */
+  @Override
   public void end(boolean interrupted) {
-    drivetrainSubsystem.stop();
+    drivetrain.stop();
     super.end(interrupted);
   }
 
@@ -53,7 +54,8 @@ public class LimelightAlignToTargetCommand extends PIDCommand {
    * This method is invoked at the end of each Command Scheduler iteration. It returns true when the
    * drivetrain is aimed based on the Limelight.
    */
+  @Override
   public boolean isFinished() {
-    return drivetrainSubsystem.isAimed();
+    return drivetrain.isAimed();
   }
 }

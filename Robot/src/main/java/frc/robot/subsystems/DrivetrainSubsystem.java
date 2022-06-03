@@ -85,7 +85,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private Translation2d centerGravity = new Translation2d(); // default to (0,0)
 
   // better document the coordinate system of the robot and the kinematics
-  private final SwerveDriveKinematics m_kinematics =
+  private final SwerveDriveKinematics kinematics =
       new SwerveDriveKinematics(
           // Front left
           new Translation2d(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0),
@@ -101,24 +101,24 @@ public class DrivetrainSubsystem extends SubsystemBase {
   // The important thing about how you configure your gyroscope is that rotating
   // the robot counter-clockwise should
   // cause the angle reading to increase until it wraps back over to zero.
-  private final Pigeon2 m_pigeon = new Pigeon2(PIGEON_ID);
+  private final Pigeon2 pigeon = new Pigeon2(PIGEON_ID);
 
   private double gyroOffset;
 
   // These are our modules. We initialize them in the constructor.
-  private final SwerveModule m_frontLeftModule;
-  private final SwerveModule m_frontRightModule;
-  private final SwerveModule m_backLeftModule;
-  private final SwerveModule m_backRightModule;
+  private final SwerveModule frontLeftModule;
+  private final SwerveModule frontRightModule;
+  private final SwerveModule backLeftModule;
+  private final SwerveModule backRightModule;
   private boolean isFieldRelative;
   private boolean isXstance;
   // private Translation2d m_robotCenter;
   private NetworkTableEntry fieldRelativeNT;
 
-  private final SwerveDriveOdometry m_odometry =
-      new SwerveDriveOdometry(m_kinematics, Rotation2d.fromDegrees(m_pigeon.getYaw()));
+  private final SwerveDriveOdometry odometry =
+      new SwerveDriveOdometry(kinematics, Rotation2d.fromDegrees(pigeon.getYaw()));
 
-  private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+  private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
   private SimpleMotorFeedforward feedForward;
 
@@ -142,7 +142,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     // this.m_robotCenter = new Translation2d(0,0);
 
     this.zeroGyroscope();
-    // this.m_pigeon.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_6_SensorFusion, 255,
+    // this.pigeon.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_6_SensorFusion, 255,
     // TIMEOUT_MS);
 
     // There are 4 methods you can call to create your swerve modules.
@@ -169,7 +169,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     // a different configuration or motors
     // you MUST change it. If you do not, your code will crash on startup.
 
-    m_frontLeftModule =
+    frontLeftModule =
         Mk4SwerveModuleHelper.createFalcon500(
             // This parameter is optional, but will allow you to see the current state of
             // the module on the dashboard.
@@ -189,7 +189,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
             FRONT_LEFT_MODULE_STEER_OFFSET);
 
     // We will do the same for the other modules
-    m_frontRightModule =
+    frontRightModule =
         Mk4SwerveModuleHelper.createFalcon500(
             tab.getLayout("Front Right Module", BuiltInLayouts.kList)
                 .withSize(2, 4)
@@ -200,7 +200,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
             FRONT_RIGHT_MODULE_STEER_ENCODER,
             FRONT_RIGHT_MODULE_STEER_OFFSET);
 
-    m_backLeftModule =
+    backLeftModule =
         Mk4SwerveModuleHelper.createFalcon500(
             tab.getLayout("Back Left Module", BuiltInLayouts.kList)
                 .withSize(2, 4)
@@ -211,7 +211,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
             BACK_LEFT_MODULE_STEER_ENCODER,
             BACK_LEFT_MODULE_STEER_OFFSET);
 
-    m_backRightModule =
+    backRightModule =
         Mk4SwerveModuleHelper.createFalcon500(
             tab.getLayout("Back Right Module", BuiltInLayouts.kList)
                 .withSize(2, 4)
@@ -224,9 +224,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     this.feedForward =
         new SimpleMotorFeedforward(
-            AutoConstants.ksVolts,
-            AutoConstants.kvVoltSecondsPerMeter,
-            AutoConstants.kaVoltSecondsSquaredPerMeter);
+            AutoConstants.S_VOLTS,
+            AutoConstants.V_VOLT_SECONDS_PER_METER,
+            AutoConstants.A_VOLT_SECONDS_SQUARED_PER_METER);
 
     tabMain.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
     tabMain.addBoolean("Target Visible", () -> isLimelightTargetVisible());
@@ -250,9 +250,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
       tabMain.addNumber("vy", () -> getVelocityY());
       tabMain.addNumber("Limelight x", () -> getLimelightX());
       tab.addNumber("Limelight y Dist", () -> getLimelighty());
-      tab.addNumber("Pose X", () -> m_odometry.getPoseMeters().getX());
-      tab.addNumber("Pose Y", () -> m_odometry.getPoseMeters().getY());
-      tab.addNumber("Pose Rotation", () -> m_odometry.getPoseMeters().getRotation().getDegrees());
+      tab.addNumber("Pose X", () -> odometry.getPoseMeters().getX());
+      tab.addNumber("Pose Y", () -> odometry.getPoseMeters().getY());
+      tab.addNumber("Pose Rotation", () -> odometry.getPoseMeters().getRotation().getDegrees());
       tab.add("Enable XStance", new InstantCommand(() -> this.enableXstance()));
       tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
       tab.addNumber("CoG X", () -> this.centerGravity.getX());
@@ -326,7 +326,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     //      gryo. There is a delay between setting the yaw on the Pigeon and that change
     //      taking effect. As a result, it is recommended to never set the yaw and
     //      adjust the local offset instead.
-    m_pigeon.setYaw(0.0);
+    pigeon.setYaw(0.0);
     this.gyroOffset = 0.0;
   }
 
@@ -338,7 +338,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * @return the rotation of the robot
    */
   public Rotation2d getGyroscopeRotation() {
-    return Rotation2d.fromDegrees(m_pigeon.getYaw() + this.gyroOffset);
+    return Rotation2d.fromDegrees(pigeon.getYaw() + this.gyroOffset);
   }
 
   /**
@@ -352,7 +352,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     // There is a delay between setting the yaw on the Pigeon and that change
     //      taking effect. As a result, it is recommended to never set the yaw and
     //      adjust the local offset instead.
-    this.gyroOffset = expectedYaw - m_pigeon.getYaw();
+    this.gyroOffset = expectedYaw - pigeon.getYaw();
   }
 
   /**
@@ -363,7 +363,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * @return the pose of the robot
    */
   public Pose2d getPose() {
-    return m_odometry.getPoseMeters();
+    return odometry.getPoseMeters();
   }
 
   /**
@@ -375,7 +375,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * @param state the specified PathPlanner state to which is set the odometry
    */
   public void resetOdometry(PathPlannerState state) {
-    m_odometry.resetPosition(
+    setGyroOffset(state.holonomicRotation.getDegrees());
+    odometry.resetPosition(
         new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation),
         this.getGyroscopeRotation());
   }
@@ -400,7 +401,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
       this.setXStance();
     } else {
       if (isFieldRelative) {
-        m_chassisSpeeds =
+        chassisSpeeds =
             ChassisSpeeds.fromFieldRelativeSpeeds(
                 translationXSupplier,
                 translationYSupplier,
@@ -408,26 +409,23 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 getGyroscopeRotation());
 
       } else {
-        m_chassisSpeeds =
+        chassisSpeeds =
             new ChassisSpeeds(translationXSupplier, translationYSupplier, rotationSupplier);
       }
 
-      SwerveModuleState[] states =
-          m_kinematics.toSwerveModuleStates(m_chassisSpeeds, centerGravity);
-
-      logStates(states);
+      SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassisSpeeds, centerGravity);
 
       // the set method of the swerve modules take a voltage, not a velocity
-      m_frontLeftModule.set(
+      frontLeftModule.set(
           states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
           states[0].angle.getRadians());
-      m_frontRightModule.set(
+      frontRightModule.set(
           states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
           states[1].angle.getRadians());
-      m_backLeftModule.set(
+      backLeftModule.set(
           states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
           states[2].angle.getRadians());
-      m_backRightModule.set(
+      backRightModule.set(
           states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE,
           states[3].angle.getRadians());
     }
@@ -438,8 +436,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * after this method is invoked.
    */
   public void stop() {
-    m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
-    SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds, centerGravity);
+    chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+    SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassisSpeeds, centerGravity);
     setSwerveModuleStates(states);
   }
 
@@ -450,19 +448,16 @@ public class DrivetrainSubsystem extends SubsystemBase {
    */
   @Override
   public void periodic() {
-    m_odometry.update(
+    odometry.update(
         this.getGyroscopeRotation(),
         new SwerveModuleState(
-            m_frontLeftModule.getDriveVelocity(),
-            new Rotation2d(m_frontLeftModule.getSteerAngle())),
+            frontLeftModule.getDriveVelocity(), new Rotation2d(frontLeftModule.getSteerAngle())),
         new SwerveModuleState(
-            m_frontRightModule.getDriveVelocity(),
-            new Rotation2d(m_frontRightModule.getSteerAngle())),
+            frontRightModule.getDriveVelocity(), new Rotation2d(frontRightModule.getSteerAngle())),
         new SwerveModuleState(
-            m_backLeftModule.getDriveVelocity(), new Rotation2d(m_backLeftModule.getSteerAngle())),
+            backLeftModule.getDriveVelocity(), new Rotation2d(backLeftModule.getSteerAngle())),
         new SwerveModuleState(
-            m_backRightModule.getDriveVelocity(),
-            new Rotation2d(m_backRightModule.getSteerAngle())));
+            backRightModule.getDriveVelocity(), new Rotation2d(backRightModule.getSteerAngle())));
   }
 
   /**
@@ -473,41 +468,19 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * @param states the specified swerve module state for each swerve module
    */
   public void setSwerveModuleStates(SwerveModuleState[] states) {
-    logStates(states);
-
     // the set method of the swerve modules take a voltage, not a velocity
-    m_frontLeftModule.set(
+    frontLeftModule.set(
         this.calculateFeedforwardVoltage(states[0].speedMetersPerSecond),
         states[0].angle.getRadians());
-    m_frontRightModule.set(
+    frontRightModule.set(
         this.calculateFeedforwardVoltage(states[1].speedMetersPerSecond),
         states[1].angle.getRadians());
-    m_backLeftModule.set(
+    backLeftModule.set(
         this.calculateFeedforwardVoltage(states[2].speedMetersPerSecond),
         states[2].angle.getRadians());
-    m_backRightModule.set(
+    backRightModule.set(
         this.calculateFeedforwardVoltage(states[3].speedMetersPerSecond),
         states[3].angle.getRadians());
-  }
-
-  public void enableStackTraceLogging(boolean enable) {
-    this.stackTraceLogging = enable;
-  }
-
-  private void logStates(SwerveModuleState[] states) {
-    if (COMMAND_LOGGING) {
-      if (stackTraceLogging) {
-        StackTraceElement[] stack = new Exception().getStackTrace();
-        for (StackTraceElement method : stack) {
-          System.out.println(method);
-        }
-
-        for (SwerveModuleState state : states) {
-          System.out.println(
-              "speed: " + state.speedMetersPerSecond + "; angle: " + state.angle.getRadians());
-        }
-      }
-    }
   }
 
   private double calculateFeedforwardVoltage(double velocity) {
@@ -525,7 +498,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * @return the kinematics for the drivetrain
    */
   public SwerveDriveKinematics getKinematics() {
-    return m_kinematics;
+    return kinematics;
   }
 
   /**
@@ -567,13 +540,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public void setXStance() {
     // replace hard-coded values with constants
     // FL
-    m_frontLeftModule.set(0, (Math.PI / 2 - Math.atan(22.5 / 23.5)));
+    frontLeftModule.set(0, (Math.PI / 2 - Math.atan(22.5 / 23.5)));
     // FR
-    m_frontRightModule.set(0, (Math.PI / 2 + Math.atan(22.5 / 23.5)));
+    frontRightModule.set(0, (Math.PI / 2 + Math.atan(22.5 / 23.5)));
     // BL
-    m_backLeftModule.set(0, (Math.PI / 2 + Math.atan(22.5 / 23.5)));
+    backLeftModule.set(0, (Math.PI / 2 + Math.atan(22.5 / 23.5)));
     // BR
-    m_backRightModule.set(0, (3.0 / 2.0 * Math.PI - Math.atan(22.5 / 23.5)));
+    backRightModule.set(0, (3.0 / 2.0 * Math.PI - Math.atan(22.5 / 23.5)));
   }
 
   /**
@@ -709,8 +682,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * @return the desired flywheel velocity (in ticks / 100 ms) based on the distance to the hub
    */
   public double getVelocityFromLimelight() {
-    double velocity = LIMELIGHT_SLOPE * this.getLimelightDistanceIn() + LIMELIGHT_Y_COMPONENT;
-    return velocity;
+    return LIMELIGHT_SLOPE * this.getLimelightDistanceIn() + LIMELIGHT_Y_COMPONENT;
   }
 
   private boolean isAtLaunchpadDistance() {
@@ -864,7 +836,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * @return the desired velocity of the drivetrain in the x direction (units of m/s)
    */
   public double getVelocityX() {
-    return m_chassisSpeeds.vxMetersPerSecond;
+    return chassisSpeeds.vxMetersPerSecond;
   }
 
   /**
@@ -873,7 +845,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * @return the desired velocity of the drivetrain in the y direction (units of m/s)
    */
   public double getVelocityY() {
-    return m_chassisSpeeds.vyMetersPerSecond;
+    return chassisSpeeds.vyMetersPerSecond;
   }
 
   /**

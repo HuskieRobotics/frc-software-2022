@@ -31,13 +31,13 @@ public class SetFlywheelVelocityCommand extends CommandBase {
   }
 
   /**
-   * This method will be invoked every iteration of the Command Scheduler. It repeatedly sets the
-   * setpoint of the flywheel velocity to the desired velocity.
+   * This method is invoked once when this command is scheduled. It sets the setpoint of the
+   * flywheel velocity to the desired velocity. It is critical that this initialization occurs in
+   * this method and not the constructor as this command is constructed once when the RobotContainer
+   * is created, but this method is invoked each time this command is scheduled.
    */
   @Override
-  public void execute() {
-    // it may be more efficient to only invoke setElevatorMotorPosition in the initialize
-    //  method instead of repeatedly in this method as well as the following line of code
+  public void initialize() {
     flywheel.setVelocity(this.velocity);
   }
 

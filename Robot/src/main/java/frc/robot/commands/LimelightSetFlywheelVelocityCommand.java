@@ -20,7 +20,6 @@ import frc.robot.subsystems.Flywheel;
 public class LimelightSetFlywheelVelocityCommand extends CommandBase {
   private Flywheel flywheel;
   private DrivetrainSubsystem drivetrain;
-  private double velocity;
 
   /**
    * Constructs a new LimelightAlignWithGyroCommand object.
@@ -36,22 +35,12 @@ public class LimelightSetFlywheelVelocityCommand extends CommandBase {
   }
 
   /**
-   * This method is invoked once when this command is scheduled. This command assumes that the robot
-   * is not in motion as it only queries the distance to the hub when initialized.
-   */
-  @Override
-  public void initialize() {
-    // either move this code into execute or move the code in execute here
-    this.velocity = this.drivetrain.getVelocityFromLimelight();
-  }
-
-  /**
    * This method will be invoked every iteration of the Command Scheduler. It repeatedly sets the
    * setpoint of the flywheel velocity to the desired velocity.
    */
   @Override
   public void execute() {
-    flywheel.setVelocity(this.velocity);
+    flywheel.setVelocity(this.drivetrain.getVelocityFromLimelight());
   }
 
   /**

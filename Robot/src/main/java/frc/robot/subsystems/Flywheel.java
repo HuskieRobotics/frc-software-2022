@@ -42,7 +42,7 @@ public class Flywheel extends SubsystemBase {
     leftFlywheelMotor.configFactoryDefault();
 
     /* Config sensor used for Primary PID [Velocity] */
-    TalonFXConfiguration _rightConfig = new TalonFXConfiguration();
+    TalonFXConfiguration rightConfig = new TalonFXConfiguration();
 
     /* Disable all motors */
     this.rightFlywheelMotor.set(TalonFXControlMode.PercentOutput, 0);
@@ -74,21 +74,21 @@ public class Flywheel extends SubsystemBase {
     /** Distance Configs */
 
     /* Configure the left Talon's selected sensor as integrated sensor */
-    _rightConfig.primaryPID.selectedFeedbackSensor =
+    rightConfig.primaryPID.selectedFeedbackSensor =
         TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); // Local
     // Feedback
     // Source
 
     /* FPID for velocity */
-    _rightConfig.slot0.kF = GAINS_VELOCITY.kF;
-    _rightConfig.slot0.kP = GAINS_VELOCITY.kP;
-    _rightConfig.slot0.kI = GAINS_VELOCITY.kI;
-    _rightConfig.slot0.kD = GAINS_VELOCITY.kD;
-    _rightConfig.slot0.integralZone = GAINS_VELOCITY.kIzone;
-    _rightConfig.slot0.closedLoopPeakOutput = GAINS_VELOCITY.kPeakOutput;
+    rightConfig.slot0.kF = GAINS_VELOCITY.kF;
+    rightConfig.slot0.kP = GAINS_VELOCITY.kP;
+    rightConfig.slot0.kI = GAINS_VELOCITY.kI;
+    rightConfig.slot0.kD = GAINS_VELOCITY.kD;
+    rightConfig.slot0.integralZone = GAINS_VELOCITY.kIzone;
+    rightConfig.slot0.closedLoopPeakOutput = GAINS_VELOCITY.kPeakOutput;
 
     /* Config the neutral deadband. */
-    _rightConfig.neutralDeadband = 0.001;
+    rightConfig.neutralDeadband = 0.001;
 
     /**
      * 1ms per loop. PID loop can be slowed down if need be. For example, - if sensor updates are
@@ -97,13 +97,13 @@ public class Flywheel extends SubsystemBase {
      * zero.
      */
     int closedLoopTimeMs = 1;
-    _rightConfig.slot0.closedLoopPeriod = closedLoopTimeMs;
-    _rightConfig.slot1.closedLoopPeriod = closedLoopTimeMs;
-    _rightConfig.slot2.closedLoopPeriod = closedLoopTimeMs;
-    _rightConfig.slot3.closedLoopPeriod = closedLoopTimeMs;
+    rightConfig.slot0.closedLoopPeriod = closedLoopTimeMs;
+    rightConfig.slot1.closedLoopPeriod = closedLoopTimeMs;
+    rightConfig.slot2.closedLoopPeriod = closedLoopTimeMs;
+    rightConfig.slot3.closedLoopPeriod = closedLoopTimeMs;
 
     /* APPLY the config settings */
-    this.rightFlywheelMotor.configAllSettings(_rightConfig);
+    this.rightFlywheelMotor.configAllSettings(rightConfig);
 
     // these status frames aren't read; so, set these CAN frame periods to the maximum value
     //  to reduce traffic on the bus

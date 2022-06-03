@@ -141,11 +141,6 @@ public class RobotContainer {
 
     configureAutoCommands();
 
-    if (TUNING) {
-      Shuffleboard.getTab("Elevator")
-          .add("Reach to Next Rung", new ReachToNextRungCommand(elevator, secondMechanism));
-    }
-
     if (COMMAND_LOGGING) {
       CommandScheduler.getInstance()
           .onCommandInitialize(
@@ -210,7 +205,18 @@ public class RobotContainer {
         new SequentialCommandGroup(
             new IndexSingleBallCommand(storage),
             new LimelightAlignOnMoveCommand(
-                drivetrainSubsystem, flywheel, collector, joystick0, joystick1),
+                drivetrainSubsystem,
+                flywheel,
+                collector,
+                () ->
+                    -modifyAxis(joystick0.getY())
+                        * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+                () ->
+                    -modifyAxis(joystick0.getX())
+                        * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+                () ->
+                    -modifyAxis(joystick1.getX())
+                        * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND),
             new WaitCommand(0.300),
             createLimelightShootCommandSequence(true /* use gyro */)));
 

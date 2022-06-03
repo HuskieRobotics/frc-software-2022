@@ -19,21 +19,21 @@ public class RetractClimberFullCommand extends CommandBase {
   /**
    * Constructs a new RetractClimberFullCommand object.
    *
-   * @param subsystem the elevator subsystem this command will control
+   * @param elevator the elevator subsystem this command will control
    */
-  public RetractClimberFullCommand(Elevator subsystem) {
-    elevator = subsystem;
+  public RetractClimberFullCommand(Elevator elevator) {
+    this.elevator = elevator;
     addRequirements(elevator);
   }
 
   /**
-   * This method will be invoked every iteration of the Command Scheduler. It sets the setpoint of
-   * the elevator position to fully retracted.
+   * This method is invoked once when this command is scheduled. It sets the setpoint of the
+   * elevator position to the fully retracted position. It is critical that this initialization
+   * occurs in this method and not the constructor as this command is constructed once when the
+   * RobotContainer is created, but this method is invoked each time this command is scheduled.
    */
   @Override
-  public void execute() {
-    // it may be more efficient to only invoke setElevatorMotorPosition in the initialize
-    //  method instead of repeatedly in this method as well as the following line of code
+  public void initialize() {
     elevator.setElevatorMotorPosition(ElevatorConstants.MIN_ELEVATOR_ENCODER_HEIGHT, true);
   }
 
@@ -54,12 +54,6 @@ public class RetractClimberFullCommand extends CommandBase {
    */
   @Override
   public boolean isFinished() {
-    // the responsibility for checking if elevator control is enabled is currently split
-    //  between the commands and the elevator subsystem. It should be in a single class;
-    //  probably, the elevator subsystem.
-    if (!elevator.isElevatorControlEnabled()) {
-      return true;
-    }
     return elevator.atSetpoint();
   }
 }

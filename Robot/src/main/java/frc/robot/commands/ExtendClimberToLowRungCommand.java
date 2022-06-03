@@ -28,13 +28,13 @@ public class ExtendClimberToLowRungCommand extends CommandBase {
   }
 
   /**
-   * This method will be invoked every iteration of the Command Scheduler. It sets the setpoint of
-   * the elevator position to slightly above the low rung.
+   * This method is invoked once when this command is scheduled. It sets the setpoint of the
+   * elevator position to slightly above the low rung. It is critical that this initialization
+   * occurs in this method and not the constructor as this command is constructed once when the
+   * RobotContainer is created, but this method is invoked each time this command is scheduled.
    */
   @Override
-  public void execute() {
-    // it may be more efficient to only invoke setElevatorMotorPosition in the initialize
-    //  method instead of repeatedly in this method
+  public void initialize() {
     elevator.setElevatorMotorPosition(ElevatorConstants.LOW_RUNG_HEIGHT, true);
   }
 
@@ -55,14 +55,6 @@ public class ExtendClimberToLowRungCommand extends CommandBase {
    */
   @Override
   public boolean isFinished() {
-    /*
-      the responsibility for checking if elevator control is enabled is currently split
-      between the commands and the elevator subsystem. It should be in a single class,
-      probably, the elevator subsystem.
-    */
-    if (!elevator.isElevatorControlEnabled()) {
-      return true;
-    }
     return elevator.atSetpoint();
   }
 }

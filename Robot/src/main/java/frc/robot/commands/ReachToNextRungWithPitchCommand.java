@@ -21,7 +21,7 @@ import frc.robot.subsystems.SecondaryArm;
  */
 public class ReachToNextRungWithPitchCommand extends CommandBase {
   private final Elevator elevator;
-  private final SecondaryArm secondMechanism;
+  private final SecondaryArm secondaryArm;
   private boolean startedFinalExtension;
 
   /**
@@ -32,9 +32,9 @@ public class ReachToNextRungWithPitchCommand extends CommandBase {
    */
   public ReachToNextRungWithPitchCommand(Elevator elevator, SecondaryArm secondaryArm) {
     this.elevator = elevator;
-    this.secondMechanism = secondaryArm;
+    this.secondaryArm = secondaryArm;
     addRequirements(elevator);
-    addRequirements(secondMechanism);
+    addRequirements(secondaryArm);
   }
 
   /**
@@ -63,7 +63,7 @@ public class ReachToNextRungWithPitchCommand extends CommandBase {
 
     // if the robot has been transferred from the elevator to secondary arms, move the
     //  secondary arms in to dampen the swing
-    secondMechanism.moveSecondaryArmIn();
+    secondaryArm.moveSecondaryArmIn();
 
     if (elevator.isApproachingNextRung()) {
       if (elevator.isNearLocalMinimum()) {
@@ -95,15 +95,6 @@ public class ReachToNextRungWithPitchCommand extends CommandBase {
    */
   @Override
   public boolean isFinished() {
-    // the responsibility for checking if elevator control is enabled is currently split
-    //  between the commands and the elevator subsystem. It should be in a single class,
-    //  probably, the elevator subsystem.
-    if (!elevator.isElevatorControlEnabled()) {
-      return true;
-    }
-
-    // the order of these methods is critical in that the isContactingUnderRung method
-    //      must be invoked before the elevator reaches the set point
     return elevator.atSetpoint();
   }
 }

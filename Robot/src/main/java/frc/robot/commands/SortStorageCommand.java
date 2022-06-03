@@ -20,7 +20,7 @@ import frc.robot.subsystems.*;
  */
 public class SortStorageCommand extends CommandBase {
   private Storage storage;
-  private int indexingDelay;
+  private int indexingDelayCount;
 
   /**
    * Constructs a new SortStorageCommand object.
@@ -40,7 +40,7 @@ public class SortStorageCommand extends CommandBase {
    */
   @Override
   public void initialize() {
-    indexingDelay = 0;
+    indexingDelayCount = 0;
   }
 
   /**
@@ -57,17 +57,17 @@ public class SortStorageCommand extends CommandBase {
   @Override
   public void execute() {
     if (!this.storage.isShooterSensorUnblocked()) {
-      indexingDelay++;
-      if (indexingDelay == StorageConstants.INDEXING_FORWARD_DELAY) {
+      indexingDelayCount++;
+      if (indexingDelayCount == StorageConstants.INDEXING_FORWARD_DELAY) {
         this.storage.setStoragePower(StorageConstants.OUTTAKE_POWER);
-      } else if (indexingDelay
+      } else if (indexingDelayCount
           > StorageConstants.INDEXING_FORWARD_DELAY + StorageConstants.INDEXING_BACKWARD_DURATION) {
         this.storage.disableStorage();
       }
     } else if (!this.storage.isCollectorSensorUnblocked()
         && this.storage.isShooterSensorUnblocked()) {
       this.storage.enableStorage();
-      indexingDelay = 0;
+      indexingDelayCount = 0;
     }
   }
 
@@ -93,7 +93,7 @@ public class SortStorageCommand extends CommandBase {
   public boolean isFinished() {
     return !this.storage.isCollectorSensorUnblocked()
         && !this.storage.isShooterSensorUnblocked()
-        && indexingDelay
+        && indexingDelayCount
             > StorageConstants.INDEXING_FORWARD_DELAY + StorageConstants.INDEXING_BACKWARD_DURATION;
   }
 }

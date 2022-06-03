@@ -21,22 +21,22 @@ public class RetractClimberMinimumCommand extends CommandBase {
    * Constructs a new RetractClimberMinimumCommand object.
    *
    * @param setpoint the desired position of the elevator in units of encoder ticks
-   * @param subsystem the elevator subsystem this command will control
+   * @param elevator the elevator subsystem this command will control
    */
-  public RetractClimberMinimumCommand(double setpoint, Elevator subsystem) {
-    elevator = subsystem;
-    encoderSetpoint = setpoint;
+  public RetractClimberMinimumCommand(double setpoint, Elevator elevator) {
+    this.elevator = elevator;
+    this.encoderSetpoint = setpoint;
     addRequirements(elevator);
   }
 
   /**
-   * This method will be invoked every iteration of the Command Scheduler. It sets the setpoint of
-   * the elevator to the specified position.
+   * This method is invoked once when this command is scheduled. It sets the setpoint of the
+   * elevator position to specified value. It is critical that this initialization occurs in this
+   * method and not the constructor as this command is constructed once when the RobotContainer is
+   * created, but this method is invoked each time this command is scheduled.
    */
   @Override
-  public void execute() {
-    // it may be more efficient to only invoke setElevatorMotorPosition in the initialize
-    //  method instead of repeatedly in this method as well as the following line of code
+  public void initialize() {
     elevator.setElevatorMotorPosition(encoderSetpoint, true);
   }
 
@@ -57,12 +57,6 @@ public class RetractClimberMinimumCommand extends CommandBase {
    */
   @Override
   public boolean isFinished() {
-    // the responsibility for checking if elevator control is enabled is currently split
-    //  between the commands and the elevator subsystem. It should be in a single class;
-    //  probably, the elevator subsystem.
-    if (!elevator.isElevatorControlEnabled()) {
-      return true;
-    }
     return elevator.atSetpoint();
   }
 }

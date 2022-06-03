@@ -17,7 +17,6 @@ import java.util.function.DoubleSupplier;
  */
 public class DefaultDriveCommand extends CommandBase {
   private final DrivetrainSubsystem drivetrain;
-
   private final DoubleSupplier translationXSupplier;
   private final DoubleSupplier translationYSupplier;
   private final DoubleSupplier rotationSupplier;
@@ -25,22 +24,22 @@ public class DefaultDriveCommand extends CommandBase {
   /**
    * Construct a new DefaultDriveCommand object.
    *
-   * @param drivetrainSubsystem the Drivetrain subsystem required by this command
+   * @param drivetrain the Drivetrain subsystem required by this command
    * @param translationXSupplier supplies the desired velocity in the x direction (m/s)
    * @param translationYSupplier supplies the desired velocity in the y direction (m/s)
    * @param rotationSupplier supplies the desried rotational velocity (m/s)
    */
   public DefaultDriveCommand(
-      DrivetrainSubsystem drivetrainSubsystem,
+      DrivetrainSubsystem drivetrain,
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
       DoubleSupplier rotationSupplier) {
-    this.drivetrain = drivetrainSubsystem;
+    this.drivetrain = drivetrain;
     this.translationXSupplier = translationXSupplier;
     this.translationYSupplier = translationYSupplier;
     this.rotationSupplier = rotationSupplier;
 
-    addRequirements(drivetrainSubsystem);
+    addRequirements(this.drivetrain);
   }
 
   /**
@@ -50,16 +49,10 @@ public class DefaultDriveCommand extends CommandBase {
    */
   @Override
   public void execute() {
-    // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of
-    // field-oriented movement
-
     drivetrain.drive(
         translationXSupplier.getAsDouble(),
         translationYSupplier.getAsDouble(),
         rotationSupplier.getAsDouble());
-    // drivetrain.drive(new
-    // ChassisSpeeds(translationXSupplier.getAsDouble(),
-    // translationYSupplier.getAsDouble(), rotationSupplier.getAsDouble()));
   }
 
   /**

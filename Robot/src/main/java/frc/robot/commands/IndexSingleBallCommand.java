@@ -18,7 +18,7 @@ import frc.robot.subsystems.*;
  */
 public class IndexSingleBallCommand extends CommandBase {
   private Storage storage;
-  private int indexingDelay;
+  private int indexingDelayCount;
 
   /**
    * Constructs a new IndexSingleBallCommand object.
@@ -31,27 +31,25 @@ public class IndexSingleBallCommand extends CommandBase {
   }
 
   /**
-   * This method is invoked once when this command is scheduled. It initializes the indexing delay
-   * counter. It is critical that this initialization occurs in this method and not the constructor
-   * as this command is constructed once when the RobotContainer is created, but this method is
-   * invoked each time this command is scheduled.
+   * This method is invoked once when this command is scheduled. It sets teh motor of the storage to
+   * the outtake power and initializes the indexing delay counter. It is critical that this
+   * initialization occurs in this method and not the constructor as this command is constructed
+   * once when the RobotContainer is created, but this method is invoked each time this command is
+   * scheduled.
    */
   @Override
   public void initialize() {
-    indexingDelay = 0;
+    indexingDelayCount = 0;
+    storage.setStoragePower(StorageConstants.OUTTAKE_POWER);
   }
 
   /**
-   * This method will be invoked every iteration of the Command Scheduler. It repeatedly sets the
-   * motor of the storage to the outtake power and increments the indexing delay counter.
+   * This method will be invoked every iteration of the Command Scheduler. It repeatedly increments
+   * the indexing delay counter.
    */
   @Override
   public void execute() {
-    indexingDelay++;
-
-    // it may be more efficient to only invoke setStoragePower in the initialize
-    //  method instead of repeatedly in this method
-    this.storage.setStoragePower(StorageConstants.OUTTAKE_POWER);
+    indexingDelayCount++;
   }
 
   /**
@@ -62,7 +60,7 @@ public class IndexSingleBallCommand extends CommandBase {
    */
   @Override
   public void end(boolean interrupted) {
-    this.storage.disableStorage();
+    storage.disableStorage();
   }
 
   /**
@@ -71,6 +69,6 @@ public class IndexSingleBallCommand extends CommandBase {
    */
   @Override
   public boolean isFinished() {
-    return indexingDelay > StorageConstants.INDEXING_BACKWARD_DURATION;
+    return indexingDelayCount > StorageConstants.INDEXING_BACKWARD_DURATION;
   }
 }

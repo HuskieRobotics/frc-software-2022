@@ -20,7 +20,7 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 public class LimelightAlignWithGyroCommand extends CommandBase {
 
   private PIDController controller;
-  private DrivetrainSubsystem drivetrainSubsystem;
+  private DrivetrainSubsystem drivetrain;
   private double setpoint;
 
   /**
@@ -29,11 +29,11 @@ public class LimelightAlignWithGyroCommand extends CommandBase {
    * @param drivetrain the drivetrain subsystem this command will control
    */
   public LimelightAlignWithGyroCommand(DrivetrainSubsystem drivetrain) {
-    controller =
+    this.controller =
         new PIDController(DrivetrainConstants.LIMELIGHT_P, DrivetrainConstants.LIMELIGHT_I, 0);
-    drivetrainSubsystem = drivetrain;
+    this.drivetrain = drivetrain;
 
-    addRequirements(drivetrainSubsystem);
+    addRequirements(drivetrain);
   }
 
   /**
@@ -46,10 +46,10 @@ public class LimelightAlignWithGyroCommand extends CommandBase {
   @Override
   public void initialize() {
     controller.reset();
-    double gyro = drivetrainSubsystem.getGyroscopeRotation().getDegrees();
-    double tx = drivetrainSubsystem.getLimelightX();
+    double gyro = drivetrain.getGyroscopeRotation().getDegrees();
+    double tx = drivetrain.getLimelightX();
     this.setpoint = gyro - tx;
-    drivetrainSubsystem.setGyroSetpoint(this.setpoint);
+    drivetrain.setGyroSetpoint(this.setpoint);
   }
 
   /**
@@ -59,10 +59,9 @@ public class LimelightAlignWithGyroCommand extends CommandBase {
    */
   @Override
   public void execute() {
-    double output =
-        controller.calculate(drivetrainSubsystem.getGyroscopeRotation().getDegrees(), setpoint);
+    double output = controller.calculate(drivetrain.getGyroscopeRotation().getDegrees(), setpoint);
 
-    drivetrainSubsystem.aim(0, 0, output); // PID output (rad/s)
+    drivetrain.aim(0, 0, output); // PID output (rad/s)
   }
 
   /**
@@ -73,7 +72,7 @@ public class LimelightAlignWithGyroCommand extends CommandBase {
    */
   @Override
   public void end(boolean interrupted) {
-    drivetrainSubsystem.stop();
+    drivetrain.stop();
   }
 
   /**
@@ -82,6 +81,6 @@ public class LimelightAlignWithGyroCommand extends CommandBase {
    */
   @Override
   public boolean isFinished() {
-    return drivetrainSubsystem.isAimedWithGyro();
+    return drivetrain.isAimedWithGyro();
   }
 }

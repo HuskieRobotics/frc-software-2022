@@ -140,17 +140,15 @@ public class Elevator extends SubsystemBase {
     /* APPLY the config settings */
     this.rightElevatorMotor.configAllSettings(rightConfig);
 
-    // this.rightElevatorMotor.selectProfileSlot(SLOT_INDEX, kPIDLoopIdx);
-
     /* Initialize */
-    this.rightElevatorMotor.getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
+    this.rightElevatorMotor.getSensorCollection().setIntegratedSensorPosition(0, TIMEOUT_MS);
 
     // these status frames aren't read; so, set these CAN frame periods to the maximum value
     //  to reduce traffic on the bus
     this.leftElevatorMotor.setStatusFramePeriod(
-        StatusFrameEnhanced.Status_1_General, 255, kTimeoutMs);
+        StatusFrameEnhanced.Status_1_General, 255, TIMEOUT_MS);
     this.leftElevatorMotor.setStatusFramePeriod(
-        StatusFrameEnhanced.Status_2_Feedback0, 255, kTimeoutMs);
+        StatusFrameEnhanced.Status_2_Feedback0, 255, TIMEOUT_MS);
 
     Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight);
 
@@ -231,7 +229,7 @@ public class Elevator extends SubsystemBase {
       this.fConstantNT.addListener(
           event -> {
             this.rightElevatorMotor.config_kF(
-                SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
           },
           EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
@@ -244,7 +242,7 @@ public class Elevator extends SubsystemBase {
       this.pConstantNT.addListener(
           event -> {
             this.rightElevatorMotor.config_kP(
-                SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
           },
           EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
@@ -257,7 +255,7 @@ public class Elevator extends SubsystemBase {
       this.iConstantNT.addListener(
           event -> {
             this.rightElevatorMotor.config_kI(
-                SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
           },
           EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
@@ -270,7 +268,7 @@ public class Elevator extends SubsystemBase {
       this.dConstantNT.addListener(
           event -> {
             this.rightElevatorMotor.config_kD(
-                SLOT_INDEX, event.getEntry().getValue().getDouble(), kTimeoutMs);
+                SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
           },
           EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
@@ -283,7 +281,7 @@ public class Elevator extends SubsystemBase {
       this.sCurveConstantNT.addListener(
           event -> {
             this.rightElevatorMotor.configMotionSCurveStrength(
-                (int) event.getEntry().getValue().getDouble(), kTimeoutMs);
+                (int) event.getEntry().getValue().getDouble(), TIMEOUT_MS);
           },
           EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
@@ -296,7 +294,7 @@ public class Elevator extends SubsystemBase {
       this.velocityConstantNT.addListener(
           event -> {
             this.rightElevatorMotor.configMotionCruiseVelocity(
-                event.getEntry().getValue().getDouble(), kTimeoutMs);
+                event.getEntry().getValue().getDouble(), TIMEOUT_MS);
           },
           EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
@@ -309,7 +307,7 @@ public class Elevator extends SubsystemBase {
       this.accelerationConstantNT.addListener(
           event -> {
             this.rightElevatorMotor.configMotionAcceleration(
-                event.getEntry().getValue().getDouble(), kTimeoutMs);
+                event.getEntry().getValue().getDouble(), TIMEOUT_MS);
           },
           EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
     }
@@ -463,15 +461,19 @@ public class Elevator extends SubsystemBase {
 
   /**
    * Returns true if the elevator's position is at the specified setpoint (i.e., within the desired
-   * tolerance). The tolerance is critical since it is highly unlikely that the position of the
-   * elevator will match the setpoint exactly. Based on impirical observations, there is little to
-   * no overshoot of the setpoint. Therefore, there is no need to wait additional iterations and
-   * provide time to settle.
+   * tolerance) or if elevator control is not enabled. The tolerance is critical since it is highly
+   * unlikely that the position of the elevator will match the setpoint exactly. Based on impirical
+   * observations, there is little to no overshoot of the setpoint. Therefore, there is no need to
+   * wait additional iterations and provide time to settle.
    *
    * @return true if the elevator's position is at the specified setpoint (i.e., within the desired
-   *     tolerance)
+   *     tolerance) or if elevator control is not enabled.
    */
   public boolean atSetpoint() {
+    if (!isElevatorControlEnabled()) {
+      return true;
+    }
+
     return Math.abs(this.getElevatorEncoderHeight() - this.encoderPositionSetpoint)
         < ELEVATOR_POSITION_TOLERANCE;
   }
