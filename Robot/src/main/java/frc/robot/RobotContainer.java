@@ -80,16 +80,19 @@ public class RobotContainer {
   SendableChooser<Command> m_chooser = new SendableChooser<>();
 
   /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
+   * The container for the robot. Contains subsystems, IO devices, and commands.
    */
   private RobotContainer() {
 
+    // disable all telemetry in the LiveWindow to reduce the processing during each iteration
     LiveWindow.disableAllTelemetry();
 
     this.joystickButtons0 = new JoystickButton[13];
     this.joystickButtons1 = new JoystickButton[13];
     this.operatorButtons = new JoystickButton[13];
     this.xboxButtons = new JoystickButton[11];
+
+    // buttons use 1-based indexing such that the index matches the button number
     for (int i = 1; i < joystickButtons0.length; i++) {
       joystickButtons0[i] = new JoystickButton(joystick0, i);
       joystickButtons1[i] = new JoystickButton(joystick1, i);
@@ -100,6 +103,8 @@ public class RobotContainer {
       xboxButtons[i] = new JoystickButton(xboxController, i);
     }
 
+    // all subsystems must register with the Command Scheduler in order for their periodic methods
+    //  to be invoked
     m_drivetrainSubsystem.register();
     m_storage.register();
     m_collector.register();
@@ -111,10 +116,14 @@ public class RobotContainer {
      m_secondMechanism.register();
 
     // Set up the default command for the drivetrain.
-    // The controls are for field-oriented driving:
-    // Left stick Y axis -> forward and backwards movement
-    // Left stick X axis -> left and right movement
-    // Right stick X axis -> rotation
+    // The joysticks' values map to percentage of the maximum velocities.
+    // The velocities may be specified from either the robot's frame of reference or the field's
+    //  frame of reference. In the robot's frame of reference, the positive x direction is forward;
+    //  the positive y direction, left; position rotation, CCW. In the field frame of reference,
+    //  the origin of the field to the lower left corner (i.e., the corner of the field to the
+    //  driver's right). Zero degrees is away from the driver and increases in the CCW direction.
+    // This is why the left joystick's y axis specifies the velocity in the x direction and the
+    //  left joystick's x axis specifies the velocity in the y direction.
     m_drivetrainSubsystem.setDefaultCommand(new DefaultDriveCommand(
         m_drivetrainSubsystem,
         () -> -modifyAxis(joystick0.getY()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
@@ -157,6 +166,10 @@ public class RobotContainer {
     }
   }
 
+  /**
+   * Factory method to create the singleton robot container object.
+   * @return the singleton robot container object
+   */
   public static RobotContainer getInstance() {
     return m_robotContainer;
   }
@@ -301,7 +314,7 @@ public class RobotContainer {
 
   private void configureClimberButtons() {
 
-    // configure climb to 4 (high) rung climb sequence
+    // configure climb to 4 (traverse) rung climb sequence
     operatorButtons[8].whenPressed(
         new SequentialCommandGroup(
             new RetractClimberFullCommand(m_elevator),
@@ -564,7 +577,7 @@ public class RobotContainer {
           new InstantCommand(()-> m_storage.disableStorage(), m_storage)));
   }
 
-  public static double deadband(double value, double deadband) {
+  private static double deadband(double value, double deadband) {
     if (Math.abs(value) > deadband) {
       if (value > 0.0) {
         return (value - deadband) / (1.0 - deadband);
@@ -576,6 +589,12 @@ public class RobotContainer {
     }
   }
 
+  /**
+   * Squares the specified value, while preserving the sign. This method is used on all joystick
+   * inputs. This is useful as a non-linear range is more natural for the driver.
+   * @param value
+   * @return
+   */
   public static double modifyAxis(double value) {
     // Deadband
     value = deadband(value, 0.1);
@@ -590,6 +609,7 @@ public class RobotContainer {
     return m_elevator.isElevatorControlEnabled();
   }
 
+  // replace this method with one that better preserves encapsulation (e.g., disabledPeriodic)
   public DrivetrainSubsystem getDrivetrainSubsystem() {
     return m_drivetrainSubsystem;
   }
