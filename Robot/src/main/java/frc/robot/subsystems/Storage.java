@@ -18,7 +18,9 @@ import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 /**
- *
+ * This subsystem models the robot's storage mechanism. Is consists of a single motor, which
+ * moves the storage's belt in an intake or outtake direction, and two sensors which detect cargo
+ * at the collector end and the shooter end of the storage.
  */
 public class Storage extends SubsystemBase {
     private WPI_TalonSRX storage4;
@@ -34,6 +36,8 @@ public class Storage extends SubsystemBase {
         this.isStorageEnabled = false;
         storage4 = new WPI_TalonSRX(StorageConstants.STORAGE_MOTOR_ID);
 
+        // no data is read from the Talon SRX; so, set these CAN frame periods to the maximum value
+        //  to reduce traffic on the bus
         this.storage4.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, TIMEOUT_MS);
         this.storage4.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, TIMEOUT_MS);
 
@@ -109,31 +113,56 @@ public class Storage extends SubsystemBase {
 
     }
 
-    // Put methods for controlling this subsystem
-    // here. Call these from Commands.
+    /**
+     * Sets the storage's motor, which moves the belt, to the specified value
+     * @param power the specified power of the storage's motor as a percentage of full power
+     *      [-1.0, 1.0]
+     */
     public void setStoragePower(double power) {
         this.storage4.set(ControlMode.PercentOutput, power);
     }
 
+    /**
+     * Enable the storage subsystem. This results in the storage's belt moving in the intake
+     * direction at the default power.
+     */
     public void enableStorage() {
         this.isStorageEnabled = true;
         this.storage4.set(ControlMode.PercentOutput, StorageConstants.STORAGE_DEFAULT_SPEED);
         
 
     }
+
+    /**
+     * Returns true if the storage subsystem is enabled (i.e., belt is moving in the intake
+     * direction at the default power).
+     * @return true if the storage subsystem is enabled (i.e., belt is moving in the intake
+     * direction at the default power)
+     */
     public boolean isStorageEnabled() { 
         return isStorageEnabled;
     }
 
+    /**
+     * Disable the storage subsystem. This results in the storage's belt stopping.
+     */
     public void disableStorage() {
         this.isStorageEnabled = false;
         this.storage4.set(ControlMode.PercentOutput, 0);
     }
 
+    /**
+     * Returns true if the sensor at the shooter end of the storage detects cargo.
+     * @return true if the sensor at the shooter end of the storage detects cargo
+     */
     public boolean isShooterSensorUnblocked() {
         return this.shooterSensor1.get();
     }
 
+    /**
+     * Returns true if the sensor at the collector end of the storage detects cargo.
+     * @return true if the sensor at the collector end of the storage detects cargo
+     */
     public boolean isCollectorSensorUnblocked() {
         return this.collectorSensor0.get();
     }

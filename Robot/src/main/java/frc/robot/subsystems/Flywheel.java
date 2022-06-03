@@ -22,7 +22,9 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 /**
- *
+ * This subsystem models the robot's flywheel mechanism. It consists of two motors, which both
+ * rotate the flywheel. The right motor is controlled by a PID running on its motor controller to
+ * keep the flywheel's velocity at the specified setpoint. The left motor follows the right.
  */
 public class Flywheel extends SubsystemBase {
     private WPI_TalonFX leftFlywheelMotor;
@@ -32,11 +34,13 @@ public class Flywheel extends SubsystemBase {
     private double minVelocityAfterShot;
 
     /**
-    *
+    * Constructs a new Flywheel object.
     */
     public Flywheel() {
         leftFlywheelMotor = new WPI_TalonFX(LEFT_FLYWHEELMOTOR_CANID);
         rightFlywheelMotor = new WPI_TalonFX(RIGHT_FLYWHEELMOTOR_CANID);
+
+        // the following configuration is based on the CTRE example code
 
         /* Factory Default all hardware to prevent unexpected behaviour */
         rightFlywheelMotor.configFactoryDefault();
@@ -109,6 +113,8 @@ public class Flywheel extends SubsystemBase {
         /* APPLY the config settings */
         this.rightFlywheelMotor.configAllSettings(_rightConfig);
 
+        // these status frames aren't read; so, set these CAN frame periods to the maximum value
+        //  to reduce traffic on the bus
         this.leftFlywheelMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, TIMEOUT_MS);
         this.leftFlywheelMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, TIMEOUT_MS);
 
@@ -226,10 +232,12 @@ public class Flywheel extends SubsystemBase {
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
 
+    // make private
     public double getVelocity() {
         return this.rightFlywheelMotor.getSelectedSensorVelocity(SLOT_INDEX);
     }
 
+    // delete
     public double getMinVelocity() {
         double velocity = getVelocity();
         if(velocity < this.minVelocityAfterShot && rightFlywheelMotor.get() > 0) {
@@ -238,6 +246,10 @@ public class Flywheel extends SubsystemBase {
         return this.minVelocityAfterShot;
     }
 
+    /**
+     * Sets the velocity of the flywheel to the specified value.
+     * @param velocitySetPoint the desired velocity of the flywheel in units of ticks per 100 ms
+     */
     public void setVelocity(double velocitySetPoint) {
         this.velocitySetPoint = velocitySetPoint;
 
@@ -245,10 +257,24 @@ public class Flywheel extends SubsystemBase {
         rightFlywheelMotor.set(TalonFXControlMode.Velocity, velocitySetPoint);
     }
 
+    // delete
     public double getVelocitySetPoint() {
         return this.velocitySetPoint;
     }
 
+    /**
+     * Returns true if the flywheel's velocity is at the specified setpoint (i.e., within the
+     * desired tolerance for the specified number of iterations). The tolerance is critical since
+     * it is highly unlikely that the velocity of the flywheel will match the setpoint exactly.
+     * Waiting the specified number of iterations is critical since the PID may overshoot the
+     * setpoint and need additional time to settle. The flywheel is only considered at the
+     * specified velocity if it remains at that velocity continuously for the desired number of
+     * iterations. Without waiting, it would be reported that the flywheel had reached the
+     * specified velocity but then, when the cargo is shot, the velocity would be too great.
+     * 
+     * @return true if the flywheel's velocity is at the specified setpoint (i.e., within the
+     * desired tolerance for the specified number of iterations)
+     */
     public boolean isAtSetpoint() {
         if(Math.abs(this.getVelocity() - this.velocitySetPoint) < VELOCITY_TOLERANCE) {
             setPointCount++;
@@ -264,11 +290,19 @@ public class Flywheel extends SubsystemBase {
         
     }
 
+    /**
+     * Stops the flywheel. Since the flywheel's motors are in brake mode, the flywheel will stop
+     * spinning shortly after this method is executed.
+     */
     public void stopFlywheel() {
         leftFlywheelMotor.set(TalonFXControlMode.PercentOutput, 0.0);
         rightFlywheelMotor.set(TalonFXControlMode.PercentOutput, 0.0);
     }
 
+    /**
+     * Reverses the normal direction of the flywheel at the desired power. This method is invoked
+     * if cargo has jammed in the flywheel or storage.
+     */
     public void unjamFlywheel() {
         leftFlywheelMotor.set(TalonFXControlMode.PercentOutput, REVERSE_POWER);
         rightFlywheelMotor.set(TalonFXControlMode.PercentOutput, REVERSE_POWER);

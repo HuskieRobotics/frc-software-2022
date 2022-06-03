@@ -26,7 +26,11 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import java.util.Map;
 
 /**
- *
+ * This subsystem models the robot's elevator mechanism. It consists of two motors, which both
+ * control the elevator. The right motor is controlled by a PID running on its motor controller to
+ * position the elevator at the specified setpoint. The left motor follows the right. It also
+ * consists of a Pigeon, which is used to measure the pitch of the robot and determine when to
+ * extend and retract the elevator around a rung.
  */
 public class Elevator extends SubsystemBase {
     private NetworkTableEntry elevatorMotorPowerNT;
