@@ -26,7 +26,11 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import java.util.Map;
 
 /**
- *
+ * This subsystem models the robot's elevator mechanism. It consists of two motors, which both
+ * control the elevator. The right motor is controlled by a PID running on its motor controller to
+ * position the elevator at the specified setpoint. The left motor follows the right. It also
+ * consists of a Pigeon, which is used to measure the pitch of the robot and determine when to
+ * extend and retract the elevator around a rung.
  */
 public class Elevator extends SubsystemBase {
     private NetworkTableEntry elevatorMotorPowerNT;
@@ -51,6 +55,9 @@ public class Elevator extends SubsystemBase {
     private int SAMPLE_WINDOW_WIDTH = 6;   // FIXME: make a constant after tuning
     private double EPSILON = 0.001; // FIXME: make a constant after tuning
 
+    /**
+     * Constructs a new Elevator object.
+     */
     public Elevator() {
 
         this.latestPitches = new double[100];
@@ -59,6 +66,9 @@ public class Elevator extends SubsystemBase {
         this.rightElevatorMotor = new WPI_TalonFX(RIGHT_ELEVATOR_MOTOR_CAN_ID);
 
         this.isElevatorControlEnabled = false;
+
+        // the following configuration is based on the CTRE example code
+
         /* Factory Default all hardware to prevent unexpected behaviour */
         this.rightElevatorMotor.configFactoryDefault();
         this.leftElevatorMotor.configFactoryDefault();
@@ -139,8 +149,11 @@ public class Elevator extends SubsystemBase {
         /* Initialize */
         this.rightElevatorMotor.getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
 
-		this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, kTimeoutMs);
+		// these status frames aren't read; so, set these CAN frame periods to the maximum value
+        //  to reduce traffic on the bus
+        this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, kTimeoutMs);
         this.leftElevatorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, kTimeoutMs);
+        
         Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight);
         
      
@@ -264,9 +277,13 @@ public class Elevator extends SubsystemBase {
         this.encoderPositionSetpoint = 0.0;
     }
 
+    /**
+     * This method is invoked each iteration of the scheduler. Typically, when using a
+     * command-based model, subsystems don't override the periodic method. However, the elevator
+     * needs to continually record the robot's pitch in order to identify local maxima and minima.
+     */
     @Override
     public void periodic() {
-        // This method will be called once per scheduler run
         double pitch = m_pigeon.getPitch();
         
         // keep the last 100 unique pitches (2 seconds of data)
@@ -319,12 +336,20 @@ public class Elevator extends SubsystemBase {
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
 
-    public double getElevatorEncoderHeight() {
+    private double getElevatorEncoderHeight() {
         return this.rightElevatorMotor.getSelectedSensorPosition();
     }
 
+    /**
+     * Sets the power of the motors the raise and lower the elevator. This method is intended to
+     * only be invoked for manual control of the elevator. Typically, the setElevatorMotorPosition
+     * method is invoked to move the elevator to a specified position.
+     * @param power the specified power of the elevator's motors as a percentage of full power
+     *      [-1.0, 1.0]; positive values raise the elevator
+     */
     public void setElevatorMotorPower(double power) {
-
+        // since this method is intended for manual control, ensure that the elevator isn't driven
+        //  into the hardstops at the top or bottom
         if (isElevatorControlEnabled()) {
             if ((power > 0 && this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 5000) ||
                     (power < 0 && this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 5000)) {
@@ -340,7 +365,19 @@ public class Elevator extends SubsystemBase {
         this.encoderPositionSetpoint = setpoint;
     }
 
+    /**
+     * Sets the setpoint of the elevator to the specified position and moves the elevator towards
+     * that position with the power capped at the specified value.
+     * @param desiredEncoderPosition the specified position of the elevator (in ticks); ticks are 0
+     *      when the elevator is fully retracted
+     * @param isFast if true, move the elevator at maximum power; if false, move the elevator
+     *      slowly
+     */
     public void setElevatorMotorPosition(double desiredEncoderPosition, boolean isFast) {
+        // Control of the elevator is locked out until enabled with the press of a climb-enable
+        //  button on the operator console. This is critical because, if the elevator is
+        //  inadvertently extended when not in the hanger, it may violate the height limit and
+        //  result in a penalty.
         if (isElevatorControlEnabled()) {
 
             if(isFast) {
@@ -355,6 +392,8 @@ public class Elevator extends SubsystemBase {
             // and if it under load or not; use the desiredEncoderPosition to determine the
             // corresponding feed forward term
             if (desiredEncoderPosition > this.getElevatorEncoderHeight()) { // extending unloaded
+                // as long as the setpoints are correct, this check is not required as the elevator
+                //  will not hit the hardstops
                 if (this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 2500) {
                     this.stopElevator();
                 } else {
@@ -363,6 +402,8 @@ public class Elevator extends SubsystemBase {
                             DemandType.ArbitraryFeedForward, ARBITRARY_FEED_FORWARD_EXTEND);
                 }
             } else { // retracting loaded
+                // as long as the setpoints are correct, this check is not required as the elevator
+                //  will not hit the hardstops
                 if (this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 2500) {
                     this.stopElevator();
                 } else {
@@ -376,10 +417,24 @@ public class Elevator extends SubsystemBase {
         }
     }
 
+    /**
+     * Returns true if the elevator's position is at the specified setpoint (i.e., within the
+     * desired tolerance). The tolerance is critical since it is highly unlikely that the position
+     * of the elevator will match the setpoint exactly. Based on impirical observations, there is
+     * little to no overshoot of the setpoint. Therefore, there is no need to wait additional
+     * iterations and provide time to settle.
+     * 
+     * @return true if the elevator's position is at the specified setpoint (i.e., within the
+     * desired tolerance)
+     */
     public boolean atSetpoint() {
         return Math.abs(this.getElevatorEncoderHeight() - this.encoderPositionSetpoint) < ELEVATOR_POSITION_TOLERANCE;
     }
 
+    /**
+     * Stops the elevator. Since the elevator's motors are in brake mode, the elevator will stop
+     * moving almost immediately after this method is executed.
+     */
     public void stopElevator() {
         this.leftElevatorMotor.set(ControlMode.PercentOutput, 0.0);
         this.rightElevatorMotor.set(ControlMode.PercentOutput, 0.0);
@@ -403,6 +458,11 @@ public class Elevator extends SubsystemBase {
         return false;
     }
 
+    /**
+     * Returns true if the robot's swing is just beyond a local minimum. This is useful for
+     * determining when it is time to extend the elevator below a rung.
+     * @return true if the robot's swing is just beyond a local minimum
+     */
     public boolean isNearLocalMinimum() {
         // check for a local minimum 2/3 through the sample window
         //  (latestPitchesIndex is the index where the *next* pitch will be stored)
@@ -431,6 +491,11 @@ public class Elevator extends SubsystemBase {
         return isLocalMin;
     }
 
+    /**
+     * Returns true if the robot's swing is just beyond a local maximum. This is useful for
+     * determining when it is time to extend the elevator above a rung.
+     * @return true if the robot's swing is just beyond a local maximum
+     */
     public boolean isNearLocalMaximum() {
         // check for a local minimum 2/3 through the sample window
         //  (latestPitchesIndex is the index where the *next* pitch will be stored)
@@ -464,29 +529,60 @@ public class Elevator extends SubsystemBase {
         return this.getElevatorEncoderHeight() > TRANSFER_TO_SECONDARY_HEIGHT;
     }
 
+    /**
+     * Returns true if the elevator is approaching the next rung. This is used to determine when
+     * it is time to ensure that the elevator passes below the next rung.
+     * @return true if the elevator is approaching the next rung
+     */
     public boolean isApproachingNextRung() {
         return this.getElevatorEncoderHeight() > REACH_JUST_BEFORE_NEXT_RUNG;
     }
 
+    /**
+     * Stops the elevator. This method is intended to only be invoked for manual control of the
+     * elevator. To prevent inadvertent operation, this method requires that two buttons are
+     * pressed simultaneously to stop the elevator.
+     * @param isStartPressed true if the second button is also pressed, which is required to stop
+     *      the elevator
+     */
     public void elevatorPause(boolean isStartPressed) {
         if (isStartPressed) {
             this.stopElevator();
         }
     }
 
+    /**
+     * Enables operation of the elevator. Control of the elevator is locked out until enabled with
+     * the press of a climb-enable button on the operator console, which invokes this method. This
+     * is critical because, if the elevator is inadvertently extended when not in the hanger, it
+     * may violate the height limit and result in a penalty.
+     */
     public void enableElevatorControl() {
         this.isElevatorControlEnabled = true;
     }
 
+    /**
+     * Disables operation of the elevator. Control of the elevator is locked out until enabled with
+     * the press of a climb-enable button on the operator console. This is critical because, if the
+     * elevator is inadvertently extended when not in the hanger, it may violate the height limit
+     * and result in a penalty.
+     */
     public void disableElevatorControl() {
         this.isElevatorControlEnabled = false;
     }
 
+    /**
+     * Returns true if control of the elevator is enabled. Control of the elevator is locked out
+     * until enabled with the press of a climb-enable button on the operator console. This is
+     * critical because, if the elevator is inadvertently extended when not in the hanger, it may
+     * violate the height limit and result in a penalty.
+     * @return true if control of the elevator is enabled
+     */
     public boolean isElevatorControlEnabled() {
         return this.isElevatorControlEnabled;
     }
 
-    public double getSetpoint() {
+    private double getSetpoint() {
         return encoderPositionSetpoint;
     }
 }

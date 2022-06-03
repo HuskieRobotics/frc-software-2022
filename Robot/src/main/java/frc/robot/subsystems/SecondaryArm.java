@@ -10,7 +10,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import static frc.robot.Constants.*;
 
 /**
- *
+ * This subsystem models the robot's secondary arms which hold the robot on a rung. It consists of
+ * a solenoid which, when enabled, deploys the arms to engage with a rung; and, when disabled,
+ * retracts the arms to remain clear of the rungs.
  */
 public class SecondaryArm extends SubsystemBase {
     private boolean isIn;
@@ -49,11 +51,17 @@ public class SecondaryArm extends SubsystemBase {
         return this.isIn;
     }
 
+    /**
+     * Move the secondary arms within the robot's frame, which keeps them clear of rungs.
+     */
     public void moveSecondaryArmIn() {
         this.secondaryMechanism.set(false);
         this.isIn = true;
     }
 
+    /**
+     * Move the secondary arms out such that they can engage with a rung and support the robot.
+     */
     public void moveSecondaryArmOut() {
         this.secondaryMechanism.set(true);
         this.isIn = false;
