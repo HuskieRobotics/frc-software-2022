@@ -34,6 +34,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.SecondaryArm;
 import frc.robot.subsystems.Storage;
+import frc.robot.subsystems.VisionBox;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -64,6 +65,7 @@ public class RobotContainer {
   private final Flywheel m_flywheel = new Flywheel();
   //private final Hood m_hood = new Hood();
   //private final LimelightMath m_limelight = new LimelightMath();
+  private final VisionBox m_visionBox = new VisionBox();
   private final SecondaryArm m_secondMechanism = new SecondaryArm();
   private final Elevator m_elevator = new Elevator();
 
