@@ -1,6 +1,9 @@
 package frc.robot.commands;
 
 import frc.robot.Constants.*;
+
+import javax.xml.crypto.dsig.Transform;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -9,6 +12,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.Storage;
 import frc.robot.subsystems.VisionBox;
 
 /**
@@ -27,11 +31,13 @@ public class VisionBoxCollectBallCommand extends CommandBase {
     private PIDController rotationalController;
     private DrivetrainSubsystem drivetrainSubsystem;
     private Collector collectorSubsystem;
-    private VisionBox visionBox;
+    private Storage storageSubsystem;
+    private VisionBox visionBoxSubsystem;
     private Pose2d ballPose;
     private boolean initializationFailed;
+    private int ticksWithoutBall;
     
-    public VisionBoxCollectBallCommand(VisionBox visionBox, DrivetrainSubsystem drivetrain, Collector collector) {
+    public VisionBoxCollectBallCommand(VisionBox visionBox, DrivetrainSubsystem drivetrain, Collector collector, Storage storage) {
 
         radialTranslationController = new PIDController(VisionBoxConstants.RAIDAL_KP, VisionBoxConstants.RAIDAL_KI, VisionBoxConstants.RAIDAL_KD); // controls radial movement (to and from the ball)
         lateralTranslationController = new PIDController(VisionBoxConstants.LATERAL_KP, VisionBoxConstants.LATERAL_KI, VisionBoxConstants.LATERAL_KD); // controls lateral movement (left/right from robot perspective) 
@@ -39,7 +45,10 @@ public class VisionBoxCollectBallCommand extends CommandBase {
 
         drivetrainSubsystem = drivetrain;
         collectorSubsystem = collector;
-        this.visionBox = visionBox;
+        storageSubsystem = storage;
+        visionBoxSubsystem = visionBox;
+
+        ticksWithoutBall = 0;
 
         addRequirements(drivetrainSubsystem);
         addRequirements(collectorSubsystem);
@@ -62,7 +71,7 @@ public class VisionBoxCollectBallCommand extends CommandBase {
         drivetrainSubsystem.disableFieldRelative();        
 
         // get first ball pose
-        Transform2d ballTransform = visionBox.getFirstBallTransform2d();
+        Transform2d ballTransform = visionBoxSubsystem.getFirstBallTransform2d();
         initializationFailed = ballTransform == null; // if the the first ball doesn't exist, fail starting the command
 
         // get the first ball Pose2d relative to the field
@@ -80,7 +89,7 @@ public class VisionBoxCollectBallCommand extends CommandBase {
 
         //get the angle from the robot to the ball
         Translation2d robotToBallTranslation = (new Transform2d(drivetrainSubsystem.getPose(), ballPose)).getTranslation(); //the translation from the robot to the ball
-        double robotToBallAngle = Math.atan2(robotToBallTranslation.getY(), robotToBallTranslation.getX()); //the angle from the robot to the ball relative to the robot
+        double robotToBallAngle = Math.atan2(robotToBallTranslation.getX(), robotToBallTranslation.getY()); //the angle from the robot to the ball relative to the robot our "x" and "y" values in atan2 are swapped as our "0" is the positive y axis not the positive x axis.
 
 
         if (this.isAimed()) {
@@ -100,11 +109,26 @@ public class VisionBoxCollectBallCommand extends CommandBase {
         //calculate PIDs
         double radialOutput = radialTranslationController.calculate(distance.getY());
         double lateralOutput = lateralTranslationController.calculate(distance.getX());
-        double rotationalOutput = rotationalController.calculate(Math.atan2(distance.getX(),distance.getY())); //atan2 treats positive x axis as 0 degreees, we want positive y axis (aimed directly at the ball) to be 0
-
+        double rotationalOutput = rotationalController.calculate(robotToBallAngle);
         //drive the robot
         drivetrainSubsystem.aim(lateralOutput, radialOutput, rotationalOutput);
-        //re-query the ball pose 
+    
+        //re-query the ball pose
+        Transform2d ballTransform = visionBoxSubsystem.getFirstBallTransform2d();
+
+        if (ballTransform != null) { //if a ball is found, check if it's the same ball
+            Pose2d newPose = drivetrainSubsystem.getPose().plus(ballTransform);
+            //find the distance between the new and old ball pose
+            double ballDisplacement = (new Transform2d(ballPose, newPose)).getTranslation().getNorm();
+
+            if (ballDisplacement < ticksWithoutBall * VisionBoxConstants.MAX_DISPLACEMENT_PER_TICK_METERS) { //ensure the ball didn't move more than acceptable
+                ballPose = newPose;
+            }
+
+            ticksWithoutBall = 0;
+        } else {
+            ticksWithoutBall++;
+        }
     }
 
     /**
@@ -128,7 +152,7 @@ public class VisionBoxCollectBallCommand extends CommandBase {
      */
 
     public boolean isAimed() {
-        return visionBox.getFirstBallTx() < Math.toRadians(VisionBoxConstants.AIM_TOLERANCE_DEGREES);
+        return visionBoxSubsystem.getFirstBallTx() < Math.toRadians(VisionBoxConstants.AIM_TOLERANCE_DEGREES);
     }
     @Override
     public boolean isFinished() {
