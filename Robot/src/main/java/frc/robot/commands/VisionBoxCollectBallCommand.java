@@ -36,6 +36,7 @@ public class VisionBoxCollectBallCommand extends CommandBase {
     private Pose2d ballPose;
     private boolean initializationFailed;
     private int ticksWithoutBall;
+    private int startingCargoCount;
     
     public VisionBoxCollectBallCommand(VisionBox visionBox, DrivetrainSubsystem drivetrain, Collector collector, Storage storage) {
 
@@ -76,6 +77,9 @@ public class VisionBoxCollectBallCommand extends CommandBase {
 
         // get the first ball Pose2d relative to the field
         ballPose = drivetrainSubsystem.getPose().plus(ballTransform);
+
+        //find the number of balls in the storage
+        startingCargoCount = storageSubsystem.getNumberOfCargoInStorage();
     }
 
     /**
@@ -90,7 +94,6 @@ public class VisionBoxCollectBallCommand extends CommandBase {
         //get the angle from the robot to the ball
         Translation2d robotToBallTranslation = (new Transform2d(drivetrainSubsystem.getPose(), ballPose)).getTranslation(); //the translation from the robot to the ball
         double robotToBallAngle = Math.atan2(robotToBallTranslation.getX(), robotToBallTranslation.getY()); //the angle from the robot to the ball relative to the robot our "x" and "y" values in atan2 are swapped as our "0" is the positive y axis not the positive x axis.
-
 
         if (this.isAimed()) {
             //the robot is aimed, so the ideal location is the furthest point from the robot on a circle OVERSHOOT_DISTANCE_METERS from the ball
@@ -126,6 +129,7 @@ public class VisionBoxCollectBallCommand extends CommandBase {
             }
 
             ticksWithoutBall = 0;
+
         } else {
             ticksWithoutBall++;
         }
@@ -156,9 +160,9 @@ public class VisionBoxCollectBallCommand extends CommandBase {
     }
     @Override
     public boolean isFinished() {
-
-        // TODO: do this
-        return initializationFailed || false;
+        return initializationFailed || 
+        storageSubsystem.getNumberOfCargoInStorage() > startingCargoCount ||
+        storageSubsystem.getNumberOfCargoInStorage() == 2;
     }
 
 }
