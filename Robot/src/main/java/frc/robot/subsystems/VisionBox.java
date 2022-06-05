@@ -83,7 +83,7 @@ public class VisionBox extends SubsystemBase {
         if (tx == null) return null;
 
         //determine the ball's distance from the robot in the radial direction (y when in robot relative coordinates)
-        double y = VisionBoxConstants.CAMERA_HEIGHT_METERS / Math.tan(ty);
+        double y = VisionBoxConstants.CAMERA_HEIGHT_METERS / Math.abs(Math.tan(ty+Math.toRadians(VisionBoxConstants.CAMERA_ANGLE_DEGREES)));
 
         //using the direction in the radial direction and tx, calculate the distance in the lateral direction (x when in robot relative coordinates)
         double x = y / Math.tan(tx);

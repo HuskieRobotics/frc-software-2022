@@ -58,6 +58,9 @@ public class VisionBoxCollectBallCommand extends CommandBase {
         lateralTranslationController.reset();
         rotationalController.reset();
 
+        //disable field relative drive
+        drivetrainSubsystem.disableFieldRelative();        
+
         // get first ball pose
         Transform2d ballTransform = visionBox.getFirstBallTransform2d();
         initializationFailed = ballTransform == null; // if the the first ball doesn't exist, fail starting the command
@@ -97,9 +100,11 @@ public class VisionBoxCollectBallCommand extends CommandBase {
         //calculate PIDs
         double radialOutput = radialTranslationController.calculate(distance.getY());
         double lateralOutput = lateralTranslationController.calculate(distance.getX());
-        double rotationalOutput = rotationalController.calculate(Math.atan2(distance.getY(),distance.getX()));
+        double rotationalOutput = rotationalController.calculate(Math.atan2(distance.getX(),distance.getY())); //atan2 treats positive x axis as 0 degreees, we want positive y axis (aimed directly at the ball) to be 0
 
-        
+        //drive the robot
+        drivetrainSubsystem.aim(lateralOutput, radialOutput, rotationalOutput);
+        //re-query the ball pose 
     }
 
     /**
@@ -110,7 +115,10 @@ public class VisionBoxCollectBallCommand extends CommandBase {
      */
     @Override
     public void end(boolean interrupted) {
+        //reenable field relative drive
+        drivetrainSubsystem.enableFieldRelative();
         // TODO: do this
+
     }
 
     /**
@@ -120,7 +128,7 @@ public class VisionBoxCollectBallCommand extends CommandBase {
      */
 
     public boolean isAimed() {
-        return visionBox.getFirstBallTx() < Math.toRadians(VisionBoxConstants.AIM_TOLERANCE_DEGREES)
+        return visionBox.getFirstBallTx() < Math.toRadians(VisionBoxConstants.AIM_TOLERANCE_DEGREES);
     }
     @Override
     public boolean isFinished() {
