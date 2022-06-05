@@ -170,4 +170,14 @@ public class Storage extends SubsystemBase {
     public double getStoragePower() {
         return this.storage4.get();
     }
+
+    public int getNumberOfCargoInStorage() {
+        if (!isCollectorSensorUnblocked() && !isShooterSensorUnblocked()) { //both sensors are blocked
+            return 2;
+        } else if (!isCollectorSensorUnblocked() || !isShooterSensorUnblocked()) { // one sensor or the other is blocked
+            return 1;
+        } else { //no sensors are blocked
+            return 0;
+        }
+    }
 }
