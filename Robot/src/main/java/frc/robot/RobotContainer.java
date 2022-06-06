@@ -57,19 +57,8 @@ public class RobotContainer {
   private final Storage storage = new Storage();
   private final Collector collector = new Collector();
   private final Flywheel flywheel = new Flywheel();
-  // private final Hood m_hood = new Hood();
-  // private final LimelightMath m_limelight = new LimelightMath();
   private final SecondaryArm secondMechanism = new SecondaryArm();
   private final Elevator elevator = new Elevator();
-
-  private Command autoOneBall;
-  private Command autoTwoBallSteal;
-  private Command autoTwoBallAlt;
-  private Command autoFiveBall;
-  private Command autoFiveBallAlt;
-  private Command autoTwoBall;
-
-  // Joysticks
 
   // A chooser for autonomous commands
   SendableChooser<Command> chooser = new SendableChooser<>();
@@ -80,12 +69,12 @@ public class RobotContainer {
     // disable all telemetry in the LiveWindow to reduce the processing during each iteration
     LiveWindow.disableAllTelemetry();
 
+    // buttons use 1-based indexing such that the index matches the button number
     this.joystickButtons0 = new JoystickButton[13];
     this.joystickButtons1 = new JoystickButton[13];
     this.operatorButtons = new JoystickButton[13];
     this.xboxButtons = new JoystickButton[11];
 
-    // buttons use 1-based indexing such that the index matches the button number
     for (int i = 1; i < joystickButtons0.length; i++) {
       joystickButtons0[i] = new JoystickButton(joystick0, i);
       joystickButtons1[i] = new JoystickButton(joystick1, i);
@@ -102,8 +91,6 @@ public class RobotContainer {
     storage.register();
     collector.register();
     flywheel.register();
-    // m_hood.register();
-    // m_limelight.register();
     storage.register();
     elevator.register();
     secondMechanism.register();
@@ -111,8 +98,9 @@ public class RobotContainer {
     // Set up the default command for the drivetrain.
     // The joysticks' values map to percentage of the maximum velocities.
     // The velocities may be specified from either the robot's frame of reference or the field's
-    //  frame of reference. In the robot's frame of reference, the positive x direction is forward;
-    //  the positive y direction, left; position rotation, CCW. In the field frame of reference,
+    //  frame of reference. In the robot's frame of reference, the positive x direction is
+    //  forward; the positive y direction, left; position rotation, CCW. In the field frame of
+    // reference,
     //  the origin of the field to the lower left corner (i.e., the corner of the field to the
     //  driver's right). Zero degrees is away from the driver and increases in the CCW direction.
     // This is why the left joystick's y axis specifies the velocity in the x direction and the
@@ -128,53 +116,41 @@ public class RobotContainer {
                 -modifyAxis(joystick1.getX())
                     * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
 
-    // Smartdashboard Subsystems
-
-    // SmartDashboard Buttons
-
-    // Configure the button bindings
     configureButtonBindings();
-
-    // Configure default commands
-
-    // Configure autonomous sendable chooser
-
     configureAutoCommands();
 
-    if (COMMAND_LOGGING) {
-      CommandScheduler.getInstance()
-          .onCommandInitialize(
-              command ->
-                  Shuffleboard.addEventMarker(
-                      "Command initialized",
-                      command
-                          .getClass()
-                          .getName()
-                          .substring(command.getClass().getName().lastIndexOf('.') + 1),
-                      EventImportance.kNormal));
+    CommandScheduler.getInstance()
+        .onCommandInitialize(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command initialized",
+                    command
+                        .getClass()
+                        .getName()
+                        .substring(command.getClass().getName().lastIndexOf('.') + 1),
+                    EventImportance.kNormal));
 
-      CommandScheduler.getInstance()
-          .onCommandInterrupt(
-              command ->
-                  Shuffleboard.addEventMarker(
-                      "Command interrupted",
-                      command
-                          .getClass()
-                          .getName()
-                          .substring(command.getClass().getName().lastIndexOf('.') + 1),
-                      EventImportance.kNormal));
+    CommandScheduler.getInstance()
+        .onCommandInterrupt(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command interrupted",
+                    command
+                        .getClass()
+                        .getName()
+                        .substring(command.getClass().getName().lastIndexOf('.') + 1),
+                    EventImportance.kNormal));
 
-      CommandScheduler.getInstance()
-          .onCommandFinish(
-              command ->
-                  Shuffleboard.addEventMarker(
-                      "Command finished",
-                      command
-                          .getClass()
-                          .getName()
-                          .substring(command.getClass().getName().lastIndexOf('.') + 1),
-                      EventImportance.kNormal));
-    }
+    CommandScheduler.getInstance()
+        .onCommandFinish(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command finished",
+                    command
+                        .getClass()
+                        .getName()
+                        .substring(command.getClass().getName().lastIndexOf('.') + 1),
+                    EventImportance.kNormal));
   }
 
   /**
@@ -220,7 +196,7 @@ public class RobotContainer {
             new WaitCommand(0.300),
             createLimelightShootCommandSequence(true /* use gyro */)));
 
-    // FieldRelative toggle
+    // field-relative toggle
     joystickButtons0[3].toggleWhenPressed(
         new ConditionalCommand(
             new InstantCommand(
@@ -229,7 +205,7 @@ public class RobotContainer {
                 () -> drivetrainSubsystem.enableFieldRelative(), drivetrainSubsystem),
             drivetrainSubsystem::getFieldRelative));
 
-    // center of gravity
+    // rotate evasively around defending robot
     joystickButtons1[4].whenPressed(
         new InstantCommand(
             () ->
@@ -240,7 +216,8 @@ public class RobotContainer {
             drivetrainSubsystem));
     joystickButtons1[4].whenReleased(
         new InstantCommand(() -> drivetrainSubsystem.resetCenterGrav(), drivetrainSubsystem));
-    // reset all(2)
+
+    // stop/disable/reset all subsystems
     joystickButtons1[3].whenPressed(
         new ParallelCommandGroup(
             new InstantCommand(() -> flywheel.stopFlywheel(), flywheel),
@@ -248,7 +225,7 @@ public class RobotContainer {
             new InstantCommand(() -> collector.disableCollector(), collector),
             new InstantCommand(() -> drivetrainSubsystem.disableXstance(), drivetrainSubsystem)));
 
-    // Reset Gyro
+    // reset gyro to 0 degrees
     xboxButtons[BUTTON_Y].whenPressed(
         new InstantCommand(() -> drivetrainSubsystem.zeroGyroscope(), drivetrainSubsystem));
   }
@@ -300,7 +277,6 @@ public class RobotContainer {
     xboxButtons[BUTTON_B].whenHeld(
         new InstantCommand(
             () -> collector.setCollectorPower(CollectorConstants.OUTTAKE_POWER), collector));
-
     xboxButtons[BUTTON_B].whenReleased(
         new InstantCommand(() -> collector.setCollectorPower(0), collector));
   }
@@ -315,11 +291,11 @@ public class RobotContainer {
             new InstantCommand(() -> drivetrainSubsystem.enableLimelightAim(), drivetrainSubsystem),
             drivetrainSubsystem::isLimelightAimEnabled));
 
-    // preset field wall
+    // preset field wall shot
     operatorButtons[JoystickConstants.FIELD_WALL].whenPressed(
         createShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY));
 
-    // preset launchpad
+    // preset launchpad shot
     operatorButtons[JoystickConstants.LAUNCHPAD].whenPressed(
         createShootCommandSequence(FlywheelConstants.LAUNCH_PAD_VELOCITY));
 
@@ -332,7 +308,7 @@ public class RobotContainer {
             new InstantCommand(() -> storage.enableStorage(), storage),
             new WaitForShotCommand(storage, flywheel, drivetrainSubsystem)));
 
-    // limelight shot(1)
+    // limelight shot
     joystickButtons0[1].whenPressed(
         new SequentialCommandGroup(
             new ParallelCommandGroup(new IndexSingleBallCommand(storage), new WaitCommand(0.300)),
@@ -381,23 +357,21 @@ public class RobotContainer {
     // configure raise elevator before starting climb
     operatorButtons[2].whenPressed(new ExtendClimberToMidRungCommand(elevator));
 
-    // reset climber
+    // retract climber
     xboxButtons[BUTTON_A].whenPressed(new RetractClimberFullCommand(elevator));
 
-    // extend climber
+    // manually extend climber
     xboxButtons[JoystickConstants.BUTTON_RB].whenPressed(
         new InstantCommand(
             () -> elevator.setElevatorMotorPower(ElevatorConstants.DEFAULT_MOTOR_POWER), elevator));
-
     xboxButtons[JoystickConstants.BUTTON_RB].whenReleased(
         new InstantCommand(() -> elevator.setElevatorMotorPower(0), elevator));
 
-    // retract climber
+    // manually retract climber
     xboxButtons[JoystickConstants.BUTTON_LB].whenPressed(
         new InstantCommand(
             () -> elevator.setElevatorMotorPower(-1 * ElevatorConstants.DEFAULT_MOTOR_POWER),
             elevator));
-
     xboxButtons[JoystickConstants.BUTTON_LB].whenReleased(
         new InstantCommand(() -> elevator.setElevatorMotorPower(0), elevator));
 
@@ -407,12 +381,14 @@ public class RobotContainer {
             () -> elevator.elevatorPause(xboxButtons[JoystickConstants.BUTTON_BACK].get()),
             elevator));
 
+    // enable elevator control
     operatorButtons[12].toggleWhenPressed(
         new ConditionalCommand(
             new InstantCommand(() -> elevator.disableElevatorControl(), elevator),
             new InstantCommand(() -> elevator.enableElevatorControl(), elevator),
             elevator::isElevatorControlEnabled));
 
+    // manually toggle secondary arms
     operatorButtons[JoystickConstants.SECONDARY].toggleWhenPressed(
         new ConditionalCommand(
             new InstantCommand(() -> secondMechanism.moveSecondaryArmOut()),
@@ -429,11 +405,20 @@ public class RobotContainer {
     return chooser.getSelected();
   }
 
-  // always start teleop in a known state and ready to drive
+  /** Start teleop in a known state (i.e., storage, flywheel, collector stopped/disabled) */
   public void teleopInit() {
     storage.disableStorage();
     flywheel.stopFlywheel();
     collector.disableCollector();
+  }
+
+  public void disabledPeriodic() {
+    // By invoking the stop method, each swerve module's set method will be invoked when the robot
+    // is disabled.
+    // This is important since it provides an opportunity for the absolute angle to be properly
+    // read and the seed angle to be fixed before starting auto. As long as the robot is running for
+    // at most 10 seconds, the angles will be correct.
+    drivetrainSubsystem.stop();
   }
 
   private void configureAutoCommands() {
@@ -452,7 +437,7 @@ public class RobotContainer {
             "Blue0(2)",
             AutoConstants.MAX_SPEED_METERS_PER_SECOND,
             AutoConstants.MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-    autoOneBall =
+    Command autoOneBall =
         new SequentialCommandGroup(
             new FollowPath(autoBlue01Path, thetaController, drivetrainSubsystem, true),
             createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 2),
@@ -468,7 +453,7 @@ public class RobotContainer {
             "Blue1(2)",
             AutoConstants.MAX_SPEED_METERS_PER_SECOND,
             AutoConstants.MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-    autoTwoBallSteal =
+    Command autoTwoBallSteal =
         new SequentialCommandGroup(
             new InstantCommand(() -> collector.enableCollector(), collector),
             new FollowPath(autoBlue11Path, thetaController, drivetrainSubsystem, true),
@@ -485,7 +470,7 @@ public class RobotContainer {
                 new InstantCommand(() -> storage.enableStorage(), storage),
                 new WaitCommand(15)));
 
-    autoTwoBall =
+    Command autoTwoBall =
         new SequentialCommandGroup(
             new InstantCommand(() -> collector.enableCollector(), collector),
             new FollowPath(autoBlue11Path, thetaController, drivetrainSubsystem, true),
@@ -497,7 +482,7 @@ public class RobotContainer {
             "Blue2(1)",
             AutoConstants.MAX_SPEED_METERS_PER_SECOND,
             AutoConstants.MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-    autoTwoBallAlt =
+    Command autoTwoBallAlt =
         new SequentialCommandGroup(
             new InstantCommand(() -> collector.enableCollector(), collector),
             new FollowPath(autoBlue2Path, thetaController, drivetrainSubsystem, true),
@@ -520,7 +505,7 @@ public class RobotContainer {
             "Blue3(3)",
             AutoConstants.MAX_SPEED_METERS_PER_SECOND,
             AutoConstants.MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-    autoFiveBall =
+    Command autoFiveBall =
         new SequentialCommandGroup(
             new ParallelCommandGroup(
                 new InstantCommand(() -> collector.enableCollector(), collector),
@@ -560,7 +545,7 @@ public class RobotContainer {
             "Blue4(4)",
             AutoConstants.MAX_SPEED_METERS_PER_SECOND,
             AutoConstants.MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
-    autoFiveBallAlt =
+    Command autoFiveBallAlt =
         new SequentialCommandGroup(
             new ParallelCommandGroup(
                 new InstantCommand(() -> collector.enableCollector(), collector),
@@ -681,14 +666,5 @@ public class RobotContainer {
     value = Math.copySign(value * value, value);
 
     return value;
-  }
-
-  public boolean isElevatorControlEnabled() {
-    return elevator.isElevatorControlEnabled();
-  }
-
-  // replace this method with one that better preserves encapsulation (e.g., disabledPeriodic)
-  public DrivetrainSubsystem getDrivetrainSubsystem() {
-    return drivetrainSubsystem;
   }
 }

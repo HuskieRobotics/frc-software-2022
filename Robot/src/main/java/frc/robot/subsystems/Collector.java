@@ -25,6 +25,9 @@ public class Collector extends SubsystemBase {
   private Solenoid collectorPiston;
   private boolean isEnabled;
 
+  private static final boolean TESTING = false;
+  private static final boolean DEBUGGING = false;
+
   /** Constructs a new Collector object. */
   public Collector() {
     isEnabled = false;
@@ -46,21 +49,25 @@ public class Collector extends SubsystemBase {
     addChild("Collector Piston", collectorPiston);
     addChild("Collector Motor", collectorMotor);
 
-    // uncomment when testing/tuning
     ShuffleboardTab tab = Shuffleboard.getTab("Collector");
-    tab.add("collector", this);
-    tab.add("Collector Speed", 0.0)
-        .withWidget(BuiltInWidgets.kNumberSlider)
-        .getEntry()
-        .addListener(
-            event -> {
-              collectorMotor.set(
-                  ControlMode.PercentOutput, event.getEntry().getValue().getDouble());
-            },
-            EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-    tab.add("deploy collector", new InstantCommand(() -> this.collectorPiston.set(true), this));
-    tab.add("retract collector", new InstantCommand(() -> this.collectorPiston.set(false), this));
-    tab.addBoolean("enabled", this::isEnabled);
+
+    if (DEBUGGING) {
+      tab.add("Collector", this);
+      tab.addBoolean("Enabled?", this::isEnabled);
+    }
+
+    if (TESTING) {
+      tab.add("Collector Speed", 0.0)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .getEntry()
+          .addListener(
+              event ->
+                  collectorMotor.set(
+                      ControlMode.PercentOutput, event.getEntry().getValue().getDouble()),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+      tab.add("Deploy Collector", new InstantCommand(() -> this.collectorPiston.set(true), this));
+      tab.add("Retract Collector", new InstantCommand(() -> this.collectorPiston.set(false), this));
+    }
   }
 
   /**

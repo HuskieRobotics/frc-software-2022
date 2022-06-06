@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-// import com.ctre.phoenix.sensors.PigeonIMU;
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.DrivetrainConstants.*;
 
@@ -21,7 +20,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -48,10 +46,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public static final double MAX_VOLTAGE = 13.0;
 
   // The formula for calculating the theoretical maximum velocity is:
-  // <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> *
-  // pi
-  // By default this value is setup for a Mk3 standard module using Falcon500s to
-  // drive.
+  // <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> * pi
+  // By default this value is setup for a Mk3 standard module using Falcon500s to drive.
   // An example of this constant for a Mk4 L2 module with NEOs to drive is:
   // 5880.0 / 60.0 / SdsModuleConfigurations.MK4_L2.getDriveReduction() *
   // SdsModuleConfigurations.MK4_L2.getWheelDiameter() * Math.PI
@@ -82,26 +78,28 @@ public class DrivetrainSubsystem extends SubsystemBase {
   // When aiming, rotate the robot much slower to avoid overshooting the setpoint
   public static final double MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 1.0;
 
-  private Translation2d centerGravity = new Translation2d(); // default to (0,0)
+  private Translation2d centerGravity;
 
-  // better document the coordinate system of the robot and the kinematics
+  /* The geometry and coordinate systems can be confusing. Refer to this document
+  for a detailed explanation: !!!
+  */
   private final SwerveDriveKinematics kinematics =
       new SwerveDriveKinematics(
           // Front left
-          new Translation2d(TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0),
+          new Translation2d(WHEELBASE_METERS / 2.0, TRACKWIDTH_METERS / 2.0),
           // Front right
-          new Translation2d(TRACKWIDTH_METERS / 2.0, -WHEELBASE_METERS / 2.0),
+          new Translation2d(WHEELBASE_METERS / 2.0, -TRACKWIDTH_METERS / 2.0),
           // Back left
-          new Translation2d(-TRACKWIDTH_METERS / 2.0, WHEELBASE_METERS / 2.0),
+          new Translation2d(-WHEELBASE_METERS / 2.0, TRACKWIDTH_METERS / 2.0),
           // Back right
-          new Translation2d(-TRACKWIDTH_METERS / 2.0, -WHEELBASE_METERS / 2.0));
+          new Translation2d(-WHEELBASE_METERS / 2.0, -TRACKWIDTH_METERS / 2.0));
 
   // By default we use a Pigeon for our gyroscope. But if you use another
   // gyroscope, like a NavX, you can change this.
   // The important thing about how you configure your gyroscope is that rotating
   // the robot counter-clockwise should
   // cause the angle reading to increase until it wraps back over to zero.
-  private final Pigeon2 pigeon = new Pigeon2(PIGEON_ID);
+  private final Pigeon2 pigeon;
 
   private double gyroOffset;
 
@@ -112,13 +110,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private final SwerveModule backRightModule;
   private boolean isFieldRelative;
   private boolean isXstance;
-  // private Translation2d m_robotCenter;
-  private NetworkTableEntry fieldRelativeNT;
 
-  private final SwerveDriveOdometry odometry =
-      new SwerveDriveOdometry(kinematics, Rotation2d.fromDegrees(pigeon.getYaw()));
+  private final SwerveDriveOdometry odometry;
 
-  private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+  private ChassisSpeeds chassisSpeeds;
 
   private SimpleMotorFeedforward feedForward;
 
@@ -129,21 +124,18 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private boolean autoAimAndShootEnabled;
   private double gyroSetpoint;
 
-  private boolean stackTraceLogging;
+  private static final boolean TESTING = false;
+  private static final boolean DEBUGGING = false;
 
   /** Constructs a new DrivetrainSubsystem object. */
   public DrivetrainSubsystem() {
+    this.centerGravity = new Translation2d(); // default to (0,0)
+
+    this.pigeon = new Pigeon2(PIGEON_ID);
+    this.zeroGyroscope();
+
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
     ShuffleboardTab tabMain = Shuffleboard.getTab("MAIN");
-    this.isFieldRelative = false;
-    this.isXstance = false;
-    this.limelightAimEnabled = true;
-    this.autoAimAndShootEnabled = false;
-    // this.m_robotCenter = new Translation2d(0,0);
-
-    this.zeroGyroscope();
-    // this.pigeon.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_6_SensorFusion, 255,
-    // TIMEOUT_MS);
 
     // There are 4 methods you can call to create your swerve modules.
     // The method you use depends on what motors you are using.
@@ -222,97 +214,61 @@ public class DrivetrainSubsystem extends SubsystemBase {
             BACK_RIGHT_MODULE_STEER_ENCODER,
             BACK_RIGHT_MODULE_STEER_OFFSET);
 
+    this.isFieldRelative = false;
+    this.isXstance = false;
+
+    this.odometry = new SwerveDriveOdometry(kinematics, Rotation2d.fromDegrees(pigeon.getYaw()));
+
+    this.chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+
     this.feedForward =
         new SimpleMotorFeedforward(
             AutoConstants.S_VOLTS,
             AutoConstants.V_VOLT_SECONDS_PER_METER,
             AutoConstants.A_VOLT_SECONDS_SQUARED_PER_METER);
 
+    this.aimSetpointCount = 0;
+    this.gyroAimSetpointCount = 0;
+    this.lastLimelightDistance = 0.0;
+    this.limelightAimEnabled = true;
+    this.autoAimAndShootEnabled = false;
+    this.gyroSetpoint = 0.0;
+
     tabMain.addNumber("Limelight Dist", () -> getLimelightDistanceIn());
-    tabMain.addBoolean("Target Visible", () -> isLimelightTargetVisible());
+    tabMain.addBoolean("Target Visible?", () -> isLimelightTargetVisible());
     tabMain.addNumber("Limelight Vel", () -> getVelocityFromLimelight());
-    tabMain.addBoolean("Launchpad Dist", () -> isAtLaunchpadDistance());
-    tabMain.addBoolean("Wall Dist", () -> isAtWallDistance());
-    tabMain.addBoolean("Is Aimed", () -> isAimed());
-    tabMain.addBoolean("Is Aimed With", () -> isAimedWithGyro());
+    tabMain.addBoolean("At Launchpad Dist?", () -> isAtLaunchpadDistance());
+    tabMain.addBoolean("At Wall Dist?", () -> isAtWallDistance());
+    tabMain.addBoolean("Is Aimed?", () -> isAimed());
+    tabMain.addBoolean("Is Aimed Gryo?", () -> isAimedWithGyro());
     tabMain.addNumber("Gyroscope Angle", () -> getGyroscopeRotation().getDegrees());
     tabMain.addNumber("Gyroscope Offset", () -> this.gyroOffset);
-    tabMain.addBoolean("isXstance", this::isXstance);
-    tabMain.addBoolean("aim enabled", this::isLimelightAimEnabled);
-    tabMain.addBoolean("aim & shoot enabled", () -> this.autoAimAndShootEnabled);
-    this.fieldRelativeNT =
-        Shuffleboard.getTab("MAIN").add("FieldRelativeState", this.isFieldRelative).getEntry();
+    tabMain.addBoolean("X-Stance On?", this::isXstance);
+    tabMain.addBoolean("Limelight Aim Enabled?", this::isLimelightAimEnabled);
+    tabMain.addBoolean("Aim & Shoot Enabled?", () -> this.autoAimAndShootEnabled);
+    tabMain.addBoolean("Field-Relative Enabled?", () -> this.isFieldRelative);
 
-    if (COMMAND_LOGGING) {
-
-      tabMain.add("drivetrain", this);
-      tabMain.addNumber("vx", () -> getVelocityX());
-      tabMain.addNumber("vy", () -> getVelocityY());
-      tabMain.addNumber("Limelight x", () -> getLimelightX());
-      tab.addNumber("Limelight y Dist", () -> getLimelighty());
+    if (DEBUGGING) {
+      tab.add("drivetrain", this);
+      tab.addNumber("vx", () -> getVelocityX());
+      tab.addNumber("vy", () -> getVelocityY());
+      tab.addNumber("Limelight x", () -> getLimelightX());
+      tab.addNumber("Limelight y", () -> getLimelighty());
       tab.addNumber("Pose X", () -> odometry.getPoseMeters().getX());
       tab.addNumber("Pose Y", () -> odometry.getPoseMeters().getY());
       tab.addNumber("Pose Rotation", () -> odometry.getPoseMeters().getRotation().getDegrees());
-      tab.add("Enable XStance", new InstantCommand(() -> this.enableXstance()));
-      tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
       tab.addNumber("CoG X", () -> this.centerGravity.getX());
       tab.addNumber("CoG Y", () -> this.centerGravity.getY());
-
-      tabMain.addNumber("gyro setpoint", () -> this.gyroSetpoint);
-      tabMain.add("align with gyro", new LimelightAlignWithGyroCommand(this));
-      tabMain.add("align to target", new LimelightAlignToTargetCommand(this));
-      /*
-      tabMain.add("max angular vel", MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND)
-              .withWidget(BuiltInWidgets.kNumberSlider)
-              .withProperties(Map.of("min", 0, "max", 8)) // specify widget properties here
-              .getEntry()
-              .addListener(event -> {
-                      MAX_AIM_ANGULAR_VELOCITY_RADIANS_PER_SECOND = event.getEntry().getValue().getDouble();
-              }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-      tabMain.add("limelight F", LIMELIGHT_F)
-              .withWidget(BuiltInWidgets.kNumberSlider)
-              .withProperties(Map.of("min", 0, "max", 2.0)) // specify widget properties here
-              .getEntry()
-              .addListener(event -> {
-                      LIMELIGHT_F = event.getEntry().getValue().getDouble();
-              }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-      tabMain.add("limelight P", LIMELIGHT_P)
-              .withWidget(BuiltInWidgets.kNumberSlider)
-              .withProperties(Map.of("min", 0, "max", 2.0)) // specify widget properties here
-              .getEntry()
-              .addListener(event -> {
-                      LIMELIGHT_P = event.getEntry().getValue().getDouble();
-              }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-      tabMain.add("limelight I", LIMELIGHT_I)
-              .withWidget(BuiltInWidgets.kNumberSlider)
-              .withProperties(Map.of("min", 0, "max", 2.0)) // specify widget properties here
-              .getEntry()
-              .addListener(event -> {
-                      LIMELIGHT_I = event.getEntry().getValue().getDouble();
-              }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-      tabMain.add("aim tolerance", LIMELIGHT_ALIGNMENT_TOLERANCE)
-              .withWidget(BuiltInWidgets.kNumberSlider)
-              .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-              .getEntry()
-              .addListener(event -> {
-                      LIMELIGHT_ALIGNMENT_TOLERANCE = event.getEntry().getValue().getDouble();
-              }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-      */
-
+      tab.addNumber("gyro setpoint", () -> this.gyroSetpoint);
     }
 
-    if (TUNING) {
-      // Add indicators and controls to this Shuffleboard tab to assist with
-      // interactively tuning the system.
-
+    if (TESTING) {
+      tab.add("Enable XStance", new InstantCommand(() -> this.enableXstance()));
+      tab.add("Disable XStance", new InstantCommand(() -> this.disableXstance()));
+      tab.add("Align with Gyro", new LimelightAlignWithGyroCommand(this));
+      tab.add("Align to Target", new LimelightAlignToTargetCommand(this));
     }
   }
-
-  /*
-   * Sets the gyroscope angle to zero. This can be used to set the direction the
-   * robot is currently facing to the
-   * 'forwards' direction.
-   */
 
   /**
    * Zeroes the gyroscope. This sets the current rotation of the robot to zero degrees. This method
@@ -322,12 +278,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * invoked.
    */
   public void zeroGyroscope() {
-    // A better approach would be to set the gyroOffset to the current reading of the
-    //      gryo. There is a delay between setting the yaw on the Pigeon and that change
+    // There is a delay between setting the yaw on the Pigeon and that change
     //      taking effect. As a result, it is recommended to never set the yaw and
     //      adjust the local offset instead.
-    pigeon.setYaw(0.0);
-    this.gyroOffset = 0.0;
+    setGyroOffset(0.0);
   }
 
   /**
@@ -356,9 +310,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   /**
-   * Returns the pose of the robot (e.g., x and y position of the robot on the field). The origin of
-   * the field to the lower left corner (i.e., the corner of the field to the driver's right). Zero
-   * degrees is away from the driver and increases in the CCW direction.
+   * Returns the pose of the robot (e.g., x and y position of the robot on the field and the robot's
+   * rotation). The origin of the field to the lower left corner (i.e., the corner of the field to
+   * the driver's right). Zero degrees is away from the driver and increases in the CCW direction.
    *
    * @return the pose of the robot
    */
@@ -381,7 +335,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
         this.getGyroscopeRotation());
   }
 
-  // Implement change in center of gravity here
   /**
    * Controls the drivetrain to move the robot with the desired velocities in the x, y, and
    * rotational directions. The velocities may be specified from either the robot's frame of
@@ -514,22 +467,16 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * Enables field-relative mode. When enabled, the joystick inputs specify the velocity of the
    * robot in the frame of reference of the field.
    */
-  public boolean enableFieldRelative() {
+  public void enableFieldRelative() {
     this.isFieldRelative = true;
-    this.fieldRelativeNT.setBoolean(this.isFieldRelative);
-    // change to void return type
-    return this.isFieldRelative;
   }
 
   /**
    * Disables field-relative mode. When disabled, the joystick inputs specify the velocity of the
    * robot in the frame of reference of the robot.
    */
-  public boolean disableFieldRelative() {
+  public void disableFieldRelative() {
     this.isFieldRelative = false;
-    this.fieldRelativeNT.setBoolean(this.isFieldRelative);
-    // change to void return type
-    return this.isFieldRelative;
   }
 
   /**
@@ -538,23 +485,18 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * useful when shooting.
    */
   public void setXStance() {
-    // replace hard-coded values with constants
-    // FL
-    frontLeftModule.set(0, (Math.PI / 2 - Math.atan(22.5 / 23.5)));
-    // FR
-    frontRightModule.set(0, (Math.PI / 2 + Math.atan(22.5 / 23.5)));
-    // BL
-    backLeftModule.set(0, (Math.PI / 2 + Math.atan(22.5 / 23.5)));
-    // BR
-    backRightModule.set(0, (3.0 / 2.0 * Math.PI - Math.atan(22.5 / 23.5)));
+    frontLeftModule.set(0, (Math.PI / 2 - Math.atan(TRACKWIDTH_METERS / WHEELBASE_METERS)));
+    frontRightModule.set(0, (Math.PI / 2 + Math.atan(TRACKWIDTH_METERS / WHEELBASE_METERS)));
+    backLeftModule.set(0, (Math.PI / 2 + Math.atan(TRACKWIDTH_METERS / WHEELBASE_METERS)));
+    backRightModule.set(0, (3.0 / 2.0 * Math.PI - Math.atan(TRACKWIDTH_METERS / WHEELBASE_METERS)));
   }
 
   /**
    * Sets the robot's center of gravity about which it will rotate. The origin is at the center of
-   * the robot. the positive x direction is forward; the positive y direction, left. (confirm this)
+   * the robot. The positive x direction is forward; the positive y direction, left.
    *
-   * @param x the x coordinate of the robot's center of gravity
-   * @param y the y coordinate of the robot's center of gravity
+   * @param x the x coordinate of the robot's center of gravity (in meters)
+   * @param y the y coordinate of the robot's center of gravity (in meters)
    */
   public void setCenterGrav(double x, double y) {
     this.centerGravity = new Translation2d(x, y);
@@ -626,7 +568,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
    *     vision target (in degrees)
    */
   public double getLimelightX() {
-    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0);
+    return NetworkTableInstance.getDefault()
+        .getTable(LIMELIGHT_NETWORK_TABLE_NAME)
+        .getEntry("tx")
+        .getDouble(0);
   }
 
   /**
@@ -638,7 +583,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
    *     target (in degrees)
    */
   private double getLimelighty() {
-    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0);
+    return NetworkTableInstance.getDefault()
+        .getTable(LIMELIGHT_NETWORK_TABLE_NAME)
+        .getEntry("ty")
+        .getDouble(0);
   }
 
   /**
@@ -647,7 +595,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * @return true if the hub's vision target is visible
    */
   public boolean isLimelightTargetVisible() {
-    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0) == 1;
+    return NetworkTableInstance.getDefault()
+            .getTable(LIMELIGHT_NETWORK_TABLE_NAME)
+            .getEntry("tv")
+            .getDouble(0)
+        == 1;
   }
 
   /**
@@ -662,7 +614,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
     //      https://docs.limelightvision.io/en/latest/cs_estimating_distance.html
 
     double ty =
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0.0);
+        NetworkTableInstance.getDefault()
+            .getTable(LIMELIGHT_NETWORK_TABLE_NAME)
+            .getEntry("ty")
+            .getDouble(0.0);
 
     this.lastLimelightDistance =
         (LimelightConstants.HUB_H - LimelightConstants.ROBOT_H)

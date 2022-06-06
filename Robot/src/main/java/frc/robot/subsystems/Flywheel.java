@@ -12,9 +12,9 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.commands.SetFlywheelVelocityCommand;
 import java.util.Map;
 
@@ -27,8 +27,11 @@ public class Flywheel extends SubsystemBase {
   private WPI_TalonFX leftFlywheelMotor;
   private WPI_TalonFX rightFlywheelMotor;
   private double velocitySetPoint;
-  private int setPointCount;
-  private double minVelocityAfterShot;
+  private int atSetpointIterationCount;
+
+  private static final boolean TESTING = false;
+  private static final boolean DEBUGGING = false;
+  private static final boolean TUNING = false;
 
   /** Constructs a new Flywheel object. */
   public Flywheel() {
@@ -66,8 +69,9 @@ public class Flywheel extends SubsystemBase {
      *
      * https://phoenix-documentation.readthedocs.io/en/latest/ch14_MCSensor.html#
      * sensor-phase
+     *
+     * this.rightFlywheelMotor.setSensorPhase(true)
      */
-    // this.rightFlywheelMotor.setSensorPhase(true);
 
     /** Feedback Sensor Configuration */
 
@@ -80,12 +84,12 @@ public class Flywheel extends SubsystemBase {
     // Source
 
     /* FPID for velocity */
-    rightConfig.slot0.kF = GAINS_VELOCITY.kF;
-    rightConfig.slot0.kP = GAINS_VELOCITY.kP;
-    rightConfig.slot0.kI = GAINS_VELOCITY.kI;
-    rightConfig.slot0.kD = GAINS_VELOCITY.kD;
-    rightConfig.slot0.integralZone = GAINS_VELOCITY.kIzone;
-    rightConfig.slot0.closedLoopPeakOutput = GAINS_VELOCITY.kPeakOutput;
+    rightConfig.slot0.kF = VELOCITY_PID_F;
+    rightConfig.slot0.kP = VELOCITY_PID_P;
+    rightConfig.slot0.kI = VELOCITY_PID_I;
+    rightConfig.slot0.kD = VELOCITY_PID_D;
+    rightConfig.slot0.integralZone = VELOCITY_PID_I_ZONE;
+    rightConfig.slot0.closedLoopPeakOutput = VELOCITY_PID_PEAK_OUTPUT;
 
     /* Config the neutral deadband. */
     rightConfig.neutralDeadband = 0.001;
@@ -112,151 +116,97 @@ public class Flywheel extends SubsystemBase {
     this.leftFlywheelMotor.setStatusFramePeriod(
         StatusFrameEnhanced.Status_2_Feedback0, 255, TIMEOUT_MS);
 
-    // rightFlywheelMotor.selectProfileSlot(SLOT_INDEX, PID_LOOP_INDEX);
-
     this.velocitySetPoint = 0.0;
 
-    // Shuffleboard.getTab("MAIN").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
-    if (Constants.COMMAND_LOGGING) {
-      Shuffleboard.getTab("Shooter").addBoolean("FlywheelIsAtSetpoint", this::isAtSetpoint);
-      Shuffleboard.getTab("MAIN").add("shooter", this);
+    addChild("Flywheel Left Motor", this.leftFlywheelMotor);
+    addChild("Flywheel Right Motor", this.rightFlywheelMotor);
 
-      Shuffleboard.getTab("Shooter").addNumber("FlywheelVelocity", this::getVelocity);
-      Shuffleboard.getTab("Shooter").addNumber("FlywheelMinVelocity", this::getMinVelocity);
-      Shuffleboard.getTab("Shooter")
-          .addNumber(
-              "FlywheelRightEncoderReading", this.rightFlywheelMotor::getSelectedSensorVelocity);
-      Shuffleboard.getTab("Shooter")
-          .addNumber(
-              "FlywheelLeftEncoderReading", this.leftFlywheelMotor::getSelectedSensorVelocity);
-      Shuffleboard.getTab("Shooter")
-          .addNumber("FlywheelRightClosedLoopError", this.rightFlywheelMotor::getClosedLoopError);
-      Shuffleboard.getTab("Shooter")
-          .addNumber("Left Power", this.leftFlywheelMotor::getMotorOutputPercent);
-      Shuffleboard.getTab("Shooter")
-          .addNumber("Right Power", this.rightFlywheelMotor::getMotorOutputPercent);
+    ShuffleboardTab tab = Shuffleboard.getTab("Shooter");
 
-      Shuffleboard.getTab("Shooter")
-          .add("Wall Shot", new SetFlywheelVelocityCommand(this, WALL_SHOT_VELOCITY));
-      Shuffleboard.getTab("Shooter")
-          .add("Launchpad Shot", new SetFlywheelVelocityCommand(this, LAUNCH_PAD_VELOCITY));
-      Shuffleboard.getTab("Shooter")
-          .add("Stop Flywheel", new InstantCommand(this::stopFlywheel, this));
+    if (DEBUGGING) {
+      tab.add("Flywheel", this);
+
+      tab.addBoolean("At Setpoint?", this::isAtSetpoint);
+      tab.addNumber("Velocity", this::getVelocity);
+      tab.addNumber("Right Velocity", this.rightFlywheelMotor::getSelectedSensorVelocity);
+      tab.addNumber("Left Velocity", this.leftFlywheelMotor::getSelectedSensorVelocity);
+      tab.addNumber("Right Closed Loop Error", this.rightFlywheelMotor::getClosedLoopError);
+      tab.addNumber("Left Power", this.leftFlywheelMotor::getMotorOutputPercent);
+      tab.addNumber("Right Power", this.rightFlywheelMotor::getMotorOutputPercent);
     }
 
-    // Shuffleboard.getTab("Shooter").add("SpinFlywheelForFenderCommand",
-    // new SpinFlywheelCommand(this, FENDER_VELOCITY));
-    // Shuffleboard.getTab("Shooter").add("StopFlywheelCommand", new
-    // InstantCommand(this::stopFlywheel, this));
+    if (TESTING) {
+      tab.add("Wall Shot", new SetFlywheelVelocityCommand(this, WALL_SHOT_VELOCITY));
+      tab.add("Launchpad Shot", new SetFlywheelVelocityCommand(this, LAUNCH_PAD_VELOCITY));
+      tab.add("Stop Flywheel", new InstantCommand(this::stopFlywheel, this));
+    }
 
-    // if (Constants.TUNING) {
-    // Each robot feature that requires PID tuning has its own Shuffleboard tab for
-    // tuning (i.e., "Shooter")
-    // Add indicators and controls to this Shuffleboard tab to assist with
-    // interactively tuning the system.
+    if (TUNING) {
+      tab.add("Velocity Setpoint", 0.0)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .withProperties(Map.of("min", 0, "max", 25000)) // specify widget properties here
+          .getEntry()
+          .addListener(
+              event -> this.setVelocity(event.getEntry().getValue().getDouble()),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-    Shuffleboard.getTab("Shooter")
-        .add("VelocitySetpoint", 0.0)
-        .withWidget(BuiltInWidgets.kNumberSlider)
-        .withProperties(Map.of("min", 0, "max", 25000)) // specify widget properties here
-        .getEntry()
-        .addListener(
-            event -> {
-              this.setVelocity(event.getEntry().getValue().getDouble());
-            },
-            EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+      tab.add("Flywheel Power", 0.0)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+          .getEntry()
+          .addListener(
+              event -> {
+                leftFlywheelMotor.set(
+                    TalonFXControlMode.PercentOutput, event.getEntry().getValue().getDouble());
+                rightFlywheelMotor.set(
+                    TalonFXControlMode.PercentOutput, event.getEntry().getValue().getDouble());
+              },
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-    Shuffleboard.getTab("Shooter")
-        .add("Flywheel Power", 0.0)
-        .withWidget(BuiltInWidgets.kNumberSlider)
-        .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-        .getEntry()
-        .addListener(
-            event -> {
-              leftFlywheelMotor.set(
-                  TalonFXControlMode.PercentOutput, event.getEntry().getValue().getDouble());
-              rightFlywheelMotor.set(
-                  TalonFXControlMode.PercentOutput, event.getEntry().getValue().getDouble());
-            },
-            EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+      tab.add("Flywheel F", VELOCITY_PID_F)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+          .getEntry()
+          .addListener(
+              event ->
+                  this.rightFlywheelMotor.config_kF(
+                      SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-    Shuffleboard.getTab("Shooter")
-        .add("Flywheel F", GAINS_VELOCITY.kF)
-        .withWidget(BuiltInWidgets.kNumberSlider)
-        .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-        .getEntry()
-        .addListener(
-            event -> {
-              this.rightFlywheelMotor.config_kF(
-                  SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
-            },
-            EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+      tab.add("Flywheel P", VELOCITY_PID_P)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .withProperties(Map.of("min", 0, "max", 2.0)) // specify widget properties here
+          .getEntry()
+          .addListener(
+              event ->
+                  this.rightFlywheelMotor.config_kP(
+                      SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-    Shuffleboard.getTab("Shooter")
-        .add("Flywheel P", GAINS_VELOCITY.kP)
-        .withWidget(BuiltInWidgets.kNumberSlider)
-        .withProperties(Map.of("min", 0, "max", 2.0)) // specify widget properties here
-        .getEntry()
-        .addListener(
-            event -> {
-              this.rightFlywheelMotor.config_kP(
-                  SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
-            },
-            EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+      tab.add("Flywheel I", VELOCITY_PID_I)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+          .getEntry()
+          .addListener(
+              event ->
+                  this.rightFlywheelMotor.config_kI(
+                      SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-    Shuffleboard.getTab("Shooter")
-        .add("Flywheel I", GAINS_VELOCITY.kI)
-        .withWidget(BuiltInWidgets.kNumberSlider)
-        .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-        .getEntry()
-        .addListener(
-            event -> {
-              this.rightFlywheelMotor.config_kI(
-                  SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
-            },
-            EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-
-    Shuffleboard.getTab("Shooter")
-        .add("Flywheel D", GAINS_VELOCITY.kD)
-        .withWidget(BuiltInWidgets.kNumberSlider)
-        .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-        .getEntry()
-        .addListener(
-            event -> {
-              this.rightFlywheelMotor.config_kD(
-                  SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
-            },
-            EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-    // }
+      tab.add("Flywheel D", VELOCITY_PID_D)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+          .getEntry()
+          .addListener(
+              event ->
+                  this.rightFlywheelMotor.config_kD(
+                      SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+    }
   }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-
-  }
-
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run when in simulation
-
-  }
-
-  // Put methods for controlling this subsystem
-  // here. Call these from Commands.
-
-  // make private
-  public double getVelocity() {
+  private double getVelocity() {
     return this.rightFlywheelMotor.getSelectedSensorVelocity(SLOT_INDEX);
-  }
-
-  // delete
-  public double getMinVelocity() {
-    double velocity = getVelocity();
-    if (velocity < this.minVelocityAfterShot && rightFlywheelMotor.get() > 0) {
-      minVelocityAfterShot = velocity;
-    }
-    return this.minVelocityAfterShot;
   }
 
   /**
@@ -269,11 +219,6 @@ public class Flywheel extends SubsystemBase {
 
     this.leftFlywheelMotor.follow(this.rightFlywheelMotor);
     rightFlywheelMotor.set(TalonFXControlMode.Velocity, velocitySetPoint);
-  }
-
-  // delete
-  public double getVelocitySetPoint() {
-    return this.velocitySetPoint;
   }
 
   /**
@@ -291,14 +236,14 @@ public class Flywheel extends SubsystemBase {
    */
   public boolean isAtSetpoint() {
     if (Math.abs(this.getVelocity() - this.velocitySetPoint) < VELOCITY_TOLERANCE) {
-      setPointCount++;
-      if (setPointCount >= SETPOINTCOUNT) {
-        minVelocityAfterShot = this.getVelocity();
+      atSetpointIterationCount++;
+      if (atSetpointIterationCount >= SETPOINTCOUNT) {
         return true;
       }
     } else {
-      setPointCount = 0;
+      atSetpointIterationCount = 0;
     }
+
     return false;
   }
 

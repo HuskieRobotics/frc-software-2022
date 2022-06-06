@@ -14,9 +14,9 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.Pigeon2;
 import edu.wpi.first.networktables.EntryListenerFlags;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.ExtendClimberToMidRungCommand;
 import frc.robot.commands.RetractClimberFullCommand;
@@ -31,37 +31,33 @@ import java.util.Map;
  * extend and retract the elevator around a rung.
  */
 public class Elevator extends SubsystemBase {
-  private NetworkTableEntry elevatorMotorPowerNT;
-  private NetworkTableEntry positionSetPointNT;
-  private NetworkTableEntry fConstantNT;
-  private NetworkTableEntry pConstantNT;
-  private NetworkTableEntry iConstantNT;
-  private NetworkTableEntry dConstantNT;
-  private NetworkTableEntry sCurveConstantNT;
-  private NetworkTableEntry velocityConstantNT;
-  private NetworkTableEntry accelerationConstantNT;
   private WPI_TalonFX leftElevatorMotor;
   private WPI_TalonFX rightElevatorMotor;
-  private final Pigeon2 pigeon = new Pigeon2(PIGEON_ID);
+  private Pigeon2 pigeon;
+
   private double encoderPositionSetpoint;
   private boolean isElevatorControlEnabled;
-  private double pitchRunningAverage;
-  private int pitchRunningAverageSamples;
+
   private double prevPitch;
   private double[] latestPitches;
   private int latestPitchesIndex;
-  private static final int SAMPLE_WINDOW_WIDTH = 6;
-  private static final double EPSILON = 0.001;
+
+  private static final boolean TESTING = false;
+  private static final boolean DEBUGGING = false;
+  private static final boolean TUNING = false;
 
   /** Constructs a new Elevator object. */
   public Elevator() {
 
+    this.encoderPositionSetpoint = 0.0;
+    this.isElevatorControlEnabled = false;
+
+    this.prevPitch = 0.0;
     this.latestPitches = new double[100];
+    this.latestPitchesIndex = 0;
 
     this.leftElevatorMotor = new WPI_TalonFX(LEFT_ELEVATOR_MOTOR_CAN_ID);
     this.rightElevatorMotor = new WPI_TalonFX(RIGHT_ELEVATOR_MOTOR_CAN_ID);
-
-    this.isElevatorControlEnabled = false;
 
     // the following configuration is based on the CTRE example code
 
@@ -94,9 +90,10 @@ public class Elevator extends SubsystemBase {
      *
      * https://phoenix-documentation.readthedocs.io/en/latest/ch14_MCSensor.html#
      * sensor-phase
+     *
+     * this.leftElevatorMotor.setSensorPhase(true)
+     * this.rightElevatorMotor.setSensorPhase(true)
      */
-    // this.leftElevatorMotor.setSensorPhase(true);
-    // this.rightElevatorMotor.setSensorPhase(true);
 
     /** Feedback Sensor Configuration */
 
@@ -109,12 +106,12 @@ public class Elevator extends SubsystemBase {
     // Source
 
     /* FPID for Distance */
-    rightConfig.slot0.kF = GAINS_POSITION.kF;
-    rightConfig.slot0.kP = GAINS_POSITION.kP;
-    rightConfig.slot0.kI = GAINS_POSITION.kI;
-    rightConfig.slot0.kD = GAINS_POSITION.kD;
-    rightConfig.slot0.integralZone = GAINS_POSITION.kIzone;
-    rightConfig.slot0.closedLoopPeakOutput = GAINS_POSITION.kPeakOutput;
+    rightConfig.slot0.kF = POSITION_PID_F;
+    rightConfig.slot0.kP = POSITION_PID_P;
+    rightConfig.slot0.kI = POSITION_PID_I;
+    rightConfig.slot0.kD = POSITION_PID_D;
+    rightConfig.slot0.integralZone = POSITION_PID_I_ZONE;
+    rightConfig.slot0.closedLoopPeakOutput = POSITION_PID_PEAK_OUTPUT;
 
     /* Config the neutral deadband. */
     rightConfig.neutralDeadband = 0.001;
@@ -150,169 +147,127 @@ public class Elevator extends SubsystemBase {
     this.leftElevatorMotor.setStatusFramePeriod(
         StatusFrameEnhanced.Status_2_Feedback0, 255, TIMEOUT_MS);
 
-    Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight);
+    this.pigeon = new Pigeon2(PIGEON_ID);
 
-    if (COMMAND_LOGGING) {
-      Shuffleboard.getTab("Elevator").addBoolean("Near Local Min", this::isNearLocalMinimum);
-      Shuffleboard.getTab("Elevator").addBoolean("Near Local Max", this::isNearLocalMaximum);
-      Shuffleboard.getTab("Elevator").addBoolean("Above Next Rung", this::isAboveNextRung);
-      Shuffleboard.getTab("Elevator").addBoolean("Below Next Rung", this::isBelowNextRung);
-      Shuffleboard.getTab("Elevator").addNumber("Pitch Value", pigeon::getPitch);
-      Shuffleboard.getTab("Elevator").addNumber("Running Average", this::getPitchRunningAverage);
-      Shuffleboard.getTab("Elevator").add("elevator", this);
-      Shuffleboard.getTab("Elevator").addBoolean("Elevator At Setpoint", this::atSetpoint);
-      Shuffleboard.getTab("Elevator")
-          .addBoolean("Transfer to Secondary", this::hasTransferredToSecondary);
-      Shuffleboard.getTab("Elevator")
-          .addBoolean("Approaching Next Rung", this::isApproachingNextRung);
-      // Shuffleboard.getTab("Elevator").addNumber("Encoder Value", this::getElevatorEncoderHeight);
-      // Shuffleboard.getTab("Elevator").addNumber("Closed Loop Target", this::getSetpoint);
-      // Shuffleboard.getTab("Elevator").addNumber("Closed Loop Error",
-      // this.rightElevatorMotor::getClosedLoopError);
-      // Shuffleboard.getTab("Elevator").addNumber("Velocity",
-      // this.rightElevatorMotor::getSelectedSensorVelocity);
-      // Shuffleboard.getTab("Elevator").addNumber("Left Motor Power",
-      // this.leftElevatorMotor::getMotorOutputPercent);
-      // Shuffleboard.getTab("Elevator").addNumber("Right Motor Power",
-      // this.rightElevatorMotor::getMotorOutputPercent);
-      Shuffleboard.getTab("Elevator")
-          .add("Extend Climber to Mid", new ExtendClimberToMidRungCommand(this));
-      Shuffleboard.getTab("Elevator")
-          .add("Retract Climber Full", new RetractClimberFullCommand(this));
-      Shuffleboard.getTab("Elevator")
-          .add(
-              "Retract Climber Minimum",
-              new RetractClimberMinimumCommand(
-                  ElevatorConstants.LATCH_HIGH_RUNG_ENCODER_HEIGHT, this));
-      Shuffleboard.getTab("Elevator")
-          .addBoolean("isElevatorControl Enabled", this::isElevatorControlEnabled);
+    addChild("Elevator Left Motor", this.leftElevatorMotor);
+    addChild("Elevator Right Motor", this.rightElevatorMotor);
+
+    ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
+
+    if (DEBUGGING) {
+      tab.add("elevator", this);
+      tab.addNumber("Encoder", this::getElevatorEncoderHeight);
+      tab.addBoolean("Near Local Min?", this::isNearLocalMinimum);
+      tab.addBoolean("Near Local Max?", this::isNearLocalMaximum);
+      tab.addNumber("Pitch", pigeon::getPitch);
+      tab.addBoolean("At Setpoint?", this::atSetpoint);
+      tab.addBoolean("Approaching Next Rung?", this::isApproachingNextRung);
+      tab.addBoolean("Control Enabled?", this::isElevatorControlEnabled);
     }
 
-    /* Shuffleboard.getTab("Elevator")
-                .add("sample window", this.SAMPLE_WINDOW_WIDTH)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withProperties(Map.of("min", 0, "max", 50)) // specify widget properties here
-                .getEntry()
-                .addListener(event -> {
-                    this.SAMPLE_WINDOW_WIDTH = (int)(event.getEntry().getValue().getDouble());
-                }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-    */
+    if (TESTING) {
+      tab.add("Extend Climber to Mid", new ExtendClimberToMidRungCommand(this));
+      tab.add("Retract Climber Full", new RetractClimberFullCommand(this));
+      tab.add(
+          "Retract Climber Minimum",
+          new RetractClimberMinimumCommand(ElevatorConstants.LATCH_HIGH_RUNG_ENCODER_HEIGHT, this));
+    }
+
     if (TUNING) {
       this.isElevatorControlEnabled = true;
 
-      this.elevatorMotorPowerNT =
-          Shuffleboard.getTab("Elevator")
-              .add("Elevator Motors", 0.0)
-              .withWidget(BuiltInWidgets.kNumberSlider)
-              .withProperties(
-                  Map.of("min", -1, "max", 1)) // FIX_ME figure max motor power should be 1
-              .getEntry();
+      tab.addNumber("Closed Loop Target", this::getSetpoint);
+      tab.addNumber("Closed Loop Error", this.rightElevatorMotor::getClosedLoopError);
+      tab.addNumber("Velocity", this.rightElevatorMotor::getSelectedSensorVelocity);
+      tab.addNumber("Left Motor Power", this.leftElevatorMotor::getMotorOutputPercent);
+      tab.addNumber("Right Motor Power", this.rightElevatorMotor::getMotorOutputPercent);
 
-      this.positionSetPointNT =
-          Shuffleboard.getTab("Elevator")
-              .add("Position Setpoint", 0.0)
-              .withWidget(BuiltInWidgets.kNumberSlider)
-              .withProperties(Map.of("min", 0, "max", MAX_ELEVATOR_HEIGHT))
-              .getEntry();
-      this.positionSetPointNT.addListener(
-          event -> {
-            this.setElevatorMotorPosition(event.getEntry().getValue().getDouble(), true);
-          },
-          EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+      tab.add("Elevator Motors", 0.0)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .withProperties(Map.of("min", -1, "max", 1))
+          .getEntry()
+          .addListener(
+              event -> this.setElevatorMotorPower(event.getEntry().getValue().getDouble()),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-      this.fConstantNT =
-          Shuffleboard.getTab("Elevator")
-              .add("Flywheel F", GAINS_POSITION.kF)
-              .withWidget(BuiltInWidgets.kNumberSlider)
-              .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-              .getEntry();
-      this.fConstantNT.addListener(
-          event -> {
-            this.rightElevatorMotor.config_kF(
-                SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
-          },
-          EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+      tab.add("Position Setpoint", 0.0)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .withProperties(Map.of("min", 0, "max", MAX_ELEVATOR_HEIGHT))
+          .getEntry()
+          .addListener(
+              event -> this.setElevatorMotorPosition(event.getEntry().getValue().getDouble(), true),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-      this.pConstantNT =
-          Shuffleboard.getTab("Elevator")
-              .add("Flywheel P", GAINS_POSITION.kP)
-              .withWidget(BuiltInWidgets.kNumberSlider)
-              .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-              .getEntry();
-      this.pConstantNT.addListener(
-          event -> {
-            this.rightElevatorMotor.config_kP(
-                SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
-          },
-          EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+      tab.add("Flywheel F", POSITION_PID_F)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+          .getEntry()
+          .addListener(
+              event ->
+                  this.rightElevatorMotor.config_kF(
+                      SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-      this.iConstantNT =
-          Shuffleboard.getTab("Elevator")
-              .add("Flywheel I", GAINS_POSITION.kI)
-              .withWidget(BuiltInWidgets.kNumberSlider)
-              .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-              .getEntry();
-      this.iConstantNT.addListener(
-          event -> {
-            this.rightElevatorMotor.config_kI(
-                SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
-          },
-          EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+      tab.add("Flywheel P", POSITION_PID_P)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+          .getEntry()
+          .addListener(
+              event ->
+                  this.rightElevatorMotor.config_kP(
+                      SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-      this.dConstantNT =
-          Shuffleboard.getTab("Elevator")
-              .add("Flywheel D", GAINS_POSITION.kD)
-              .withWidget(BuiltInWidgets.kNumberSlider)
-              .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
-              .getEntry();
-      this.dConstantNT.addListener(
-          event -> {
-            this.rightElevatorMotor.config_kD(
-                SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS);
-          },
-          EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+      tab.add("Flywheel I", POSITION_PID_I)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+          .getEntry()
+          .addListener(
+              event ->
+                  this.rightElevatorMotor.config_kI(
+                      SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-      this.sCurveConstantNT =
-          Shuffleboard.getTab("Elevator")
-              .add("Scurve Strength", SCURVE_STRENGTH)
-              .withWidget(BuiltInWidgets.kNumberSlider)
-              .withProperties(Map.of("min", 0, "max", 8.0)) // specify widget properties here
-              .getEntry();
-      this.sCurveConstantNT.addListener(
-          event -> {
-            this.rightElevatorMotor.configMotionSCurveStrength(
-                (int) event.getEntry().getValue().getDouble(), TIMEOUT_MS);
-          },
-          EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+      tab.add("Flywheel D", POSITION_PID_D)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
+          .getEntry()
+          .addListener(
+              event ->
+                  this.rightElevatorMotor.config_kD(
+                      SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-      this.velocityConstantNT =
-          Shuffleboard.getTab("Elevator")
-              .add("Max Velocity", MAX_ELEVATOR_VELOCITY)
-              .withWidget(BuiltInWidgets.kNumberSlider)
-              .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
-              .getEntry();
-      this.velocityConstantNT.addListener(
-          event -> {
-            this.rightElevatorMotor.configMotionCruiseVelocity(
-                event.getEntry().getValue().getDouble(), TIMEOUT_MS);
-          },
-          EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+      tab.add("Scurve Strength", SCURVE_STRENGTH)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .withProperties(Map.of("min", 0, "max", 8.0)) // specify widget properties here
+          .getEntry()
+          .addListener(
+              event ->
+                  this.rightElevatorMotor.configMotionSCurveStrength(
+                      (int) event.getEntry().getValue().getDouble(), TIMEOUT_MS),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
-      this.accelerationConstantNT =
-          Shuffleboard.getTab("Elevator")
-              .add("Max Acceleration", ELEVATOR_ACCELERATION)
-              .withWidget(BuiltInWidgets.kNumberSlider)
-              .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
-              .getEntry();
-      this.accelerationConstantNT.addListener(
-          event -> {
-            this.rightElevatorMotor.configMotionAcceleration(
-                event.getEntry().getValue().getDouble(), TIMEOUT_MS);
-          },
-          EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+      tab.add("Max Velocity", MAX_ELEVATOR_VELOCITY)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
+          .getEntry()
+          .addListener(
+              event ->
+                  this.rightElevatorMotor.configMotionCruiseVelocity(
+                      event.getEntry().getValue().getDouble(), TIMEOUT_MS),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+
+      tab.add("Max Acceleration", ELEVATOR_ACCELERATION)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
+          .getEntry()
+          .addListener(
+              event ->
+                  this.rightElevatorMotor.configMotionAcceleration(
+                      event.getEntry().getValue().getDouble(), TIMEOUT_MS),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
     }
-
-    this.encoderPositionSetpoint = 0.0;
   }
 
   /**
@@ -331,49 +286,6 @@ public class Elevator extends SubsystemBase {
       this.latestPitchesIndex++;
       this.latestPitchesIndex %= this.latestPitches.length;
     }
-
-    // keep a running average while approaching the next rung
-    double height = this.getElevatorEncoderHeight();
-    if (height > TRANSFER_TO_SECONDARY_HEIGHT && height < REACH_JUST_BEFORE_NEXT_RUNG) {
-      double average = this.pitchRunningAverage * this.pitchRunningAverageSamples;
-      average += pitch;
-      this.pitchRunningAverageSamples++;
-      this.pitchRunningAverage = average / this.pitchRunningAverageSamples;
-    } else {
-      this.resetPitchRunningAverage();
-    }
-
-    if (TUNING) {
-      this.isElevatorControlEnabled = true;
-      // // when tuning, we first set motor power and check the resulting velocity
-      // // once we have determined our feedforward constant, comment the following
-      // lines
-      // and uncomment the ones to tune the PID
-      double motorPower = this.elevatorMotorPowerNT.getDouble(0.0);
-      this.setElevatorMotorPower(motorPower);
-    }
-  }
-
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run when in simulation
-
-  }
-
-  public double getPitchRunningAverage() {
-    return this.pitchRunningAverage;
-  }
-
-  public void resetPitchRunningAverage() {
-    this.pitchRunningAverage = 0.0;
-    this.pitchRunningAverageSamples = 0;
-  }
-
-  // Put methods for controlling this subsystem
-  // here. Call these from Commands.
-
-  private double getElevatorEncoderHeight() {
-    return this.rightElevatorMotor.getSelectedSensorPosition();
   }
 
   /**
@@ -398,10 +310,6 @@ public class Elevator extends SubsystemBase {
     }
   }
 
-  public void setElevatorSetpoint(double setpoint) {
-    this.encoderPositionSetpoint = setpoint;
-  }
-
   /**
    * Sets the setpoint of the elevator to the specified position and moves the elevator towards that
    * position with the power capped at the specified value.
@@ -418,14 +326,13 @@ public class Elevator extends SubsystemBase {
     if (isElevatorControlEnabled()) {
 
       if (isFast) {
-        this.rightElevatorMotor.configClosedLoopPeakOutput(SLOT_INDEX, GAINS_POSITION.kPeakOutput);
+        this.rightElevatorMotor.configClosedLoopPeakOutput(SLOT_INDEX, POSITION_PID_PEAK_OUTPUT);
       } else {
         this.rightElevatorMotor.configClosedLoopPeakOutput(SLOT_INDEX, SLOW_PEAK_OUTPUT);
       }
 
       // the feedforward term will be different depending if the elevator is going up
-      // or down
-      // and if it under load or not; use the desiredEncoderPosition to determine the
+      // or down and if it under load or not; use the desiredEncoderPosition to determine the
       // corresponding feed forward term
       if (desiredEncoderPosition > this.getElevatorEncoderHeight()) { // extending unloaded
         // as long as the setpoints are correct, this check is not required as the elevator
@@ -485,24 +392,6 @@ public class Elevator extends SubsystemBase {
   public void stopElevator() {
     this.leftElevatorMotor.set(ControlMode.PercentOutput, 0.0);
     this.rightElevatorMotor.set(ControlMode.PercentOutput, 0.0);
-  }
-
-  public boolean isBelowNextRung() {
-    double pitch = pigeon.getPitch();
-    if (pitch < this.getPitchRunningAverage()) {
-      return true;
-    }
-
-    return false;
-  }
-
-  public boolean isAboveNextRung() {
-    double pitch = pigeon.getPitch();
-    if (pitch > this.getPitchRunningAverage()) {
-      return true;
-    }
-
-    return false;
   }
 
   /**
@@ -579,10 +468,6 @@ public class Elevator extends SubsystemBase {
     return isLocalMax;
   }
 
-  public boolean hasTransferredToSecondary() {
-    return this.getElevatorEncoderHeight() > TRANSFER_TO_SECONDARY_HEIGHT;
-  }
-
   /**
    * Returns true if the elevator is approaching the next rung. This is used to determine when it is
    * time to ensure that the elevator passes below the next rung.
@@ -637,6 +522,10 @@ public class Elevator extends SubsystemBase {
    */
   public boolean isElevatorControlEnabled() {
     return this.isElevatorControlEnabled;
+  }
+
+  private double getElevatorEncoderHeight() {
+    return this.rightElevatorMotor.getSelectedSensorPosition();
   }
 
   private double getSetpoint() {

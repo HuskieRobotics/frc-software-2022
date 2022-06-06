@@ -21,12 +21,10 @@ import frc.robot.Constants.StorageConstants;
  */
 public class Robot extends TimedRobot {
 
-  private Command m_autonomousCommand;
-
-  private RobotContainer m_robotContainer;
-  UsbCamera climbCam;
-  UsbCamera storageCam;
-  VideoSink server;
+  private Command autonomousCommand;
+  private RobotContainer robotContainer;
+  private UsbCamera storageCam;
+  private VideoSink server;
 
   /**
    * This method is run when the robot is first started up and should be used for any initialization
@@ -35,15 +33,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     // Instantiate our RobotContainer. This will perform all our button bindings,
-    // and put our
-    // autonomous chooser on the dashboard.
-    m_robotContainer = RobotContainer.getInstance();
-
-    // climbCam = CameraServer.startAutomaticCapture(ElevatorConstants.CLIMBER_CAMERA_PORT);
-    // climbCam.setResolution(320,240);
-    // climbCam.setFPS(15);
-    // climbCam.setPixelFormat(PixelFormat.kYUYV);
-    // climbCam.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
+    // and put our autonomous chooser on the dashboard.
+    robotContainer = RobotContainer.getInstance();
 
     storageCam = CameraServer.startAutomaticCapture(StorageConstants.STORAGE_CAMERA_PORT);
     storageCam.setResolution(320, 240);
@@ -66,29 +57,15 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     // Runs the Scheduler. This is responsible for polling buttons, adding
-    // newly-scheduled
-    // commands, running already-scheduled commands, removing finished or
-    // interrupted commands,
-    // and running subsystem periodic() methods. This must be called from the
-    // robot's periodic
-    // block in order for anything in the Command-based framework to work.
+    // newly-scheduled commands, running already-scheduled commands, removing finished or
+    // interrupted commands, and running subsystem periodic() methods. This must be called from the
+    // robot's periodic block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
   }
 
-  /** This method is called once each time the robot enters Disabled mode. */
-  @Override
-  public void disabledInit() {}
-
   @Override
   public void disabledPeriodic() {
-    // By invoking the stop method, each swerve module's set method will be invoked when the robot
-    // is disabled.
-    //  This is important since it provides an opportunity for the absolute angle to be properly
-    // read and the seed
-    //  angle to be fixed before starting auto. As long as the robot is running for at most 10
-    // seconds, the angles
-    //  will be correct.
-    RobotContainer.getInstance().getDrivetrainSubsystem().stop();
+    RobotContainer.getInstance().disabledPeriodic();
   }
 
   /**
@@ -96,17 +73,13 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    autonomousCommand = robotContainer.getAutonomousCommand();
 
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+    // schedule the autonomous command
+    if (autonomousCommand != null) {
+      autonomousCommand.schedule();
     }
   }
-
-  /** This method is called periodically during autonomous. */
-  @Override
-  public void autonomousPeriodic() {}
 
   /** This method is called once each time the robot enters Teleop mode. */
   @Override
@@ -115,24 +88,12 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    if (autonomousCommand != null) {
+      autonomousCommand.cancel();
     }
 
     server.setSource(storageCam);
-    m_robotContainer.teleopInit();
-  }
-
-  /** This method is called periodically during operator control. */
-  @Override
-  public void teleopPeriodic() {
-    // if(this.m_robotContainer.isElevatorControlEnabled()){
-    //     server.setSource(climbCam);
-    // }
-    // else{
-    //     server.setSource(storageCam);
-    // }
-
+    robotContainer.teleopInit();
   }
 
   /** This method is called once each time the robot enters Test mode. */
@@ -141,8 +102,4 @@ public class Robot extends TimedRobot {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
   }
-
-  /** This method is called periodically during test mode. */
-  @Override
-  public void testPeriodic() {}
 }
