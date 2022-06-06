@@ -1,20 +1,19 @@
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.CollectorConstants.*;
 import static frc.robot.Constants.*;
-
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import static frc.robot.Constants.CollectorConstants.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
-import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
  * This subsystem models the robot's collector mechanism. It consists of a single motor, which
@@ -22,117 +21,93 @@ import edu.wpi.first.wpilibj.Solenoid;
  * when enabled, deploys the collector; and, when disabled, retracts the collector.
  */
 public class Collector extends SubsystemBase {
-    private WPI_TalonSRX collector5;
-    private Solenoid collectorPiston;
-    private boolean isEnabled;
-    private NetworkTableEntry collectorMotorPowerNT;
+  private WPI_TalonSRX collectorMotor;
+  private Solenoid collectorPiston;
+  private boolean isEnabled;
 
-    /**
-    * Constructs a new Collector object.
-    */
-    public Collector() {
-        isEnabled = false;
-        collector5 = new WPI_TalonSRX(CollectorConstants.COLLECTOR_MOTOR_ID);
-        collector5.setInverted(true);
+  private static final boolean TESTING = false;
+  private static final boolean DEBUGGING = false;
 
-        // no data is read from the Talon SRX; so, set these CAN frame periods to the maximum value
-        //  to reduce traffic on the bus
-        this.collector5.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, TIMEOUT_MS);
-        this.collector5.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, TIMEOUT_MS);
+  /** Constructs a new Collector object. */
+  public Collector() {
+    isEnabled = false;
 
-        collectorPiston = new Solenoid(CollectorConstants.PEUNAMATICS_HUB_CAN_ID, PneumaticsModuleType.REVPH,
-                CollectorConstants.COLLECTOR_SOLENOID_CHANNEL);
-        // should all sensors and actuators in a subsystem be added as children of that subsystem? what benefit does that provide?
-        addChild("Collector Piston", collectorPiston);
+    collectorMotor = new WPI_TalonSRX(CollectorConstants.COLLECTOR_MOTOR_ID);
+    collectorMotor.setInverted(true);
 
-        // update to the approach in the Flywheel class
-        this.collectorMotorPowerNT = Shuffleboard.getTab("Collector")
-                .add("Collector speed", 0.0)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .getEntry();
+    // no data is read from the Talon SRX; so, set these CAN frame periods to the maximum value
+    //  to reduce traffic on the bus
+    collectorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, TIMEOUT_MS);
+    collectorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, TIMEOUT_MS);
 
-        if(COMMAND_LOGGING) {
-            Shuffleboard.getTab("Collector").add("collector", this);
-            // replace with lambda expression and eliminate methods
-            Shuffleboard.getTab("Collector").add("deployCollector", new InstantCommand(this::deployCollectorPiston, this));
-            Shuffleboard.getTab("Collector").add("retractCollector",
-                    new InstantCommand(this::retractCollectorPiston, this));
-            Shuffleboard.getTab("Collector").addBoolean("enabled", this::isEnabled);
-        }
+    collectorPiston =
+        new Solenoid(
+            CollectorConstants.PEUNAMATICS_HUB_CAN_ID,
+            PneumaticsModuleType.REVPH,
+            CollectorConstants.COLLECTOR_SOLENOID_CHANNEL);
+
+    addChild("Collector Piston", collectorPiston);
+    addChild("Collector Motor", collectorMotor);
+
+    ShuffleboardTab tab = Shuffleboard.getTab("Collector");
+
+    if (DEBUGGING) {
+      tab.add("Collector", this);
+      tab.addBoolean("Enabled?", this::isEnabled);
     }
 
-    @Override
-    public void periodic() {
-        // This method will be called once per scheduler run
-        if (TUNING) {
-            // update to the approach in the Flywheel class
-            double collectorPower = this.collectorMotorPowerNT.getDouble(0.0);
-            this.setCollectorPower(collectorPower);
-        }
-
+    if (TESTING) {
+      tab.add("Collector Speed", 0.0)
+          .withWidget(BuiltInWidgets.kNumberSlider)
+          .getEntry()
+          .addListener(
+              event ->
+                  collectorMotor.set(
+                      ControlMode.PercentOutput, event.getEntry().getValue().getDouble()),
+              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+      tab.add("Deploy Collector", new InstantCommand(() -> this.collectorPiston.set(true), this));
+      tab.add("Retract Collector", new InstantCommand(() -> this.collectorPiston.set(false), this));
     }
+  }
 
-    /**
-     * Sets the power of the collector's motor, which rotates the collector's intake wheels, to the
-     * specified value.
-     * @param power the specified power of the collector's motor as a percentage of full power
-     *      [-1.0, 1.0]; positive values rotate the wheels in the intake direction
-     */
-    public void setCollectorPower(double power) {
-        this.collector5.set(ControlMode.PercentOutput, power);
-    }
+  /**
+   * Sets the power of the collector's motor, which rotates the collector's intake wheels, to the
+   * specified value.
+   *
+   * @param power the specified power of the collector's motor as a percentage of full power [-1.0,
+   *     1.0]; positive values rotate the wheels in the intake direction
+   */
+  public void setCollectorPower(double power) {
+    this.collectorMotor.set(ControlMode.PercentOutput, power);
+  }
 
-    /**
-     * Disables the collector subsystem. This results in stopping the collector's intake wheels and
-     * retracting the collector back inside the robot frame.
-     */
-    public void disableCollector() {
-        isEnabled = false;
-        this.collector5.set(ControlMode.PercentOutput, 0);
-        this.collectorPiston.set(false);
-    }
+  /**
+   * Disables the collector subsystem. This results in stopping the collector's intake wheels and
+   * retracting the collector back inside the robot frame.
+   */
+  public void disableCollector() {
+    isEnabled = false;
+    this.collectorMotor.set(ControlMode.PercentOutput, 0);
+    this.collectorPiston.set(false);
+  }
 
-    /**
-     * Enables the collector subsystem. This results in spinning the collector's intake wheels in
-     * the intake direcion and extending the collector outside the robot frame to position it to
-     * collect cargo.
-     */
-    public void enableCollector() {
-        isEnabled = true;
-        this.collector5.set(ControlMode.PercentOutput, CollectorConstants.COLLECTOR_DEFUALT_SPEED);
-        this.collectorPiston.set(true);
-    }
+  /**
+   * Enables the collector subsystem. This results in spinning the collector's intake wheels in the
+   * intake direcion and extending the collector outside the robot frame to position it to collect
+   * cargo.
+   */
+  public void enableCollector() {
+    isEnabled = true;
+    this.collectorMotor.set(ControlMode.PercentOutput, CollectorConstants.COLLECTOR_DEFUALT_SPEED);
+    this.collectorPiston.set(true);
+  }
 
-    /**
-     * Returns true if the collector is enabled (i.e., intake wheels spinning and collector
-     * deployed).
-     * @return true if the collector is enabled (i.e., intake wheels spinning and collector
-     * deployed)
-     */
-    public boolean isEnabled() {
-        return isEnabled;
-    }
-
-    public void deployCollectorPiston() {
-        this.collectorPiston.set(true);
-    }
-
-    public void retractCollectorPiston() {
-        this.collectorPiston.set(false);
-    }
-
-    // delete
-    public boolean isPistonExtended() {
-        return this.collectorPiston.get();
-    }
-
-    @Override
-    public void simulationPeriodic() {
-        // This method will be called once per scheduler run when in simulation
-
-    }
-
-    // Put methods for controlling this subsystem
-    // here. Call these from Commands.
-
+  /**
+   * Returns true if the collector is enabled (i.e., intake wheels spinning and collector deployed).
+   *
+   * @return true if the collector is enabled (i.e., intake wheels spinning and collector deployed)
+   */
+  public boolean isEnabled() {
+    return isEnabled;
+  }
 }
