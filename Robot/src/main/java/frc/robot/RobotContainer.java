@@ -116,6 +116,11 @@ public class RobotContainer {
                 -modifyAxis(joystick1.getX())
                     * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
 
+    ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
+    tab.addNumber("Joystick 0 Y", this.joystick0::getY);
+    tab.addNumber("Joystick 0 X", this.joystick0::getX);
+    tab.addNumber("Joystick 1 X", this.joystick1::getX);
+
     configureButtonBindings();
     configureAutoCommands();
 
