@@ -12,6 +12,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.StorageConstants;
 import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggedNetworkTables;
+import org.littletonrobotics.junction.io.ByteLogReceiver;
+import org.littletonrobotics.junction.io.ByteLogReplay;
+import org.littletonrobotics.junction.io.LogSocketServer;
 
 /**
  * The VM is configured to automatically run this class, and to call the methods corresponding to
@@ -32,6 +37,40 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void robotInit() {
+
+    // from AdvantageKit Robot Configuration docs
+    // (https://github.com/Mechanical-Advantage/AdvantageKit/blob/main/docs/START-LOGGING.md#robot-configuration)
+
+    // Run as fast as possible during replay
+    setUseTiming(isReal());
+
+    // Log & replay "SmartDashboard" values (no tables are logged by default).
+    LoggedNetworkTables.getInstance().addTable("/SmartDashboard");
+
+    // Set a metadata value
+    Logger.getInstance().recordMetadata("ProjectName", "frc-software-2022");
+
+    if (isReal()) {
+      // Log to USB stick (name will be selected automatically)
+      Logger.getInstance().addDataReceiver(new ByteLogReceiver("/media/sda1/"));
+
+      // Provide log data over the network, viewable in Advantage Scope.
+      Logger.getInstance().addDataReceiver(new LogSocketServer(5800));
+    } else {
+      // Prompt the user for a file path on the command line
+      String path = ByteLogReplay.promptForPath();
+
+      // Read log file for replay
+      Logger.getInstance().setReplaySource(new ByteLogReplay(path));
+
+      // Save replay results to a new log with the "_sim" suffix
+      Logger.getInstance()
+          .addDataReceiver(new ByteLogReceiver(ByteLogReceiver.addPathSuffix(path, "_sim")));
+    }
+
+    // Start logging! No more data receivers, replay sources, or metadata values may be added.
+    Logger.getInstance().start();
+
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = RobotContainer.getInstance();
