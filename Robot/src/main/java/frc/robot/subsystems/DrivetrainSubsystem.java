@@ -26,8 +26,10 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.FieldConstants;
 import frc.robot.commands.LimelightAlignToTargetCommand;
 import frc.robot.commands.LimelightAlignWithGyroCommand;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * This subsystem models the robot's drivetrain mechanism. It consists of a four MK4 swerve modules,
@@ -411,6 +413,20 @@ public class DrivetrainSubsystem extends SubsystemBase {
             backLeftModule.getDriveVelocity(), new Rotation2d(backLeftModule.getSteerAngle())),
         new SwerveModuleState(
             backRightModule.getDriveVelocity(), new Rotation2d(backRightModule.getSteerAngle())));
+
+    // Log poses
+    Pose2d pose = odometry.getPoseMeters();
+    Logger.getInstance()
+        .recordOutput(
+            "Odometry/Robot",
+            new double[] {pose.getX(), pose.getY(), pose.getRotation().getRadians()});
+    Logger.getInstance()
+        .recordOutput(
+            "Odometry/VisionTarget",
+            new double[] {FieldConstants.HUB_CENTER.getX(), FieldConstants.HUB_CENTER.getY()});
+    if (isLimelightTargetVisible()) {
+      Logger.getInstance().recordOutput("Vision/DistanceInches", getLimelightDistanceIn());
+    }
   }
 
   /**
