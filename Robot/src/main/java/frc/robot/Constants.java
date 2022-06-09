@@ -76,6 +76,10 @@ public final class Constants {
     public static final int AIM_SETPOINT_COUNT = 2;
     public static final double LIMELIGHT_SLOPE = 23.08;
     public static final double LIMELIGHT_Y_COMPONENT = 4596.34;
+
+    /* Rev Hubs */
+    public static final int POWER_DISTRIBUTION_HUB_ID = 21;
+    public static final int PNEUMATICS_HUB_ID = 20;
   }
 
   public static final class CollectorConstants {
