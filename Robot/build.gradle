@@ -4,6 +4,7 @@ plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2022.3.1"
     id 'com.diffplug.spotless' version '6.1.0'
+    id "com.peterabeles.gversion" version "1.10"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -96,7 +97,7 @@ spotless {
     java {
         target fileTree('.') {
             include '**/*.java'
-            exclude '**/build/**', '**/build-*/**'
+            exclude '**/build/**', '**/build-*/**', '**/GVersion.java'
         }
         toggleOffOn()
         googleJavaFormat()
@@ -107,7 +108,7 @@ spotless {
     groovyGradle {
         target fileTree('.') {
             include '**/*.gradle'
-            exclude '**/build/**', '**/build-*/**'
+            exclude '**/build/**', '**/build-*/**', '**/GVersion.java'
         }
         greclipse()
         indentWithSpaces(4)
@@ -149,3 +150,16 @@ repositories {
 configurations.all {
     exclude group: "edu.wpi.first.wpilibj"
 }
+
+// from https://github.com/lessthanoptimal/gversion-plugin
+gversion {
+    srcDir       = "src/main/java/"           // path is relative to the sub-project by default
+    // Gradle variables can also be used
+    // E.g. "${project.rootDir}/module/src/main/java"
+    classPackage = "frc.robot"
+    timeZone     = "CDT"                      // optional. UTC is default
+    language     = "java"                     // optional. Can be Java, Kotlin, YAML, or Properties. Case insensitive.
+    indent       = "  "
+}
+
+project.compileJava.dependsOn(createVersionFile)
