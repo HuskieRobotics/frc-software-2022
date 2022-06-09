@@ -1,19 +1,15 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.collector;
 
 import static frc.robot.Constants.*;
-import static frc.robot.Constants.CollectorConstants.*;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.networktables.EntryListenerFlags;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.collector.CollectorIO.CollectorIOInputs;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * This subsystem models the robot's collector mechanism. It consists of a single motor, which
@@ -21,38 +17,20 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * when enabled, deploys the collector; and, when disabled, retracts the collector.
  */
 public class Collector extends SubsystemBase {
-  private WPI_TalonSRX collectorMotor;
-  private Solenoid collectorPiston;
-  private boolean isEnabled;
+  private final CollectorIO io;
+  private final CollectorIOInputs inputs = new CollectorIOInputs();
 
+  private static final String SUBSYSTEM_NAME = "Collector";
   private static final boolean TESTING = false;
   private static final boolean DEBUGGING = false;
 
   /** Constructs a new Collector object. */
-  public Collector() {
-    isEnabled = false;
-
-    collectorMotor = new WPI_TalonSRX(CollectorConstants.COLLECTOR_MOTOR_ID);
-    collectorMotor.setInverted(true);
-
-    // no data is read from the Talon SRX; so, set these CAN frame periods to the maximum value
-    //  to reduce traffic on the bus
-    collectorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, TIMEOUT_MS);
-    collectorMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, TIMEOUT_MS);
-
-    collectorPiston =
-        new Solenoid(
-            CollectorConstants.PEUNAMATICS_HUB_CAN_ID,
-            PneumaticsModuleType.REVPH,
-            CollectorConstants.COLLECTOR_SOLENOID_CHANNEL);
-
-    addChild("Collector Piston", collectorPiston);
-    addChild("Collector Motor", collectorMotor);
-
-    ShuffleboardTab tab = Shuffleboard.getTab("Collector");
+  public Collector(CollectorIO io) {
+    this.io = io;
+    ShuffleboardTab tab = Shuffleboard.getTab(SUBSYSTEM_NAME);
 
     if (DEBUGGING) {
-      tab.add("Collector", this);
+      tab.add(SUBSYSTEM_NAME, this);
       tab.addBoolean("Enabled?", this::isEnabled);
     }
 
@@ -61,13 +39,21 @@ public class Collector extends SubsystemBase {
           .withWidget(BuiltInWidgets.kNumberSlider)
           .getEntry()
           .addListener(
-              event ->
-                  collectorMotor.set(
-                      ControlMode.PercentOutput, event.getEntry().getValue().getDouble()),
+              event -> io.setMotorPercentage(event.getEntry().getValue().getDouble()),
               EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-      tab.add("Deploy Collector", new InstantCommand(() -> this.collectorPiston.set(true), this));
-      tab.add("Retract Collector", new InstantCommand(() -> this.collectorPiston.set(false), this));
+      tab.add("Deploy Collector", new InstantCommand(() -> io.setExtended(true), this));
+      tab.add("Retract Collector", new InstantCommand(() -> io.setExtended(false), this));
     }
+  }
+
+  /**
+   * For each iteration, the subsystem's periodic method is invoked before any commands are
+   * executed.
+   */
+  @Override
+  public void periodic() {
+    io.updateInputs(inputs);
+    Logger.getInstance().processInputs(SUBSYSTEM_NAME, inputs);
   }
 
   /**
@@ -78,7 +64,7 @@ public class Collector extends SubsystemBase {
    *     1.0]; positive values rotate the wheels in the intake direction
    */
   public void setCollectorPower(double power) {
-    this.collectorMotor.set(ControlMode.PercentOutput, power);
+    io.setMotorPercentage(power);
   }
 
   /**
@@ -86,9 +72,9 @@ public class Collector extends SubsystemBase {
    * retracting the collector back inside the robot frame.
    */
   public void disableCollector() {
-    isEnabled = false;
-    this.collectorMotor.set(ControlMode.PercentOutput, 0);
-    this.collectorPiston.set(false);
+    io.setEnabled(false);
+    io.setMotorPercentage(0.0);
+    io.setExtended(false);
   }
 
   /**
@@ -97,9 +83,9 @@ public class Collector extends SubsystemBase {
    * cargo.
    */
   public void enableCollector() {
-    isEnabled = true;
-    this.collectorMotor.set(ControlMode.PercentOutput, CollectorConstants.COLLECTOR_DEFUALT_SPEED);
-    this.collectorPiston.set(true);
+    io.setEnabled(true);
+    io.setMotorPercentage(CollectorConstants.COLLECTOR_DEFAULT_POWER);
+    io.setExtended(true);
   }
 
   /**
@@ -108,6 +94,6 @@ public class Collector extends SubsystemBase {
    * @return true if the collector is enabled (i.e., intake wheels spinning and collector deployed)
    */
   public boolean isEnabled() {
-    return isEnabled;
+    return inputs.isEnabled;
   }
 }

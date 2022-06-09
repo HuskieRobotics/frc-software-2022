@@ -3,9 +3,9 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.*;
-import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.Flywheel;
+import frc.robot.subsystems.collector.Collector;
 import java.util.function.DoubleSupplier;
 
 /**

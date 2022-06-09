@@ -27,12 +27,14 @@ import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.CollectorConstants;
 import frc.robot.Constants.StorageConstants;
 import frc.robot.commands.*;
-import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.SecondaryArm;
 import frc.robot.subsystems.Storage;
+import frc.robot.subsystems.collector.Collector;
+import frc.robot.subsystems.collector.CollectorIO;
+import frc.robot.subsystems.collector.CollectorIOTalonSRX;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -53,18 +55,35 @@ public class RobotContainer {
 
   private static RobotContainer robotContainer = new RobotContainer();
 
-  private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem();
-  private final Storage storage = new Storage();
-  private final Collector collector = new Collector();
-  private final Flywheel flywheel = new Flywheel();
-  private final SecondaryArm secondMechanism = new SecondaryArm();
-  private final Elevator elevator = new Elevator();
+  private final DrivetrainSubsystem drivetrainSubsystem;
+  private final Storage storage;
+  private final Collector collector;
+  private final Flywheel flywheel;
+  private final SecondaryArm secondMechanism;
+  private final Elevator elevator;
 
   // A chooser for autonomous commands
   SendableChooser<Command> chooser = new SendableChooser<>();
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   private RobotContainer() {
+
+    // create real or replay subsystems
+    if (Constants.getMode() != Mode.REPLAY) {
+      drivetrainSubsystem = new DrivetrainSubsystem();
+      storage = new Storage();
+      collector = new Collector(new CollectorIOTalonSRX());
+      flywheel = new Flywheel();
+      secondMechanism = new SecondaryArm();
+      elevator = new Elevator();
+    } else {
+      drivetrainSubsystem = new DrivetrainSubsystem();
+      storage = new Storage();
+      collector = new Collector(new CollectorIO() {});
+      flywheel = new Flywheel();
+      secondMechanism = new SecondaryArm();
+      elevator = new Elevator();
+    }
 
     // disable all telemetry in the LiveWindow to reduce the processing during each iteration
     LiveWindow.disableAllTelemetry();

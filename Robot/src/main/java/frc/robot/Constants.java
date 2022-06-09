@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.RobotBase;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -13,6 +14,10 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 public final class Constants {
 
   private static final String CONSTRUCTOR_EXCEPTION = "constant class";
+
+  public static Mode getMode() {
+    return RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
+  }
 
   /* DRIVETRAIN CONSTANTS */
 
@@ -92,7 +97,7 @@ public final class Constants {
     public static final int COLLECTOR_MOTOR_ID = 5;
     public static final int PEUNAMATICS_HUB_CAN_ID = 20;
     public static final int COLLECTOR_SOLENOID_CHANNEL = 0;
-    public static final double COLLECTOR_DEFUALT_SPEED = 0.9;
+    public static final double COLLECTOR_DEFAULT_POWER = 0.9;
     public static final int TIMEOUT_MS = 30;
   }
 
@@ -287,5 +292,11 @@ public final class Constants {
     public static final int BUTTON_START = 8;
     public static final int LEFT_JOYSTICK_BUTTON = 9;
     public static final int RIGHT_JOYSTICK_BUTTON = 10;
+  }
+
+  public enum Mode {
+    REAL,
+    REPLAY,
+    SIM
   }
 }
