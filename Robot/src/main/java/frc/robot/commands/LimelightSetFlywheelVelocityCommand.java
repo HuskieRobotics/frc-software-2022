@@ -2,7 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.subsystems.Flywheel;
+import frc.robot.subsystems.flywheel.Flywheel;
 
 /**
  * This command, when executed, instructs the flywheel subsystem to spin the flywheel at a velocity

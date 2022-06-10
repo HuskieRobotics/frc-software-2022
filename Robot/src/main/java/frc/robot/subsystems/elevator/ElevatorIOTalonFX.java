@@ -126,16 +126,16 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   public void updateInputs(ElevatorIOInputs inputs) {
     inputs.isControlEnabled = isControlEnabled;
 
-    inputs.leftPosition = leftElevatorMotor.getSelectedSensorPosition();
-    inputs.leftVelocity = leftElevatorMotor.getSelectedSensorVelocity();
-    inputs.leftClosedLoopError = leftElevatorMotor.getClosedLoopError();
+    inputs.leftPosition = leftElevatorMotor.getSelectedSensorPosition(SLOT_INDEX);
+    inputs.leftVelocity = leftElevatorMotor.getSelectedSensorVelocity(SLOT_INDEX);
+    inputs.leftClosedLoopError = leftElevatorMotor.getClosedLoopError(SLOT_INDEX);
     inputs.leftAppliedVolts = leftElevatorMotor.getMotorOutputVoltage();
     inputs.leftCurrentAmps = new double[] {leftElevatorMotor.getStatorCurrent()};
     inputs.leftTempCelcius = new double[] {leftElevatorMotor.getTemperature()};
 
-    inputs.rightPosition = rightElevatorMotor.getSelectedSensorPosition();
-    inputs.rightVelocity = rightElevatorMotor.getSelectedSensorVelocity();
-    inputs.rightClosedLoopError = rightElevatorMotor.getClosedLoopError();
+    inputs.rightPosition = rightElevatorMotor.getSelectedSensorPosition(SLOT_INDEX);
+    inputs.rightVelocity = rightElevatorMotor.getSelectedSensorVelocity(SLOT_INDEX);
+    inputs.rightClosedLoopError = rightElevatorMotor.getClosedLoopError(SLOT_INDEX);
     inputs.rightAppliedVolts = rightElevatorMotor.getMotorOutputVoltage();
     inputs.rightCurrentAmps = new double[] {rightElevatorMotor.getStatorCurrent()};
     inputs.rightTempCelcius = new double[] {rightElevatorMotor.getTemperature()};

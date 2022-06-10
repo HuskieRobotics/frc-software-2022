@@ -4,7 +4,7 @@ import static frc.robot.Constants.*;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.subsystems.Flywheel;
+import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.storage.Storage;
 
 /**
