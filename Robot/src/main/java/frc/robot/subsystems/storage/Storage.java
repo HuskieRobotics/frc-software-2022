@@ -29,10 +29,10 @@ public class Storage extends SubsystemBase {
   public Storage(StorageIO io) {
     this.io = io;
 
-    ShuffleboardTab tab = Shuffleboard.getTab("Storage");
+    ShuffleboardTab tab = Shuffleboard.getTab(SUBSYSTEM_NAME);
 
     if (DEBUGGING) {
-      tab.add("Storage", this);
+      tab.add(SUBSYSTEM_NAME, this);
       tab.addBoolean("Collector Unblocked?", this::isCollectorSensorUnblocked);
       tab.addBoolean("Shooter Unblocked?", this::isShooterSensorUnblocked);
     }

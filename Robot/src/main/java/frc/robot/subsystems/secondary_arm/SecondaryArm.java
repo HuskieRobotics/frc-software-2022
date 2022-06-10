@@ -27,7 +27,7 @@ public class SecondaryArm extends SubsystemBase {
     ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
 
     if (DEBUGGING) {
-      tab.add("Secondary Arm", this);
+      tab.add(SUBSYSTEM_NAME, this);
       tab.addBoolean("Secondary Arms In?", this::isIn);
     }
 

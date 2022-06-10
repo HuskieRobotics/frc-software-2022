@@ -1,18 +1,8 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.elevator;
 
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.ElevatorConstants.*;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
-import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
-import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.ctre.phoenix.sensors.Pigeon2;
 import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -21,7 +11,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.ExtendClimberToMidRungCommand;
 import frc.robot.commands.RetractClimberFullCommand;
 import frc.robot.commands.RetractClimberMinimumCommand;
+import frc.robot.subsystems.elevator.ElevatorIO.ElevatorIOInputs;
 import java.util.Map;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * This subsystem models the robot's elevator mechanism. It consists of two motors, which both
@@ -31,135 +23,38 @@ import java.util.Map;
  * extend and retract the elevator around a rung.
  */
 public class Elevator extends SubsystemBase {
-  private WPI_TalonFX leftElevatorMotor;
-  private WPI_TalonFX rightElevatorMotor;
-  private Pigeon2 pigeon;
+  private final ElevatorIO io;
+  private final ElevatorIOInputs inputs = new ElevatorIOInputs();
 
   private double encoderPositionSetpoint;
-  private boolean isElevatorControlEnabled;
 
   private double prevPitch;
   private double[] latestPitches;
   private int latestPitchesIndex;
 
+  private static final String SUBSYSTEM_NAME = "Elevator";
   private static final boolean TESTING = false;
   private static final boolean DEBUGGING = false;
   private static final boolean TUNING = false;
 
   /** Constructs a new Elevator object. */
-  public Elevator() {
+  public Elevator(ElevatorIO io) {
+    this.io = io;
 
     this.encoderPositionSetpoint = 0.0;
-    this.isElevatorControlEnabled = false;
 
     this.prevPitch = 0.0;
     this.latestPitches = new double[100];
     this.latestPitchesIndex = 0;
 
-    this.leftElevatorMotor = new WPI_TalonFX(LEFT_ELEVATOR_MOTOR_CAN_ID);
-    this.rightElevatorMotor = new WPI_TalonFX(RIGHT_ELEVATOR_MOTOR_CAN_ID);
-
-    // the following configuration is based on the CTRE example code
-
-    /* Factory Default all hardware to prevent unexpected behaviour */
-    this.rightElevatorMotor.configFactoryDefault();
-    this.leftElevatorMotor.configFactoryDefault();
-
-    /** Config Objects for motor controllers */
-    TalonFXConfiguration rightConfig = new TalonFXConfiguration();
-
-    /* Disable all motors */
-    this.rightElevatorMotor.set(TalonFXControlMode.PercentOutput, 0);
-    this.leftElevatorMotor.set(TalonFXControlMode.PercentOutput, 0);
-
-    /* Set neutral modes */
-    this.leftElevatorMotor.setNeutralMode(NeutralMode.Brake);
-    this.rightElevatorMotor.setNeutralMode(NeutralMode.Brake);
-
-    this.leftElevatorMotor.follow(this.rightElevatorMotor);
-
-    /* Configure output */
-    this.rightElevatorMotor.setInverted(TalonFXInvertType.Clockwise);
-    this.leftElevatorMotor.setInverted(TalonFXInvertType.FollowMaster);
-
-    /*
-     * Talon FX does not need sensor phase set for its integrated sensor
-     * This is because it will always be correct if the selected feedback device is
-     * integrated sensor (default value)
-     * and the user calls getSelectedSensor* to get the sensor's position/velocity.
-     *
-     * https://phoenix-documentation.readthedocs.io/en/latest/ch14_MCSensor.html#
-     * sensor-phase
-     *
-     * this.leftElevatorMotor.setSensorPhase(true)
-     * this.rightElevatorMotor.setSensorPhase(true)
-     */
-
-    /** Feedback Sensor Configuration */
-
-    /** Distance Configs */
-
-    /* Configure the left Talon's selected sensor as integrated sensor */
-    rightConfig.primaryPID.selectedFeedbackSensor =
-        TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); // Local
-    // Feedback
-    // Source
-
-    /* FPID for Distance */
-    rightConfig.slot0.kF = POSITION_PID_F;
-    rightConfig.slot0.kP = POSITION_PID_P;
-    rightConfig.slot0.kI = POSITION_PID_I;
-    rightConfig.slot0.kD = POSITION_PID_D;
-    rightConfig.slot0.integralZone = POSITION_PID_I_ZONE;
-    rightConfig.slot0.closedLoopPeakOutput = POSITION_PID_PEAK_OUTPUT;
-
-    /* Config the neutral deadband. */
-    rightConfig.neutralDeadband = 0.001;
-
-    /**
-     * 1ms per loop. PID loop can be slowed down if need be. For example, - if sensor updates are
-     * too slow - sensor deltas are very small per update, so derivative error never gets large
-     * enough to be useful. - sensor movement is very slow causing the derivative error to be near
-     * zero.
-     */
-    int closedLoopTimeMs = 1;
-    rightConfig.slot0.closedLoopPeriod = closedLoopTimeMs;
-    rightConfig.slot1.closedLoopPeriod = closedLoopTimeMs;
-    rightConfig.slot2.closedLoopPeriod = closedLoopTimeMs;
-    rightConfig.slot3.closedLoopPeriod = closedLoopTimeMs;
-
-    /* Motion Magic Configs */
-    rightConfig.motionAcceleration =
-        ELEVATOR_ACCELERATION; // (distance units per 100 ms) per second
-    rightConfig.motionCruiseVelocity = MAX_ELEVATOR_VELOCITY; // distance units per 100 ms
-    rightConfig.motionCurveStrength = SCURVE_STRENGTH;
-
-    /* APPLY the config settings */
-    this.rightElevatorMotor.configAllSettings(rightConfig);
-
-    /* Initialize */
-    this.rightElevatorMotor.getSensorCollection().setIntegratedSensorPosition(0, TIMEOUT_MS);
-
-    // these status frames aren't read; so, set these CAN frame periods to the maximum value
-    //  to reduce traffic on the bus
-    this.leftElevatorMotor.setStatusFramePeriod(
-        StatusFrameEnhanced.Status_1_General, 255, TIMEOUT_MS);
-    this.leftElevatorMotor.setStatusFramePeriod(
-        StatusFrameEnhanced.Status_2_Feedback0, 255, TIMEOUT_MS);
-
-    this.pigeon = new Pigeon2(PIGEON_ID);
-
-    addChild("Elevator Left Motor", this.leftElevatorMotor);
-    addChild("Elevator Right Motor", this.rightElevatorMotor);
-
-    ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
+    ShuffleboardTab tab = Shuffleboard.getTab(SUBSYSTEM_NAME);
 
     if (DEBUGGING) {
       tab.add("elevator", this);
       tab.addNumber("Encoder", this::getElevatorEncoderHeight);
       tab.addBoolean("Near Local Min?", this::isNearLocalMinimum);
       tab.addBoolean("Near Local Max?", this::isNearLocalMaximum);
-      tab.addNumber("Pitch", pigeon::getPitch);
+      tab.addNumber("Pitch", () -> inputs.pitch);
       tab.addBoolean("At Setpoint?", this::atSetpoint);
       tab.addBoolean("Approaching Next Rung?", this::isApproachingNextRung);
       tab.addBoolean("Control Enabled?", this::isElevatorControlEnabled);
@@ -174,13 +69,13 @@ public class Elevator extends SubsystemBase {
     }
 
     if (TUNING) {
-      this.isElevatorControlEnabled = true;
+      io.setControlEnabled(true);
 
       tab.addNumber("Closed Loop Target", this::getSetpoint);
-      tab.addNumber("Closed Loop Error", this.rightElevatorMotor::getClosedLoopError);
-      tab.addNumber("Velocity", this.rightElevatorMotor::getSelectedSensorVelocity);
-      tab.addNumber("Left Motor Power", this.leftElevatorMotor::getMotorOutputPercent);
-      tab.addNumber("Right Motor Power", this.rightElevatorMotor::getMotorOutputPercent);
+      tab.addNumber("Closed Loop Error", () -> inputs.rightClosedLoopError);
+      tab.addNumber("Velocity", () -> inputs.rightVelocity);
+      tab.addNumber("Left Motor Volts", () -> inputs.leftAppliedVolts);
+      tab.addNumber("Right Motor Volts", () -> inputs.rightAppliedVolts);
 
       tab.add("Elevator Motors", 0.0)
           .withWidget(BuiltInWidgets.kNumberSlider)
@@ -203,9 +98,7 @@ public class Elevator extends SubsystemBase {
           .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
           .getEntry()
           .addListener(
-              event ->
-                  this.rightElevatorMotor.config_kF(
-                      SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS),
+              event -> io.configureKF(event.getEntry().getValue().getDouble()),
               EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
       tab.add("Flywheel P", POSITION_PID_P)
@@ -213,9 +106,7 @@ public class Elevator extends SubsystemBase {
           .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
           .getEntry()
           .addListener(
-              event ->
-                  this.rightElevatorMotor.config_kP(
-                      SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS),
+              event -> io.configureKP(event.getEntry().getValue().getDouble()),
               EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
       tab.add("Flywheel I", POSITION_PID_I)
@@ -223,9 +114,7 @@ public class Elevator extends SubsystemBase {
           .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
           .getEntry()
           .addListener(
-              event ->
-                  this.rightElevatorMotor.config_kI(
-                      SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS),
+              event -> io.configureKI(event.getEntry().getValue().getDouble()),
               EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
 
       tab.add("Flywheel D", POSITION_PID_D)
@@ -233,39 +122,7 @@ public class Elevator extends SubsystemBase {
           .withProperties(Map.of("min", 0, "max", 1.0)) // specify widget properties here
           .getEntry()
           .addListener(
-              event ->
-                  this.rightElevatorMotor.config_kD(
-                      SLOT_INDEX, event.getEntry().getValue().getDouble(), TIMEOUT_MS),
-              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-
-      tab.add("Scurve Strength", SCURVE_STRENGTH)
-          .withWidget(BuiltInWidgets.kNumberSlider)
-          .withProperties(Map.of("min", 0, "max", 8.0)) // specify widget properties here
-          .getEntry()
-          .addListener(
-              event ->
-                  this.rightElevatorMotor.configMotionSCurveStrength(
-                      (int) event.getEntry().getValue().getDouble(), TIMEOUT_MS),
-              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-
-      tab.add("Max Velocity", MAX_ELEVATOR_VELOCITY)
-          .withWidget(BuiltInWidgets.kNumberSlider)
-          .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
-          .getEntry()
-          .addListener(
-              event ->
-                  this.rightElevatorMotor.configMotionCruiseVelocity(
-                      event.getEntry().getValue().getDouble(), TIMEOUT_MS),
-              EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-
-      tab.add("Max Acceleration", ELEVATOR_ACCELERATION)
-          .withWidget(BuiltInWidgets.kNumberSlider)
-          .withProperties(Map.of("min", 0, "max", 8000.0)) // specify widget properties here
-          .getEntry()
-          .addListener(
-              event ->
-                  this.rightElevatorMotor.configMotionAcceleration(
-                      event.getEntry().getValue().getDouble(), TIMEOUT_MS),
+              event -> io.configureKD(event.getEntry().getValue().getDouble()),
               EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
     }
   }
@@ -277,7 +134,10 @@ public class Elevator extends SubsystemBase {
    */
   @Override
   public void periodic() {
-    double pitch = pigeon.getPitch();
+    io.updateInputs(inputs);
+    Logger.getInstance().processInputs(SUBSYSTEM_NAME, inputs);
+
+    double pitch = inputs.pitch;
 
     // keep the last 100 unique pitches (2 seconds of data)
     if (pitch != this.prevPitch) {
@@ -304,8 +164,7 @@ public class Elevator extends SubsystemBase {
           || (power < 0 && this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 5000)) {
         this.stopElevator();
       } else {
-        this.leftElevatorMotor.set(ControlMode.PercentOutput, power);
-        this.rightElevatorMotor.set(ControlMode.PercentOutput, power);
+        io.setMotorPercentage(power);
       }
     }
   }
@@ -326,9 +185,9 @@ public class Elevator extends SubsystemBase {
     if (isElevatorControlEnabled()) {
 
       if (isFast) {
-        this.rightElevatorMotor.configClosedLoopPeakOutput(SLOT_INDEX, POSITION_PID_PEAK_OUTPUT);
+        io.configClosedLoopPeakOutput(POSITION_PID_PEAK_OUTPUT);
       } else {
-        this.rightElevatorMotor.configClosedLoopPeakOutput(SLOT_INDEX, SLOW_PEAK_OUTPUT);
+        io.configClosedLoopPeakOutput(SLOW_PEAK_OUTPUT);
       }
 
       // the feedforward term will be different depending if the elevator is going up
@@ -340,12 +199,7 @@ public class Elevator extends SubsystemBase {
         if (this.getElevatorEncoderHeight() > MAX_ELEVATOR_HEIGHT - 2500) {
           this.stopElevator();
         } else {
-          this.leftElevatorMotor.follow(this.rightElevatorMotor);
-          rightElevatorMotor.set(
-              TalonFXControlMode.Position,
-              desiredEncoderPosition,
-              DemandType.ArbitraryFeedForward,
-              ARBITRARY_FEED_FORWARD_EXTEND);
+          io.setPosition(desiredEncoderPosition, ARBITRARY_FEED_FORWARD_EXTEND);
         }
       } else { // retracting loaded
         // as long as the setpoints are correct, this check is not required as the elevator
@@ -353,12 +207,7 @@ public class Elevator extends SubsystemBase {
         if (this.getElevatorEncoderHeight() < MIN_ELEVATOR_ENCODER_HEIGHT + 2500) {
           this.stopElevator();
         } else {
-          this.leftElevatorMotor.follow(this.rightElevatorMotor);
-          rightElevatorMotor.set(
-              TalonFXControlMode.Position,
-              desiredEncoderPosition,
-              DemandType.ArbitraryFeedForward,
-              ARBITRARY_FEED_FORWARD_RETRACT);
+          io.setPosition(desiredEncoderPosition, ARBITRARY_FEED_FORWARD_RETRACT);
         }
       }
 
@@ -390,8 +239,7 @@ public class Elevator extends SubsystemBase {
    * moving almost immediately after this method is executed.
    */
   public void stopElevator() {
-    this.leftElevatorMotor.set(ControlMode.PercentOutput, 0.0);
-    this.rightElevatorMotor.set(ControlMode.PercentOutput, 0.0);
+    io.setMotorPercentage(0.0);
   }
 
   /**
@@ -499,7 +347,7 @@ public class Elevator extends SubsystemBase {
    * violate the height limit and result in a penalty.
    */
   public void enableElevatorControl() {
-    this.isElevatorControlEnabled = true;
+    io.setControlEnabled(true);
   }
 
   /**
@@ -509,7 +357,7 @@ public class Elevator extends SubsystemBase {
    * result in a penalty.
    */
   public void disableElevatorControl() {
-    this.isElevatorControlEnabled = false;
+    io.setControlEnabled(false);
   }
 
   /**
@@ -521,11 +369,11 @@ public class Elevator extends SubsystemBase {
    * @return true if control of the elevator is enabled
    */
   public boolean isElevatorControlEnabled() {
-    return this.isElevatorControlEnabled;
+    return inputs.isControlEnabled;
   }
 
   private double getElevatorEncoderHeight() {
-    return this.rightElevatorMotor.getSelectedSensorPosition();
+    return inputs.rightPosition;
   }
 
   private double getSetpoint() {
