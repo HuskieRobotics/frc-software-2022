@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.SortStorageCommand;
 import frc.robot.subsystems.storage.StorageIO.StorageIOInputs;
 import java.util.Map;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * This subsystem models the robot's storage mechanism. Is consists of a single motor, which moves
@@ -20,6 +21,7 @@ public class Storage extends SubsystemBase {
   private final StorageIO io;
   private final StorageIOInputs inputs = new StorageIOInputs();
 
+  private static final String SUBSYSTEM_NAME = "Storage";
   private static final boolean TESTING = false;
   private static final boolean DEBUGGING = false;
 
@@ -45,6 +47,16 @@ public class Storage extends SubsystemBase {
               event -> this.setStoragePower(event.getEntry().getValue().getDouble()),
               EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
     }
+  }
+
+  /**
+   * For each iteration, the subsystem's periodic method is invoked before any commands are
+   * executed.
+   */
+  @Override
+  public void periodic() {
+    io.updateInputs(inputs);
+    Logger.getInstance().processInputs(SUBSYSTEM_NAME, inputs);
   }
 
   /**

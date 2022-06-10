@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.secondary_arm.SecondaryArmIO.SecondaryArmIOInputs;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * This subsystem models the robot's secondary arms which hold the robot on a rung. It consists of a
@@ -15,6 +16,7 @@ public class SecondaryArm extends SubsystemBase {
   private final SecondaryArmIO io;
   private final SecondaryArmIOInputs inputs = new SecondaryArmIOInputs();
 
+  private static final String SUBSYSTEM_NAME = "SecondaryArm";
   private static final boolean TESTING = false;
   private static final boolean DEBUGGING = false;
 
@@ -33,6 +35,16 @@ public class SecondaryArm extends SubsystemBase {
       tab.add("Second Arm Out", new InstantCommand(() -> this.moveSecondaryArmOut(), this));
       tab.add("Second Arm In", new InstantCommand(() -> this.moveSecondaryArmIn(), this));
     }
+  }
+
+  /**
+   * For each iteration, the subsystem's periodic method is invoked before any commands are
+   * executed.
+   */
+  @Override
+  public void periodic() {
+    io.updateInputs(inputs);
+    Logger.getInstance().processInputs(SUBSYSTEM_NAME, inputs);
   }
 
   /**
