@@ -1,18 +1,14 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.storage;
 
 import static frc.robot.Constants.*;
-import static frc.robot.Constants.StorageConstants.*;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.networktables.EntryListenerFlags;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.SortStorageCommand;
+import frc.robot.subsystems.storage.StorageIO.StorageIOInputs;
 import java.util.Map;
 
 /**
@@ -21,32 +17,15 @@ import java.util.Map;
  * collector end and the shooter end of the storage.
  */
 public class Storage extends SubsystemBase {
-  private WPI_TalonSRX beltMotor;
-  private DigitalInput collectorSensor;
-  private DigitalInput shooterSensor;
-  private boolean isStorageEnabled;
+  private final StorageIO io;
+  private final StorageIOInputs inputs = new StorageIOInputs();
 
   private static final boolean TESTING = false;
   private static final boolean DEBUGGING = false;
 
   /** Constructs a new Storage object. */
-  public Storage() {
-    this.isStorageEnabled = false;
-
-    this.beltMotor = new WPI_TalonSRX(StorageConstants.STORAGE_MOTOR_ID);
-
-    // no data is read from the Talon SRX; so, set these CAN frame periods to the maximum value
-    //  to reduce traffic on the bus
-    this.beltMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 255, TIMEOUT_MS);
-    this.beltMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 255, TIMEOUT_MS);
-
-    this.collectorSensor = new DigitalInput(StorageConstants.COLLECTOR_SENSOR);
-
-    shooterSensor = new DigitalInput(StorageConstants.SHOOTER_SENSOR);
-
-    addChild("Storage Belt Motor", beltMotor);
-    addChild("Storage Collector Sensor", collectorSensor);
-    addChild("Storage Shooter Sensor", shooterSensor);
+  public Storage(StorageIO io) {
+    this.io = io;
 
     ShuffleboardTab tab = Shuffleboard.getTab("Storage");
 
@@ -75,7 +54,7 @@ public class Storage extends SubsystemBase {
    *     1.0]; positive values rotate the belt in the intake direction
    */
   public void setStoragePower(double power) {
-    this.beltMotor.set(ControlMode.PercentOutput, power);
+    io.setMotorPercentage(power);
   }
 
   /**
@@ -83,8 +62,8 @@ public class Storage extends SubsystemBase {
    * at the default power.
    */
   public void enableStorage() {
-    this.isStorageEnabled = true;
-    this.beltMotor.set(ControlMode.PercentOutput, StorageConstants.STORAGE_DEFAULT_SPEED);
+    io.setEnabled(true);
+    io.setMotorPercentage(StorageConstants.STORAGE_DEFAULT_POWER);
   }
 
   /**
@@ -95,13 +74,13 @@ public class Storage extends SubsystemBase {
    *     at the default power)
    */
   public boolean isStorageEnabled() {
-    return isStorageEnabled;
+    return inputs.isEnabled;
   }
 
   /** Disable the storage subsystem. This results in the storage's belt stopping. */
   public void disableStorage() {
-    this.isStorageEnabled = false;
-    this.beltMotor.set(ControlMode.PercentOutput, 0);
+    io.setEnabled(false);
+    io.setMotorPercentage(0.0);
   }
 
   /**
@@ -110,7 +89,7 @@ public class Storage extends SubsystemBase {
    * @return true if the sensor at the shooter end of the storage detects cargo
    */
   public boolean isShooterSensorUnblocked() {
-    return this.shooterSensor.get();
+    return inputs.isShooterSensorUnblocked;
   }
 
   /**
@@ -119,6 +98,6 @@ public class Storage extends SubsystemBase {
    * @return true if the sensor at the collector end of the storage detects cargo
    */
   public boolean isCollectorSensorUnblocked() {
-    return this.collectorSensor.get();
+    return inputs.isCollectorSensorUnblocked;
   }
 }

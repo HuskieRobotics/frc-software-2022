@@ -30,13 +30,15 @@ import frc.robot.commands.*;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Flywheel;
-import frc.robot.subsystems.Storage;
 import frc.robot.subsystems.collector.Collector;
 import frc.robot.subsystems.collector.CollectorIO;
 import frc.robot.subsystems.collector.CollectorIOTalonSRX;
 import frc.robot.subsystems.secondary_arm.SecondaryArm;
 import frc.robot.subsystems.secondary_arm.SecondaryArmIO;
 import frc.robot.subsystems.secondary_arm.SecondaryArmSolenoid;
+import frc.robot.subsystems.storage.Storage;
+import frc.robot.subsystems.storage.StorageIO;
+import frc.robot.subsystems.storage.StorageIOTalonSRX;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -73,14 +75,14 @@ public class RobotContainer {
     // create real or replay subsystems
     if (Constants.getMode() != Mode.REPLAY) {
       drivetrainSubsystem = new DrivetrainSubsystem();
-      storage = new Storage();
+      storage = new Storage(new StorageIOTalonSRX());
       collector = new Collector(new CollectorIOTalonSRX());
       flywheel = new Flywheel();
       secondMechanism = new SecondaryArm(new SecondaryArmSolenoid());
       elevator = new Elevator();
     } else {
       drivetrainSubsystem = new DrivetrainSubsystem();
-      storage = new Storage();
+      storage = new Storage(new StorageIO() {});
       collector = new Collector(new CollectorIO() {});
       flywheel = new Flywheel();
       secondMechanism = new SecondaryArm(new SecondaryArmIO() {});

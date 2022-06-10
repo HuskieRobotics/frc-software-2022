@@ -5,7 +5,7 @@ import static frc.robot.Constants.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.Flywheel;
-import frc.robot.subsystems.Storage;
+import frc.robot.subsystems.storage.Storage;
 
 /**
  * This command, when executed, waits for all cargo to be shot and then stops the motion of the
