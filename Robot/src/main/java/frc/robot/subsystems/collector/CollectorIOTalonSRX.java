@@ -45,6 +45,11 @@ public class CollectorIOTalonSRX implements CollectorIO {
   }
 
   @Override
+  public void setEnabled(boolean enabled) {
+    isEnabled = enabled;
+  }
+
+  @Override
   public void setMotorPercentage(double percentage) {
     collectorMotor.set(ControlMode.PercentOutput, percentage);
   }

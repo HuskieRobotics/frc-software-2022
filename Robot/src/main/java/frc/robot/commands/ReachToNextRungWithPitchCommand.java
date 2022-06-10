@@ -3,7 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.SecondaryArm;
+import frc.robot.subsystems.secondary_arm.SecondaryArm;
 
 /**
  * This command, when executed, extends the climber below and slightly beyond the next rung (high or

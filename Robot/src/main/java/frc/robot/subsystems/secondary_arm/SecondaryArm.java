@@ -1,13 +1,10 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.secondary_arm;
 
-import static frc.robot.Constants.SecondaryArmConstants.*;
-
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.secondary_arm.SecondaryArmIO.SecondaryArmIOInputs;
 
 /**
  * This subsystem models the robot's secondary arms which hold the robot on a rung. It consists of a
@@ -15,20 +12,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * retracts the arms to remain clear of the rungs.
  */
 public class SecondaryArm extends SubsystemBase {
-  private boolean isIn;
-  private Solenoid solenoid;
+  private final SecondaryArmIO io;
+  private final SecondaryArmIOInputs inputs = new SecondaryArmIOInputs();
 
   private static final boolean TESTING = false;
   private static final boolean DEBUGGING = false;
 
   /** Constructs a new SecondaryArm object. */
-  public SecondaryArm() {
-    this.isIn = true;
-
-    this.solenoid =
-        new Solenoid(PNEUMATIC_HUB_CAN_ID, PneumaticsModuleType.REVPH, PNEUMATIC_CHANNEL);
-
-    addChild("Secondary Arm Solenoid", this.solenoid);
+  public SecondaryArm(SecondaryArmIO io) {
+    this.io = io;
 
     ShuffleboardTab tab = Shuffleboard.getTab("Elevator");
 
@@ -49,18 +41,16 @@ public class SecondaryArm extends SubsystemBase {
    * @return true if the secondary arms are retracted (i.e., within the robot's frame)
    */
   public boolean isIn() {
-    return this.isIn;
+    return inputs.isIn;
   }
 
   /** Move the secondary arms within the robot's frame, which keeps them clear of rungs. */
   public void moveSecondaryArmIn() {
-    this.solenoid.set(false);
-    this.isIn = true;
+    io.setExtended(false);
   }
 
   /** Move the secondary arms out such that they can engage with a rung and support the robot. */
   public void moveSecondaryArmOut() {
-    this.solenoid.set(true);
-    this.isIn = false;
+    io.setExtended(true);
   }
 }
