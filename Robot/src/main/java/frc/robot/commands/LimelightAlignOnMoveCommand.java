@@ -3,8 +3,8 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.*;
-import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.collector.Collector;
+import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.flywheel.Flywheel;
 import java.util.function.DoubleSupplier;
 
@@ -24,7 +24,7 @@ import java.util.function.DoubleSupplier;
 public class LimelightAlignOnMoveCommand extends CommandBase {
 
   private final PIDController controller;
-  private final DrivetrainSubsystem drivetrain;
+  private final Drivetrain drivetrain;
   private final Flywheel flywheel;
   private final Collector collector;
   private final DoubleSupplier translationXSupplier;
@@ -42,7 +42,7 @@ public class LimelightAlignOnMoveCommand extends CommandBase {
    * @param rotationSupplier supplies the desried rotational velocity (m/s)
    */
   public LimelightAlignOnMoveCommand(
-      DrivetrainSubsystem drivetrain,
+      Drivetrain drivetrain,
       Flywheel flywheel,
       Collector collector,
       DoubleSupplier translationXSupplier,

@@ -3,7 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.*;
-import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.drivetrain.Drivetrain;
 
 /**
  * This command, when executed, instructs the drivetrain subsystem to rotate to aim at the hub. This
@@ -20,7 +20,7 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 public class LimelightAlignWithGyroCommand extends CommandBase {
 
   private PIDController controller;
-  private DrivetrainSubsystem drivetrain;
+  private Drivetrain drivetrain;
   private double setpoint;
 
   /**
@@ -28,7 +28,7 @@ public class LimelightAlignWithGyroCommand extends CommandBase {
    *
    * @param drivetrain the drivetrain subsystem this command will control
    */
-  public LimelightAlignWithGyroCommand(DrivetrainSubsystem drivetrain) {
+  public LimelightAlignWithGyroCommand(Drivetrain drivetrain) {
     this.controller =
         new PIDController(DrivetrainConstants.LIMELIGHT_P, DrivetrainConstants.LIMELIGHT_I, 0);
     this.drivetrain = drivetrain;

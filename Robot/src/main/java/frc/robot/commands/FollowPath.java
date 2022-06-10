@@ -6,7 +6,7 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.drivetrain.Drivetrain;
 
 /**
  * This command, when executed, instructs the drivetrain subsystem to follow the specified
@@ -21,7 +21,7 @@ import frc.robot.subsystems.DrivetrainSubsystem;
  */
 public class FollowPath extends PPSwerveControllerCommand {
   private ProfiledPIDController thetaController;
-  private DrivetrainSubsystem drivetrain;
+  private Drivetrain drivetrain;
   private PathPlannerTrajectory trajectory;
   private boolean initialPath;
 
@@ -40,7 +40,7 @@ public class FollowPath extends PPSwerveControllerCommand {
   public FollowPath(
       PathPlannerTrajectory trajectory,
       ProfiledPIDController thetaController,
-      DrivetrainSubsystem subsystem,
+      Drivetrain subsystem,
       boolean initialPath) {
     super(
         trajectory,

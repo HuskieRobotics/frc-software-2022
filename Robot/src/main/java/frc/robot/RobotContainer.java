@@ -27,10 +27,12 @@ import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.CollectorConstants;
 import frc.robot.Constants.StorageConstants;
 import frc.robot.commands.*;
-import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.collector.Collector;
 import frc.robot.subsystems.collector.CollectorIO;
 import frc.robot.subsystems.collector.CollectorIOTalonSRX;
+import frc.robot.subsystems.drivetrain.Drivetrain;
+import frc.robot.subsystems.drivetrain.DrivetrainIO;
+import frc.robot.subsystems.drivetrain.DrivetrainIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
@@ -63,7 +65,7 @@ public class RobotContainer {
 
   private static RobotContainer robotContainer = new RobotContainer();
 
-  private final DrivetrainSubsystem drivetrainSubsystem;
+  private final Drivetrain drivetrain;
   private final Storage storage;
   private final Collector collector;
   private final Flywheel flywheel;
@@ -78,14 +80,14 @@ public class RobotContainer {
 
     // create real or replay subsystems
     if (Constants.getMode() != Mode.REPLAY) {
-      drivetrainSubsystem = new DrivetrainSubsystem();
+      drivetrain = new Drivetrain(new DrivetrainIOTalonFX());
       storage = new Storage(new StorageIOTalonSRX());
       collector = new Collector(new CollectorIOTalonSRX());
       flywheel = new Flywheel(new FlywheelIOTalonFX());
       secondMechanism = new SecondaryArm(new SecondaryArmSolenoid());
       elevator = new Elevator(new ElevatorIOTalonFX());
     } else {
-      drivetrainSubsystem = new DrivetrainSubsystem();
+      drivetrain = new Drivetrain(new DrivetrainIO() {});
       storage = new Storage(new StorageIO() {});
       collector = new Collector(new CollectorIO() {});
       flywheel = new Flywheel(new FlywheelIO() {});
@@ -114,7 +116,7 @@ public class RobotContainer {
 
     // all subsystems must register with the Command Scheduler in order for their periodic methods
     //  to be invoked
-    drivetrainSubsystem.register();
+    drivetrain.register();
     storage.register();
     collector.register();
     flywheel.register();
@@ -132,16 +134,16 @@ public class RobotContainer {
     //  driver's right). Zero degrees is away from the driver and increases in the CCW direction.
     // This is why the left joystick's y axis specifies the velocity in the x direction and the
     //  left joystick's x axis specifies the velocity in the y direction.
-    drivetrainSubsystem.setDefaultCommand(
+    drivetrain.setDefaultCommand(
         new DefaultDriveCommand(
-            drivetrainSubsystem,
+            drivetrain,
             () ->
-                -modifyAxis(joystick0.getY()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+                -modifyAxis(joystick0.getY()) * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
             () ->
-                -modifyAxis(joystick0.getX()) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+                -modifyAxis(joystick0.getX()) * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
             () ->
                 -modifyAxis(joystick1.getX())
-                    * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
+                    * DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND));
 
     configureButtonBindings();
     configureAutoCommands();
@@ -208,41 +210,39 @@ public class RobotContainer {
         new SequentialCommandGroup(
             new IndexSingleBallCommand(storage),
             new LimelightAlignOnMoveCommand(
-                drivetrainSubsystem,
+                drivetrain,
                 flywheel,
                 collector,
                 () ->
                     -modifyAxis(joystick0.getY())
-                        * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+                        * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
                 () ->
                     -modifyAxis(joystick0.getX())
-                        * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+                        * DrivetrainConstants.MAX_VELOCITY_METERS_PER_SECOND,
                 () ->
                     -modifyAxis(joystick1.getX())
-                        * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND),
+                        * DrivetrainConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND),
             new WaitCommand(0.300),
             createLimelightShootCommandSequence(true /* use gyro */)));
 
     // field-relative toggle
     joystickButtons0[3].toggleWhenPressed(
         new ConditionalCommand(
-            new InstantCommand(
-                () -> drivetrainSubsystem.disableFieldRelative(), drivetrainSubsystem),
-            new InstantCommand(
-                () -> drivetrainSubsystem.enableFieldRelative(), drivetrainSubsystem),
-            drivetrainSubsystem::getFieldRelative));
+            new InstantCommand(() -> drivetrain.disableFieldRelative(), drivetrain),
+            new InstantCommand(() -> drivetrain.enableFieldRelative(), drivetrain),
+            drivetrain::getFieldRelative));
 
     // rotate evasively around defending robot
     joystickButtons1[4].whenPressed(
         new InstantCommand(
             () ->
-                drivetrainSubsystem.rotateEvasively(
+                drivetrain.rotateEvasively(
                     -modifyAxis(joystick0.getY()),
                     -modifyAxis(joystick0.getX()),
                     -modifyAxis(joystick1.getX())),
-            drivetrainSubsystem));
+            drivetrain));
     joystickButtons1[4].whenReleased(
-        new InstantCommand(() -> drivetrainSubsystem.resetCenterGrav(), drivetrainSubsystem));
+        new InstantCommand(() -> drivetrain.resetCenterGrav(), drivetrain));
 
     // stop/disable/reset all subsystems
     joystickButtons1[3].whenPressed(
@@ -250,11 +250,11 @@ public class RobotContainer {
             new InstantCommand(() -> flywheel.stopFlywheel(), flywheel),
             new InstantCommand(() -> storage.disableStorage(), storage),
             new InstantCommand(() -> collector.disableCollector(), collector),
-            new InstantCommand(() -> drivetrainSubsystem.disableXstance(), drivetrainSubsystem)));
+            new InstantCommand(() -> drivetrain.disableXstance(), drivetrain)));
 
     // reset gyro to 0 degrees
     xboxButtons[BUTTON_Y].whenPressed(
-        new InstantCommand(() -> drivetrainSubsystem.zeroGyroscope(), drivetrainSubsystem));
+        new InstantCommand(() -> drivetrain.zeroGyroscope(), drivetrain));
   }
 
   private void configureIntakeButtons() {
@@ -313,10 +313,9 @@ public class RobotContainer {
     // enable/disable limelight aiming
     operatorButtons[JoystickConstants.LIMELIGHT_AIM_TOGGLE].toggleWhenPressed(
         new ConditionalCommand(
-            new InstantCommand(
-                () -> drivetrainSubsystem.disableLimelightAim(), drivetrainSubsystem),
-            new InstantCommand(() -> drivetrainSubsystem.enableLimelightAim(), drivetrainSubsystem),
-            drivetrainSubsystem::isLimelightAimEnabled));
+            new InstantCommand(() -> drivetrain.disableLimelightAim(), drivetrain),
+            new InstantCommand(() -> drivetrain.enableLimelightAim(), drivetrain),
+            drivetrain::isLimelightAimEnabled));
 
     // preset field wall shot
     operatorButtons[JoystickConstants.FIELD_WALL].whenPressed(
@@ -333,7 +332,7 @@ public class RobotContainer {
                 new InstantCommand(() -> collector.disableCollector(), collector),
                 new SetFlywheelVelocityCommand(flywheel, FlywheelConstants.SHOOT_SLOW_VELOCITY)),
             new InstantCommand(() -> storage.enableStorage(), storage),
-            new WaitForShotCommand(storage, flywheel, drivetrainSubsystem)));
+            new WaitForShotCommand(storage, flywheel, drivetrain)));
 
     // limelight shot
     joystickButtons0[1].whenPressed(
@@ -445,7 +444,7 @@ public class RobotContainer {
     // This is important since it provides an opportunity for the absolute angle to be properly
     // read and the seed angle to be fixed before starting auto. As long as the robot is running for
     // at most 10 seconds, the angles will be correct.
-    drivetrainSubsystem.stop();
+    drivetrain.stop();
   }
 
   private void configureAutoCommands() {
@@ -466,9 +465,9 @@ public class RobotContainer {
             AutoConstants.MAX_ACCELERATION_METERS_PER_SECOND_SQUARED);
     Command autoOneBall =
         new SequentialCommandGroup(
-            new FollowPath(autoBlue01Path, thetaController, drivetrainSubsystem, true),
+            new FollowPath(autoBlue01Path, thetaController, drivetrain, true),
             createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 2),
-            new FollowPath(autoBlue02Path, thetaController, drivetrainSubsystem, false));
+            new FollowPath(autoBlue02Path, thetaController, drivetrain, false));
 
     PathPlannerTrajectory autoBlue11Path =
         PathPlanner.loadPath(
@@ -483,11 +482,11 @@ public class RobotContainer {
     Command autoTwoBallSteal =
         new SequentialCommandGroup(
             new InstantCommand(() -> collector.enableCollector(), collector),
-            new FollowPath(autoBlue11Path, thetaController, drivetrainSubsystem, true),
+            new FollowPath(autoBlue11Path, thetaController, drivetrain, true),
             new WaitCommand(5.0),
             createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 2),
             new ParallelDeadlineGroup(
-                new FollowPath(autoBlue12Path, thetaController, drivetrainSubsystem, false),
+                new FollowPath(autoBlue12Path, thetaController, drivetrain, false),
                 new SortStorageCommand(storage)),
             new SequentialCommandGroup(
                 new ParallelCommandGroup(
@@ -500,7 +499,7 @@ public class RobotContainer {
     Command autoTwoBall =
         new SequentialCommandGroup(
             new InstantCommand(() -> collector.enableCollector(), collector),
-            new FollowPath(autoBlue11Path, thetaController, drivetrainSubsystem, true),
+            new FollowPath(autoBlue11Path, thetaController, drivetrain, true),
             new WaitCommand(5.0),
             createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 15));
 
@@ -512,7 +511,7 @@ public class RobotContainer {
     Command autoTwoBallAlt =
         new SequentialCommandGroup(
             new InstantCommand(() -> collector.enableCollector(), collector),
-            new FollowPath(autoBlue2Path, thetaController, drivetrainSubsystem, true),
+            new FollowPath(autoBlue2Path, thetaController, drivetrain, true),
             new InstantCommand(() -> collector.disableCollector(), collector),
             createAutoShootCommandSequence(FlywheelConstants.WALL_SHOT_VELOCITY, 15));
 
@@ -540,15 +539,15 @@ public class RobotContainer {
                     () -> flywheel.setVelocity(FlywheelConstants.NEAR_WALL_SHOT_VELOCITY),
                     flywheel)),
             new WaitCommand(0.5),
-            new FollowPath(autoBlue31Path, thetaController, drivetrainSubsystem, true),
+            new FollowPath(autoBlue31Path, thetaController, drivetrain, true),
             createAutoShootNoAimCommandSequence(FlywheelConstants.NEAR_WALL_SHOT_VELOCITY, 2),
             new ParallelDeadlineGroup(
-                new FollowPath(autoBlue32Path, thetaController, drivetrainSubsystem, false),
+                new FollowPath(autoBlue32Path, thetaController, drivetrain, false),
                 new SortStorageCommand(storage)),
             new ParallelCommandGroup(
                 new InstantCommand(
                     () -> flywheel.setVelocity(FlywheelConstants.LAUNCH_PAD_VELOCITY), flywheel),
-                new FollowPath(autoBlue33Path, thetaController, drivetrainSubsystem, false)),
+                new FollowPath(autoBlue33Path, thetaController, drivetrain, false)),
             limelightCreateAutoShootCommandSequence(15));
 
     // 5-ball auto (shoot 2, shoot 1, shoot 2 (no bowling))
@@ -579,19 +578,19 @@ public class RobotContainer {
                 new InstantCommand(
                     () -> flywheel.setVelocity(FlywheelConstants.WALL_SHOT_VELOCITY), flywheel)),
             new WaitCommand(0.5),
-            new FollowPath(autoBlue41Path, thetaController, drivetrainSubsystem, true),
+            new FollowPath(autoBlue41Path, thetaController, drivetrain, true),
             limelightCreateAutoShootCommandSequence(2),
             new ParallelDeadlineGroup(
-                new FollowPath(autoBlue42Path, thetaController, drivetrainSubsystem, false),
+                new FollowPath(autoBlue42Path, thetaController, drivetrain, false),
                 new SortStorageCommand(storage)),
             limelightCreateAutoShootCommandSequence(2),
-            new FollowPath(autoBlue43Path, thetaController, drivetrainSubsystem, false),
-            new InstantCommand(() -> drivetrainSubsystem.stop()),
+            new FollowPath(autoBlue43Path, thetaController, drivetrain, false),
+            new InstantCommand(() -> drivetrain.stop()),
             new ParallelDeadlineGroup(new WaitCommand(2), new SortStorageCommand(storage)),
             new ParallelCommandGroup(
                 new InstantCommand(
                     () -> flywheel.setVelocity(FlywheelConstants.LAUNCH_PAD_VELOCITY), flywheel),
-                new FollowPath(autoBlue44Path, thetaController, drivetrainSubsystem, false)),
+                new FollowPath(autoBlue44Path, thetaController, drivetrain, false)),
             limelightCreateAutoShootCommandSequence(5));
 
     ShuffleboardTab tab = Shuffleboard.getTab("MAIN");
@@ -610,33 +609,31 @@ public class RobotContainer {
             new InstantCommand(() -> collector.disableCollector(), collector),
             new SetFlywheelVelocityCommand(flywheel, shotVelocity),
             new SequentialCommandGroup(
-                new LimelightAlignWithGyroCommand(drivetrainSubsystem),
-                new InstantCommand(
-                    () -> drivetrainSubsystem.enableXstance(), drivetrainSubsystem))),
+                new LimelightAlignWithGyroCommand(drivetrain),
+                new InstantCommand(() -> drivetrain.enableXstance(), drivetrain))),
         new InstantCommand(() -> storage.enableStorage(), storage),
-        new WaitForShotCommand(storage, flywheel, drivetrainSubsystem));
+        new WaitForShotCommand(storage, flywheel, drivetrain));
   }
 
   private Command createLimelightShootCommandSequence(boolean useGyro) {
     return new SequentialCommandGroup(
         new ParallelCommandGroup(
             new InstantCommand(() -> collector.disableCollector(), collector),
-            new LimelightSetFlywheelVelocityCommand(flywheel, drivetrainSubsystem),
+            new LimelightSetFlywheelVelocityCommand(flywheel, drivetrain),
             new SequentialCommandGroup(
                 (useGyro
-                    ? new LimelightAlignWithGyroCommand(drivetrainSubsystem)
-                    : new LimelightAlignToTargetCommand(drivetrainSubsystem)),
-                new InstantCommand(
-                    () -> drivetrainSubsystem.enableXstance(), drivetrainSubsystem))),
+                    ? new LimelightAlignWithGyroCommand(drivetrain)
+                    : new LimelightAlignToTargetCommand(drivetrain)),
+                new InstantCommand(() -> drivetrain.enableXstance(), drivetrain))),
         new InstantCommand(() -> storage.enableStorage(), storage),
-        new WaitForShotCommand(storage, flywheel, drivetrainSubsystem));
+        new WaitForShotCommand(storage, flywheel, drivetrain));
   }
 
   private Command createAutoShootCommandSequence(int shotVelocity, double shotDelay) {
     return new SequentialCommandGroup(
         new ParallelCommandGroup(
             new SetFlywheelVelocityCommand(flywheel, shotVelocity),
-            new LimelightAlignWithGyroCommand(drivetrainSubsystem)),
+            new LimelightAlignWithGyroCommand(drivetrain)),
         new InstantCommand(() -> storage.enableStorage(), storage),
         new WaitCommand(shotDelay),
         new ParallelCommandGroup(
@@ -657,8 +654,8 @@ public class RobotContainer {
   private Command limelightCreateAutoShootCommandSequence(double shotDelay) {
     return new SequentialCommandGroup(
         new ParallelCommandGroup(
-            new LimelightSetFlywheelVelocityCommand(flywheel, drivetrainSubsystem),
-            new LimelightAlignWithGyroCommand(drivetrainSubsystem)),
+            new LimelightSetFlywheelVelocityCommand(flywheel, drivetrain),
+            new LimelightAlignWithGyroCommand(drivetrain)),
         new InstantCommand(() -> storage.enableStorage(), storage),
         new WaitCommand(shotDelay),
         new ParallelCommandGroup(

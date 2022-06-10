@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.drivetrain.Drivetrain;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -16,7 +16,7 @@ import java.util.function.DoubleSupplier;
  * <p>At End: stops the drivetrain
  */
 public class DefaultDriveCommand extends CommandBase {
-  private final DrivetrainSubsystem drivetrain;
+  private final Drivetrain drivetrain;
   private final DoubleSupplier translationXSupplier;
   private final DoubleSupplier translationYSupplier;
   private final DoubleSupplier rotationSupplier;
@@ -30,7 +30,7 @@ public class DefaultDriveCommand extends CommandBase {
    * @param rotationSupplier supplies the desried rotational velocity (m/s)
    */
   public DefaultDriveCommand(
-      DrivetrainSubsystem drivetrain,
+      Drivetrain drivetrain,
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
       DoubleSupplier rotationSupplier) {

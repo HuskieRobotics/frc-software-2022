@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.flywheel.Flywheel;
 
 /**
@@ -19,7 +19,7 @@ import frc.robot.subsystems.flywheel.Flywheel;
  */
 public class LimelightSetFlywheelVelocityCommand extends CommandBase {
   private Flywheel flywheel;
-  private DrivetrainSubsystem drivetrain;
+  private Drivetrain drivetrain;
 
   /**
    * Constructs a new LimelightAlignWithGyroCommand object.
@@ -27,8 +27,7 @@ public class LimelightSetFlywheelVelocityCommand extends CommandBase {
    * @param flywheel the flywheel subsystem this command will control
    * @param drivetrainSubsystem the drivetrain subsystem used to get the distance to the hub
    */
-  public LimelightSetFlywheelVelocityCommand(
-      Flywheel flywheel, DrivetrainSubsystem drivetrainSubsystem) {
+  public LimelightSetFlywheelVelocityCommand(Flywheel flywheel, Drivetrain drivetrainSubsystem) {
     this.flywheel = flywheel;
     this.drivetrain = drivetrainSubsystem;
     addRequirements(this.flywheel);

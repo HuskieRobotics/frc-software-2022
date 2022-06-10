@@ -3,7 +3,7 @@ package frc.robot.commands;
 import static frc.robot.Constants.*;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.storage.Storage;
 
@@ -20,7 +20,7 @@ import frc.robot.subsystems.storage.Storage;
 public class WaitForShotCommand extends CommandBase {
   private final Storage storage;
   private final Flywheel flywheel;
-  private final DrivetrainSubsystem drivetrain;
+  private final Drivetrain drivetrain;
   private int iterationDelayCount;
 
   /**
@@ -30,7 +30,7 @@ public class WaitForShotCommand extends CommandBase {
    * @param flywheel the flywheel subsystem this command will control
    * @param drivetrain the drivetrain subsystem this command will control
    */
-  public WaitForShotCommand(Storage storage, Flywheel flywheel, DrivetrainSubsystem drivetrain) {
+  public WaitForShotCommand(Storage storage, Flywheel flywheel, Drivetrain drivetrain) {
     this.storage = storage;
     this.flywheel = flywheel;
     this.drivetrain = drivetrain;
