@@ -45,6 +45,9 @@ public class Robot extends LoggedRobot {
   private final Alert logWriteAlert =
       new Alert("Failed write to the log file. Data will NOT be logged", AlertType.ERROR);
 
+  public Robot() {
+    super(Constants.LOOP_PERIOD_SECS);
+  }
   /**
    * This method is run when the robot is first started up and should be used for any initialization
    * code.

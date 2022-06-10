@@ -1,8 +1,9 @@
 package frc.robot.commands;
 
+import static frc.robot.Constants.*;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.*;
 import frc.robot.subsystems.collector.Collector;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.subsystems.flywheel.Flywheel;
@@ -49,7 +50,8 @@ public class LimelightAlignOnMoveCommand extends CommandBase {
       DoubleSupplier translationYSupplier,
       DoubleSupplier rotationSupplier) {
     this.controller =
-        new PIDController(DrivetrainConstants.LIMELIGHT_P, DrivetrainConstants.LIMELIGHT_I, 0);
+        new PIDController(
+            DrivetrainConstants.LIMELIGHT_P, DrivetrainConstants.LIMELIGHT_I, 0, LOOP_PERIOD_SECS);
     this.drivetrain = drivetrain;
     this.flywheel = flywheel;
     this.collector = collector;

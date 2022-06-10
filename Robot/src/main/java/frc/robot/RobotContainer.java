@@ -39,6 +39,9 @@ import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.flywheel.FlywheelIO;
 import frc.robot.subsystems.flywheel.FlywheelIOTalonFX;
+import frc.robot.subsystems.pneumatics.Pneumatics;
+import frc.robot.subsystems.pneumatics.PneumaticsIO;
+import frc.robot.subsystems.pneumatics.PneumaticsIORev;
 import frc.robot.subsystems.secondary_arm.SecondaryArm;
 import frc.robot.subsystems.secondary_arm.SecondaryArmIO;
 import frc.robot.subsystems.secondary_arm.SecondaryArmSolenoid;
@@ -71,6 +74,7 @@ public class RobotContainer {
   private final Flywheel flywheel;
   private final SecondaryArm secondMechanism;
   private final Elevator elevator;
+  private final Pneumatics pneumatics;
 
   // A chooser for autonomous commands
   SendableChooser<Command> chooser = new SendableChooser<>();
@@ -86,6 +90,7 @@ public class RobotContainer {
       flywheel = new Flywheel(new FlywheelIOTalonFX());
       secondMechanism = new SecondaryArm(new SecondaryArmSolenoid());
       elevator = new Elevator(new ElevatorIOTalonFX());
+      pneumatics = new Pneumatics(new PneumaticsIORev());
     } else {
       drivetrain = new Drivetrain(new DrivetrainIO() {});
       storage = new Storage(new StorageIO() {});
@@ -93,6 +98,7 @@ public class RobotContainer {
       flywheel = new Flywheel(new FlywheelIO() {});
       secondMechanism = new SecondaryArm(new SecondaryArmIO() {});
       elevator = new Elevator(new ElevatorIO() {});
+      pneumatics = new Pneumatics(new PneumaticsIO() {});
     }
 
     // disable all telemetry in the LiveWindow to reduce the processing during each iteration
@@ -123,6 +129,7 @@ public class RobotContainer {
     storage.register();
     elevator.register();
     secondMechanism.register();
+    pneumatics.register();
 
     // Set up the default command for the drivetrain.
     // The joysticks' values map to percentage of the maximum velocities.
@@ -450,7 +457,11 @@ public class RobotContainer {
   private void configureAutoCommands() {
     ProfiledPIDController thetaController =
         new ProfiledPIDController(
-            AutoConstants.P_THETA_CONTROLLER, 0, 0, AutoConstants.THETA_CONTROLLER_CONSTRAINTS);
+            AutoConstants.P_THETA_CONTROLLER,
+            0,
+            0,
+            AutoConstants.THETA_CONTROLLER_CONSTRAINTS,
+            LOOP_PERIOD_SECS);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     PathPlannerTrajectory autoBlue01Path =

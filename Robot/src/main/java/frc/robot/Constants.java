@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  */
 public final class Constants {
 
+  public static final double LOOP_PERIOD_SECS = 0.02;
   private static final String CONSTRUCTOR_EXCEPTION = "constant class";
 
   public static Mode getMode() {
@@ -124,7 +125,16 @@ public final class Constants {
 
     /* Rev Hubs */
     public static final int POWER_DISTRIBUTION_HUB_ID = 21;
+  }
+
+  public static final class PneumaticsConstants {
+    private PneumaticsConstants() {
+      throw new IllegalStateException(CONSTRUCTOR_EXCEPTION);
+    }
+
     public static final int PNEUMATICS_HUB_ID = 20;
+    public static final int FLOW_SENSOR_CHANNEL = 0;
+    public static final int PRESSURE_SENSOR_CHANNEL = 1;
   }
 
   public static final class CollectorConstants {

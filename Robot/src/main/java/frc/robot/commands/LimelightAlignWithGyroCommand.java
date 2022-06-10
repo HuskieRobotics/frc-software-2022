@@ -1,8 +1,9 @@
 package frc.robot.commands;
 
+import static frc.robot.Constants.*;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.*;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 
 /**
@@ -30,7 +31,8 @@ public class LimelightAlignWithGyroCommand extends CommandBase {
    */
   public LimelightAlignWithGyroCommand(Drivetrain drivetrain) {
     this.controller =
-        new PIDController(DrivetrainConstants.LIMELIGHT_P, DrivetrainConstants.LIMELIGHT_I, 0);
+        new PIDController(
+            DrivetrainConstants.LIMELIGHT_P, DrivetrainConstants.LIMELIGHT_I, 0, LOOP_PERIOD_SECS);
     this.drivetrain = drivetrain;
 
     addRequirements(drivetrain);

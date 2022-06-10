@@ -1,8 +1,9 @@
 package frc.robot.commands;
 
+import static frc.robot.Constants.*;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
-import frc.robot.Constants.*;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 
 /**
@@ -29,7 +30,8 @@ public class LimelightAlignToTargetCommand extends PIDCommand {
     // the input to the rotational PID controller is the number of degrees between the rotation
     //  of the drivetrain and the center of the hub target; the setpoint is 0 (aimed perfectly)
     super(
-        new PIDController(DrivetrainConstants.LIMELIGHT_P, DrivetrainConstants.LIMELIGHT_I, 0),
+        new PIDController(
+            DrivetrainConstants.LIMELIGHT_P, DrivetrainConstants.LIMELIGHT_I, 0, LOOP_PERIOD_SECS),
         drivetrain::getLimelightX,
         0,
         output -> drivetrain.aim(0, 0, output),

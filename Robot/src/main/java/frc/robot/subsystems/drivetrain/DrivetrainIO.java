@@ -10,7 +10,10 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 /** Intake subsystem hardware interface. */
 public interface DrivetrainIO {
-  /** Contains all of the input data received from hardware. */
+  /**
+   * Contains all of the input data received from hardware. More can be logged when we have our own
+   * swerve library code with access to the motors and encoders
+   */
   public static class DrivetrainIOInputs implements LoggableInputs {
     double frontLeftDriveVelocity = 0.0;
     double frontLeftSteerAngle = 0.0;
