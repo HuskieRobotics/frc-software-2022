@@ -65,7 +65,7 @@ public class RobotContainer {
   private final Flywheel m_flywheel = new Flywheel();
   //private final Hood m_hood = new Hood();
   //private final LimelightMath m_limelight = new LimelightMath();
-  private final VisionBox m_visionBox = new VisionBox();
+  private final VisionBox m_visionBox = new VisionBox(m_drivetrainSubsystem);
   private final SecondaryArm m_secondMechanism = new SecondaryArm();
   private final Elevator m_elevator = new Elevator();
 

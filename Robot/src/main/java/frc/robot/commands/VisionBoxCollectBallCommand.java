@@ -2,8 +2,6 @@ package frc.robot.commands;
 
 import frc.robot.Constants.*;
 
-import javax.xml.crypto.dsig.Transform;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -26,8 +24,8 @@ import frc.robot.subsystems.VisionBox;
  */
 public class VisionBoxCollectBallCommand extends CommandBase {
 
-    private PIDController radialTranslationController;
-    private PIDController lateralTranslationController;
+    private PIDController xTranslationController;
+    private PIDController yTranslationController;
     private PIDController rotationalController;
     private DrivetrainSubsystem drivetrainSubsystem;
     private Collector collectorSubsystem;
@@ -37,19 +35,18 @@ public class VisionBoxCollectBallCommand extends CommandBase {
     private boolean initializationFailed;
     private int ticksWithoutBall;
     private int startingCargoCount;
+    private boolean initialFieldRelativeState;
     
     public VisionBoxCollectBallCommand(VisionBox visionBox, DrivetrainSubsystem drivetrain, Collector collector, Storage storage) {
-
-        radialTranslationController = new PIDController(VisionBoxConstants.RAIDAL_KP, VisionBoxConstants.RAIDAL_KI, VisionBoxConstants.RAIDAL_KD); // controls radial movement (to and from the ball)
-        lateralTranslationController = new PIDController(VisionBoxConstants.LATERAL_KP, VisionBoxConstants.LATERAL_KI, VisionBoxConstants.LATERAL_KD); // controls lateral movement (left/right from robot perspective) 
-        rotationalController = new PIDController(VisionBoxConstants.ROTATIONAL_KP, VisionBoxConstants.ROTATIONAL_KI, 0); // controls rotational movement (about robot center)
+        //X,Y and angle are all in robot-relative coordinate system (x is forwards and backwards, y is side to side, +angle is counterclockwise)
+        xTranslationController = new PIDController(VisionBoxConstants.X_KP, VisionBoxConstants.X_KI, VisionBoxConstants.X_KD); 
+        yTranslationController = new PIDController(VisionBoxConstants.Y_KP, VisionBoxConstants.Y_KI, VisionBoxConstants.Y_KD); 
+        rotationalController = new PIDController(VisionBoxConstants.ROTATIONAL_KP, VisionBoxConstants.ROTATIONAL_KI, 0); 
 
         drivetrainSubsystem = drivetrain;
         collectorSubsystem = collector;
         storageSubsystem = storage;
         visionBoxSubsystem = visionBox;
-
-        ticksWithoutBall = 0;
 
         addRequirements(drivetrainSubsystem);
         addRequirements(collectorSubsystem);
@@ -64,11 +61,15 @@ public class VisionBoxCollectBallCommand extends CommandBase {
     @Override
     public void initialize() {
         // critical to reset the PID controllers each time this command is initialized to reset any accumulated values due to non-zero I or D values
-        radialTranslationController.reset();
-        lateralTranslationController.reset();
+        xTranslationController.reset();
+        yTranslationController.reset();
         rotationalController.reset();
 
+        //reset ticksWithoutBall
+        ticksWithoutBall = 0;
+        
         //disable field relative drive
+        initialFieldRelativeState = drivetrainSubsystem.getFieldRelative();
         drivetrainSubsystem.disableFieldRelative();        
 
         // get first ball pose
@@ -84,7 +85,8 @@ public class VisionBoxCollectBallCommand extends CommandBase {
 
     /**
      * This method will be invoked every iteration of the Command Scheduler. It repeatedly
-     * instructs the drivetrain subsytem to move to the ideal location. Notably, it doesn't rely on visionBox to continue funcitoning, as a ball may blink out of view if it is covered by the intake 
+     * instructs the drivetrain subsytem to move to the ideal location. Notably, it doesn't rely on visionBox to continue funcitoning, as a ball may blink out of view if it is covered by the intake
+     * TODO: Update this to use WPILib HolonomicDriveController instead of doing the PIDs and aim code ourselves 
      */
     @Override
     public void execute() {
@@ -93,12 +95,14 @@ public class VisionBoxCollectBallCommand extends CommandBase {
 
         //get the angle from the robot to the ball
         Translation2d robotToBallTranslation = (new Transform2d(drivetrainSubsystem.getPose(), ballPose)).getTranslation(); //the translation from the robot to the ball
-        double robotToBallAngle = Math.atan2(robotToBallTranslation.getX(), robotToBallTranslation.getY()); //the angle from the robot to the ball relative to the robot our "x" and "y" values in atan2 are swapped as our "0" is the positive y axis not the positive x axis.
-
+        double robotToBallAngle = Math.atan2(robotToBallTranslation.getY(), robotToBallTranslation.getX()); //TODO: verify this math
         if (this.isAimed()) {
             //the robot is aimed, so the ideal location is the furthest point from the robot on a circle OVERSHOOT_DISTANCE_METERS from the ball
             Transform2d ballToIdealPoseTransform = new Transform2d(new Translation2d(VisionBoxConstants.OVERSHOOT_DISTANCE_METERS, new Rotation2d(robotToBallAngle)), new Rotation2d(0));
             idealPose = ballPose.plus(ballToIdealPoseTransform);
+
+            //deploy the collector once we're aimed to the target
+            collectorSubsystem.enableCollector();
         } else {
             //the robot isn't aimed, so the ideal location is the nearest point along a circle MINIMUM_UNAIMED_DISTANCE_METERS from the ball
             //using the angle from the robot to the ball, create a new transform from the ball position translated -MINIMUM_UNAIMED_DISTANCE_METERS meters backwards towards the robot
@@ -110,13 +114,21 @@ public class VisionBoxCollectBallCommand extends CommandBase {
         Transform2d distance = new Transform2d(drivetrainSubsystem.getPose(), idealPose);
 
         //calculate PIDs
-        double radialOutput = radialTranslationController.calculate(distance.getY());
-        double lateralOutput = lateralTranslationController.calculate(distance.getX());
+        double xOutput = xTranslationController.calculate(distance.getX());
+        double yOutput = yTranslationController.calculate(distance.getY());
         double rotationalOutput = rotationalController.calculate(robotToBallAngle);
+
+        // UNCOMMENT THIS IF THE ROBOT IS MOVING TOO QUICKLY WHEN "AIMING"
+        // final double UNAIMED_MOVEMENT_MULTIPLIER = .1;
+        // if (!isAimed()) { //if the robot isn't aimed, make it move really slowly as we don't trust horzontial angles too far from 0 deg
+        //     xOutput *= UNAIMED_MOVEMENT_MULTIPLIER;
+        //     yOutput *= UNAIMED_MOVEMENT_MULTIPLIER;
+        // }
+        
         //drive the robot
-        drivetrainSubsystem.aim(lateralOutput, radialOutput, rotationalOutput);
+        drivetrainSubsystem.aim(yOutput, xOutput, rotationalOutput);
     
-        //re-query the ball pose
+        //update the ball pose
         Transform2d ballTransform = visionBoxSubsystem.getFirstBallTransform2d();
 
         if (ballTransform != null) { //if a ball is found, check if it's the same ball
@@ -126,9 +138,10 @@ public class VisionBoxCollectBallCommand extends CommandBase {
 
             if (ballDisplacement < ticksWithoutBall * VisionBoxConstants.MAX_DISPLACEMENT_PER_TICK_METERS) { //ensure the ball didn't move more than acceptable
                 ballPose = newPose;
+                ticksWithoutBall = 0;
+            } else {
+                ticksWithoutBall++;
             }
-
-            ticksWithoutBall = 0;
 
         } else {
             ticksWithoutBall++;
@@ -144,20 +157,25 @@ public class VisionBoxCollectBallCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         //reenable field relative drive
-        drivetrainSubsystem.enableFieldRelative();
-        // TODO: do this
+        if (initialFieldRelativeState) {
+            drivetrainSubsystem.enableFieldRelative();
+        }
+
+        if (storageSubsystem.getNumberOfCargoInStorage() == 2) { //bring in the collector
+            collectorSubsystem.disableCollector();
+        }
 
     }
 
-    /**
-     * This method is invoked at the end of each Command Scheduler iteration. It returns true when
-     * the drivetrain is aimed, the flywheel is at the specified speed, and the robot is within
-     * optimal shooting distance.
-     */
+    public boolean isAimed() { //dont use visionbox for isaimed, instead use stored pose (as that is what we are tracking)
+        Translation2d robotToBallTranslation = (new Transform2d(drivetrainSubsystem.getPose(), ballPose)).getTranslation(); //the translation from the robot to the ball
+        
+        return robotToBallTranslation.getY() < VisionBoxConstants.AIM_TOLERANCE_METERS; //translational error approach (require to be within a certain horizontal distance)
 
-    public boolean isAimed() {
-        return visionBoxSubsystem.getFirstBallTx() < Math.toRadians(VisionBoxConstants.AIM_TOLERANCE_DEGREES);
+        // double robotToBallAngle = Math.atan2(robotToBallTranslation.getY(), robotToBallTranslation.getX()); //rotational error approach (require to be within a certain degree range)
+        // return robotToBallAngle < Math.toRadians(VisionBoxConstants.AIM_TOLERANCE_DEGREES);
     }
+    
     @Override
     public boolean isFinished() {
         return initializationFailed || 
