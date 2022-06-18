@@ -119,14 +119,14 @@ public class VisionBoxCollectBallCommand extends CommandBase {
         double rotationalOutput = rotationalController.calculate(robotToBallAngle);
 
         // UNCOMMENT THIS IF THE ROBOT IS MOVING TOO QUICKLY WHEN "AIMING"
-        // final double UNAIMED_MOVEMENT_MULTIPLIER = .1;
+        // final double UNAIMED_MOVEMENT_MULTIPLIER = .66;
         // if (!isAimed()) { //if the robot isn't aimed, make it move really slowly as we don't trust horzontial angles too far from 0 deg
         //     xOutput *= UNAIMED_MOVEMENT_MULTIPLIER;
         //     yOutput *= UNAIMED_MOVEMENT_MULTIPLIER;
         // }
         
         //drive the robot
-        drivetrainSubsystem.aim(yOutput, xOutput, rotationalOutput);
+        drivetrainSubsystem.aim(xOutput, yOutput, rotationalOutput);
     
         //update the ball pose
         Transform2d ballTransform = visionBoxSubsystem.getFirstBallTransform2d();
@@ -160,10 +160,11 @@ public class VisionBoxCollectBallCommand extends CommandBase {
         if (initialFieldRelativeState) {
             drivetrainSubsystem.enableFieldRelative();
         }
-
-        if (storageSubsystem.getNumberOfCargoInStorage() == 2) { //bring in the collector
-            collectorSubsystem.disableCollector();
-        }
+        collectorSubsystem.disableCollector();
+        drivetrainSubsystem.stop();
+        // if (storageSubsystem.getNumberOfCargoInStorage() == 2) { //bring in the collector
+        //     collectorSubsystem.disableCollector();
+        // }
 
     }
 

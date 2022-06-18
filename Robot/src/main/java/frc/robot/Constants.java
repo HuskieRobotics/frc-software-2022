@@ -183,19 +183,20 @@ public final class Constants {
   }
 
   public static class VisionBoxConstants {
-    public static final double CAMERA_HEIGHT_METERS = .6; //TODO: remeasure these when the camera is on the robot
-    public static final double CAMERA_ANGLE_DEGREES = 35;
-    public static final double X_KP = 2.2956; //stolen from autoconstants, may be horribly wrong
+    public static final double CAMERA_HEIGHT_METERS = .75184; //TODO: remeasure these when the camera is on the robot
+    public static final double CAMERA_ANGLE_DEGREES = 32.5;
+    public static final double X_KP = -0.8; //stolen from autoconstants, may be horribly wrong
     public static final double X_KI = 0;
     public static final double X_KD = 0;
-    public static final double Y_KP = 2.2956;
+    public static final double Y_KP = -0.8;
     public static final double Y_KI = 0;
+
     public static final double Y_KD = 0;
-    public static final double ROTATIONAL_KP = 11.4; //stolen from drivetrain constants limelight PID but converted from deg to rad, may be horribly wrong
-    public static final double ROTATIONAL_KI = 28.6;
+    public static final double ROTATIONAL_KP = -1.5   ; //stolen from drivetrain constants limelight PID but converted from deg to rad, may be horribly wrong
+    public static final double ROTATIONAL_KI = 0;
     public static final double ROTATIONAL_KD = 0;
     public static final double AIM_TOLERANCE_DEGREES = 5;
-    public static final double AIM_TOLERANCE_METERS = .2;
+    public static final double AIM_TOLERANCE_METERS = .33;
     public static final double MINIMUM_UNAIMED_DISTANCE_METERS = 1;
     public static final double OVERSHOOT_DISTANCE_METERS = .5;
     public static final double MAX_DISPLACEMENT_PER_TICK_METERS = 1; //this is way too high. should be (relative max ball velocity * .2s)

@@ -55,6 +55,9 @@ public class SortStorageCommand extends CommandBase {
     public void execute() {
         if (!this.m_storage.isShooterSensorUnblocked()) {
             indexingDelay++;
+            if(indexingDelay == 1) {
+                this.m_storage.enableStorage();
+            }
             if(indexingDelay == StorageConstants.INDEXING_FORWARD_DELAY) {
                 this.m_storage.setStoragePower(StorageConstants.OUTTAKE_POWER);
             }

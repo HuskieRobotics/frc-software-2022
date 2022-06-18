@@ -47,6 +47,8 @@ public class Storage extends SubsystemBase {
         shooterSensor1 = new DigitalInput(StorageConstants.SHOOTER_SENSOR);
         addChild("Shooter Sensor 1", shooterSensor1);
 
+        Shuffleboard.getTab("MAIN").addBoolean("Collector Unblocked", this::isCollectorSensorUnblocked);
+        Shuffleboard.getTab("MAIN").addBoolean("Shooter Unblocked", this::isShooterSensorUnblocked);
         
         if(COMMAND_LOGGING) {
             Shuffleboard.getTab("Storage").add("Sort Storage", new SortStorageCommand(this));
@@ -174,7 +176,7 @@ public class Storage extends SubsystemBase {
     public int getNumberOfCargoInStorage() {
         if (!isCollectorSensorUnblocked() && !isShooterSensorUnblocked()) { //both sensors are blocked
             return 2;
-        } else if (!isCollectorSensorUnblocked() || !isShooterSensorUnblocked()) { // one sensor or the other is blocked
+        } else if (isCollectorSensorUnblocked() && !isShooterSensorUnblocked()) { // one sensor or the other is blocked
             return 1;
         } else { //no sensors are blocked
             return 0;

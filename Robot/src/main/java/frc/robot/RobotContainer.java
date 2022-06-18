@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -277,6 +278,12 @@ public class RobotContainer {
 
     xboxButtons[BUTTON_B].whenReleased(
         new InstantCommand(() -> m_collector.setCollectorPower(0), m_collector));
+
+    joystickButtons0[2].whenPressed(
+      new ParallelRaceGroup(
+      new SortStorageCommand(m_storage),
+      new VisionBoxCollectBallCommand(m_visionBox, m_drivetrainSubsystem, m_collector, m_storage)
+    ));
   }
 
   private void configureShooterButtons() {
