@@ -847,6 +847,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 return m_chassisSpeeds.vyMetersPerSecond;
         }
 
+        public double getVelocityRotational() {
+                return m_chassisSpeeds.omegaRadiansPerSecond;
+        }
+
         /**
          * Enable the auto aim and shoot mode. In this mode, the robot moves based on the joystick
          * inputs. If the hub is visible, the drivetrain will rotate to stay aimed at the hub; if
