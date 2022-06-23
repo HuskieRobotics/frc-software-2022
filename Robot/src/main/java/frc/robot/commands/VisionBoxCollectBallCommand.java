@@ -2,11 +2,12 @@ package frc.robot.commands;
 
 import frc.robot.Constants.*;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -24,9 +25,9 @@ import frc.robot.subsystems.VisionBox;
  */
 public class VisionBoxCollectBallCommand extends CommandBase {
 
-    private PIDController xTranslationController;
-    private PIDController yTranslationController;
-    private PIDController rotationalController;
+    private ProfiledPIDController xTranslationController;
+    private ProfiledPIDController yTranslationController;
+    private ProfiledPIDController rotationalController;
     private DrivetrainSubsystem drivetrainSubsystem;
     private Collector collectorSubsystem;
     private Storage storageSubsystem;
@@ -39,9 +40,9 @@ public class VisionBoxCollectBallCommand extends CommandBase {
     
     public VisionBoxCollectBallCommand(VisionBox visionBox, DrivetrainSubsystem drivetrain, Collector collector, Storage storage) {
         //X,Y and angle are all in robot-relative coordinate system (x is forwards and backwards, y is side to side, +angle is counterclockwise)
-        xTranslationController = new PIDController(VisionBoxConstants.X_KP, VisionBoxConstants.X_KI, VisionBoxConstants.X_KD); 
-        yTranslationController = new PIDController(VisionBoxConstants.Y_KP, VisionBoxConstants.Y_KI, VisionBoxConstants.Y_KD); 
-        rotationalController = new PIDController(VisionBoxConstants.ROTATIONAL_KP, VisionBoxConstants.ROTATIONAL_KI, 0); 
+        xTranslationController = new ProfiledPIDController(VisionBoxConstants.X_KP, VisionBoxConstants.X_KI, VisionBoxConstants.X_KD, new TrapezoidProfile.Constraints(5, 10));
+        yTranslationController = new ProfiledPIDController(VisionBoxConstants.Y_KP, VisionBoxConstants.Y_KI, VisionBoxConstants.Y_KD, new TrapezoidProfile.Constraints(5, 10)); 
+        rotationalController = new ProfiledPIDController(VisionBoxConstants.ROTATIONAL_KP, VisionBoxConstants.ROTATIONAL_KI, 0, new TrapezoidProfile.Constraints(5, 10)); 
 
         drivetrainSubsystem = drivetrain;
         collectorSubsystem = collector;
@@ -61,9 +62,9 @@ public class VisionBoxCollectBallCommand extends CommandBase {
     @Override
     public void initialize() {
         // critical to reset the PID controllers each time this command is initialized to reset any accumulated values due to non-zero I or D values
-        xTranslationController.reset();
-        yTranslationController.reset();
-        rotationalController.reset();
+        xTranslationController.reset(new TrapezoidProfile.State(0, drivetrainSubsystem.getVelocityX()));
+        yTranslationController.reset(new TrapezoidProfile.State(0, drivetrainSubsystem.getVelocityY()));
+        rotationalController.reset(new TrapezoidProfile.State(0, drivetrainSubsystem.getVelocityRotational()));
 
         //reset ticksWithoutBall
         ticksWithoutBall = 0;
@@ -86,7 +87,6 @@ public class VisionBoxCollectBallCommand extends CommandBase {
     /**
      * This method will be invoked every iteration of the Command Scheduler. It repeatedly
      * instructs the drivetrain subsytem to move to the ideal location. Notably, it doesn't rely on visionBox to continue funcitoning, as a ball may blink out of view if it is covered by the intake
-     * TODO: Update this to use WPILib HolonomicDriveController instead of doing the PIDs and aim code ourselves 
      */
     @Override
     public void execute() {
@@ -114,9 +114,9 @@ public class VisionBoxCollectBallCommand extends CommandBase {
         Transform2d distance = new Transform2d(drivetrainSubsystem.getPose(), idealPose);
 
         //calculate PIDs
-        double xOutput = xTranslationController.calculate(distance.getX());
-        double yOutput = yTranslationController.calculate(distance.getY());
-        double rotationalOutput = rotationalController.calculate(robotToBallAngle);
+        double xOutput = xTranslationController.calculate(distance.getX(), new TrapezoidProfile.State(0, VisionBoxConstants.Y_MAX_VELOCITY)); //end moving at max velocity in the x direction
+        double yOutput = yTranslationController.calculate(distance.getY(), new TrapezoidProfile.State(0, 0)); //end without strafing
+        double rotationalOutput = rotationalController.calculate(robotToBallAngle, new TrapezoidProfile.State(0, 0)); //end without rotating
 
         // UNCOMMENT THIS IF THE ROBOT IS MOVING TOO QUICKLY WHEN "AIMING"
         // final double UNAIMED_MOVEMENT_MULTIPLIER = .66;
