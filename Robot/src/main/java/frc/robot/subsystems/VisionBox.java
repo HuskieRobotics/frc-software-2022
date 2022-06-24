@@ -1,13 +1,12 @@
 package frc.robot.subsystems;
 
-import java.util.Arrays;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -39,7 +38,6 @@ public class VisionBox extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-        // updateBallColorConstants();
 
         // show ball and robot pose on map (COMMENT THIS OUT WHEN DONE WITH TESTING)
         // if (drivetrainSubsystem.getPose() != null && getFirstBallTransform2d() != null) {
@@ -129,11 +127,13 @@ public class VisionBox extends SubsystemBase {
      * Set constants for visionBox based on alliance color in FMS
      */
     public void updateBallColorConstants() {
-        if (true) { //check alliance color //NetworkTableInstance.getDefault().getTable("FMSInfo").getEntry("IsRedAlliance").getBoolean(false)
+        configNT.getEntry("debugMode").setBoolean(false);
+
+        if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
             //RED BALL CONSTANTS
             configNT.getEntry("lowerHue").setDouble(159);
-            configNT.getEntry("lowerSaturation").setDouble(127);
-            configNT.getEntry("lowerValue").setDouble(25);
+            configNT.getEntry("lowerSaturation").setDouble(109);
+            configNT.getEntry("lowerValue").setDouble(120);
             configNT.getEntry("upperHue").setDouble(9);
             configNT.getEntry("upperSaturation").setDouble(255);
             configNT.getEntry("upperValue").setDouble(255);

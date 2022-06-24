@@ -40,9 +40,9 @@ public class VisionBoxCollectBallCommand extends CommandBase {
     
     public VisionBoxCollectBallCommand(VisionBox visionBox, DrivetrainSubsystem drivetrain, Collector collector, Storage storage) {
         //X,Y and angle are all in robot-relative coordinate system (x is forwards and backwards, y is side to side, +angle is counterclockwise)
-        xTranslationController = new ProfiledPIDController(VisionBoxConstants.X_KP, VisionBoxConstants.X_KI, VisionBoxConstants.X_KD, new TrapezoidProfile.Constraints(5, 10));
-        yTranslationController = new ProfiledPIDController(VisionBoxConstants.Y_KP, VisionBoxConstants.Y_KI, VisionBoxConstants.Y_KD, new TrapezoidProfile.Constraints(5, 10)); 
-        rotationalController = new ProfiledPIDController(VisionBoxConstants.ROTATIONAL_KP, VisionBoxConstants.ROTATIONAL_KI, 0, new TrapezoidProfile.Constraints(5, 10)); 
+        xTranslationController = new ProfiledPIDController(VisionBoxConstants.X_KP, VisionBoxConstants.X_KI, VisionBoxConstants.X_KD, new TrapezoidProfile.Constraints(VisionBoxConstants.X_MAX_VELOCITY, VisionBoxConstants.X_MAX_ACCELERATION));
+        yTranslationController = new ProfiledPIDController(VisionBoxConstants.Y_KP, VisionBoxConstants.Y_KI, VisionBoxConstants.Y_KD, new TrapezoidProfile.Constraints(VisionBoxConstants.Y_MAX_VELOCITY, VisionBoxConstants.Y_MAX_ACCELERATION)); 
+        rotationalController = new ProfiledPIDController(VisionBoxConstants.ROTATIONAL_KP, VisionBoxConstants.ROTATIONAL_KI, 0, new TrapezoidProfile.Constraints(VisionBoxConstants.ROTATIONAL_MAX_VELOCITY, VisionBoxConstants.ROTATIONAL_MAX_ACCELERATION)); 
 
         drivetrainSubsystem = drivetrain;
         collectorSubsystem = collector;
@@ -61,6 +61,8 @@ public class VisionBoxCollectBallCommand extends CommandBase {
      */
     @Override
     public void initialize() {
+        visionBoxSubsystem.updateBallColorConstants();
+
         // critical to reset the PID controllers each time this command is initialized to reset any accumulated values due to non-zero I or D values
         xTranslationController.reset(new TrapezoidProfile.State(0, drivetrainSubsystem.getVelocityX()));
         yTranslationController.reset(new TrapezoidProfile.State(0, drivetrainSubsystem.getVelocityY()));
@@ -77,6 +79,7 @@ public class VisionBoxCollectBallCommand extends CommandBase {
         Transform2d ballTransform = visionBoxSubsystem.getFirstBallTransform2d();
         initializationFailed = ballTransform == null; // if the the first ball doesn't exist, fail starting the command
 
+        if (initializationFailed) return;
         // get the first ball Pose2d relative to the field
         ballPose = drivetrainSubsystem.getPose().plus(ballTransform);
 
@@ -90,6 +93,7 @@ public class VisionBoxCollectBallCommand extends CommandBase {
      */
     @Override
     public void execute() {
+        if (initializationFailed) return;
         //calculate the ideal location to PID to, either the ball if the robot is aimed at it, or MINIMUM_UNAIMED_DISTANCE_METERS meters from the ball if it isn't.
         Pose2d idealPose;
 
@@ -114,7 +118,7 @@ public class VisionBoxCollectBallCommand extends CommandBase {
         Transform2d distance = new Transform2d(drivetrainSubsystem.getPose(), idealPose);
 
         //calculate PIDs
-        double xOutput = xTranslationController.calculate(distance.getX(), new TrapezoidProfile.State(0, VisionBoxConstants.Y_MAX_VELOCITY)); //end moving at max velocity in the x direction
+        double xOutput = xTranslationController.calculate(distance.getX(), new TrapezoidProfile.State(0, VisionBoxConstants.X_MAX_VELOCITY)); //end moving at max velocity in the x direction
         double yOutput = yTranslationController.calculate(distance.getY(), new TrapezoidProfile.State(0, 0)); //end without strafing
         double rotationalOutput = rotationalController.calculate(robotToBallAngle, new TrapezoidProfile.State(0, 0)); //end without rotating
 
@@ -176,12 +180,18 @@ public class VisionBoxCollectBallCommand extends CommandBase {
         // double robotToBallAngle = Math.atan2(robotToBallTranslation.getY(), robotToBallTranslation.getX()); //rotational error approach (require to be within a certain degree range)
         // return robotToBallAngle < Math.toRadians(VisionBoxConstants.AIM_TOLERANCE_DEGREES);
     }
+
+    public boolean isAtBall() {
+        double robotToBallDistance = (new Transform2d(drivetrainSubsystem.getPose(), ballPose)).getTranslation().getNorm();
+        return robotToBallDistance < VisionBoxConstants.AT_BALL_THRESHOLD_METERS;
+    }
     
     @Override
     public boolean isFinished() {
         return initializationFailed || 
         storageSubsystem.getNumberOfCargoInStorage() > startingCargoCount ||
-        storageSubsystem.getNumberOfCargoInStorage() == 2;
+        storageSubsystem.getNumberOfCargoInStorage() == 2 ||
+        isAtBall();
     }
 
 }

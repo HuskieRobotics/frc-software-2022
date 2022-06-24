@@ -188,23 +188,25 @@ public final class Constants {
     public static final double X_KP = -0.8; //stolen from autoconstants, may be horribly wrong
     public static final double X_KI = 0;
     public static final double X_KD = 0;
-    public static final double X_MAX_ACCELERATION = 2; //TODO verify, adapted from AutoConstants
+    public static final double X_MAX_ACCELERATION = 10; //TODO verify, adapted from AutoConstants
     public static final double X_MAX_VELOCITY = 5; //TODO verify, adapted from AutoConstants
     public static final double Y_KP = -0.8;
     public static final double Y_KI = 0;
     public static final double Y_KD = 0;
-    public static final double Y_MAX_ACCELERATION = 3; //TODO verify, adapted from AutoConstants
+    public static final double Y_MAX_ACCELERATION = 15; //TODO verify, adapted from AutoConstants
     public static final double Y_MAX_VELOCITY = 3; //TODO verify, adapted from AutoConstants
-    public static final double ROTATIONAL_KP = -1.5; //stolen from drivetrain constants limelight PID but converted from deg to rad, may be horribly wrong
+    public static final double ROTATIONAL_KP = -6
+    ; //stolen from drivetrain constants limelight PID but converted from deg to rad, may be horribly wrong
     public static final double ROTATIONAL_KI = 0;
     public static final double ROTATIONAL_KD = 0;
     public static final double ROTATIONAL_MAX_ACCELERATION = 2.0*Math.PI; //TODO verify, adapted from AutoConstants
-    public static final double ROTATIONAL_MAX_VELOCITY = 1.5; //TODO verify, adapted from DrivetrainSubsystem.aim()
+    public static final double ROTATIONAL_MAX_VELOCITY = Math.PI; //TODO verify, adapted from DrivetrainSubsystem.aim()
     public static final double AIM_TOLERANCE_DEGREES = 5;
     public static final double AIM_TOLERANCE_METERS = .33;
-    public static final double MINIMUM_UNAIMED_DISTANCE_METERS = 1;
-    public static final double OVERSHOOT_DISTANCE_METERS = .5;
-    public static final double MAX_DISPLACEMENT_PER_TICK_METERS = 1; //this is way too high. should be (relative max ball velocity * .2s)
+    public static final double MINIMUM_UNAIMED_DISTANCE_METERS = 1; //about 3ft
+    public static final double OVERSHOOT_DISTANCE_METERS = .6; //about 2ft
+    public static final double MAX_DISPLACEMENT_PER_TICK_METERS = .036; //this is way too high. should be (relative max ball velocity * .02s)
+    public static final double AT_BALL_THRESHOLD_METERS = .1;
 
   }
 

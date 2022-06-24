@@ -413,6 +413,7 @@ public class RobotContainer {
     m_storage.disableStorage();
     m_flywheel.stopFlywheel();
     m_collector.disableCollector();
+    m_visionBox.updateBallColorConstants();
   }
 
   private void configureAutoCommands() {
