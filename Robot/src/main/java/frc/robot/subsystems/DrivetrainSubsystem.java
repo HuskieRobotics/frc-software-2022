@@ -12,7 +12,11 @@ import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
+
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -20,6 +24,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -127,11 +132,35 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private static final boolean TESTING = false;
   private static final boolean DEBUGGING = false;
 
+  private final SwerveDrivePoseEstimator m_poseEstimator;
+  private Timer m_timer;
+/* new SwerveDrivePoseEstimator(
+      new Rotation2d(this.pigeon.getYaw()),
+      this.getPose(),
+      kinematics,
+      new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.02, 0.02, 0.01, 0.02, 0.02), // State measurement standard deviations. X, Y, theta.
+      new MatBuilder<>(Nat.N1(), Nat.N1()).fill(0.02, 0.02, 0.01), // Local measurement standard deviations. Left encoder, right encoder, gyro.
+      new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.1, 0.1, 0.01)); // Global measurement standard deviations. X, Y, and theta.
+*/
   /** Constructs a new DrivetrainSubsystem object. */
   public DrivetrainSubsystem() {
+    this.pigeon = new Pigeon2(PIGEON_ID);
+    this.m_timer = new Timer();
+    this.startTimer();
+    
+    this.m_poseEstimator =   //FIXME tune standard deviations(current are from example), maybe add time
+    new SwerveDrivePoseEstimator(
+      new Rotation2d(this.pigeon.getYaw()), //Current Rotation 
+      this.getPose(), //Starting Pose
+      kinematics, //kinematiucs object for drivetrains
+      VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
+      VecBuilder.fill(Units.degreesToRadians(0.01)),
+      VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30)),
+      this.m_timer.get());
+      
     this.centerGravity = new Translation2d(); // default to (0,0)
 
-    this.pigeon = new Pigeon2(PIGEON_ID);
+    
     this.zeroGyroscope();
 
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
@@ -401,7 +430,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
    */
   @Override
   public void periodic() {
-    odometry.update(
+    m_poseEstimator.updateWithTime(
+        this.m_timer.get(),
         this.getGyroscopeRotation(),
         new SwerveModuleState(
             frontLeftModule.getDriveVelocity(), new Rotation2d(frontLeftModule.getSteerAngle())),
@@ -411,7 +441,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
             backLeftModule.getDriveVelocity(), new Rotation2d(backLeftModule.getSteerAngle())),
         new SwerveModuleState(
             backRightModule.getDriveVelocity(), new Rotation2d(backRightModule.getSteerAngle())));
-  }
+  
+    if(this.isLimelightTargetVisible()){
+      m_poseEstimator.addVisionMeasurement(
+        this.getVisionPose2d(),
+        this.m_timer.get());
+    }
+  
+          }
 
   /**
    * Sets each of the swerve modules based on the specified corresponding swerve module state.
@@ -863,5 +900,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
    */
   public boolean isXstance() {
     return isXstance;
+  }
+
+  public void startTimer(){
+    this.m_timer.reset();
+    this.m_timer.start();
+  }
+  
+  public Pose2d getVisionPose2d(){//FIXME add logic to get pose
+    return new Pose2d();
   }
 }
